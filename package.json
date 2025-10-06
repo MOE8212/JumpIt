@@ -1,0 +1,23 @@
+{
+  "name": "jumpit-game",
+  "version": "1.0.0",
+  "description": "JumpIt - Das ultimative Werewolf Jump 'n Run Spiel",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 3000",
+    "dev": "python -m http.server 3000"
+  },
+  "keywords": [
+    "game",
+    "jump-and-run",
+    "werewolf",
+    "phaser",
+    "html5"
+  ],
+  "author": "JumpIt Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/jumpit-game.git"
+  }
+}

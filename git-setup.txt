@@ -1,0 +1,24 @@
+# Git Setup Befehle für JumpIt Game
+
+# 1. Git konfigurieren (ersetzen Sie mit Ihren Daten)
+git config --global user.name "Ihr Name"
+git config --global user.email "ihre.email@beispiel.com"
+
+# 2. Repository initialisieren
+git init
+
+# 3. Alle Dateien hinzufügen
+git add .
+
+# 4. Ersten Commit erstellen
+git commit -m "Initial commit: JumpIt game ready for deployment"
+
+# 5. GitHub Repository erstellen und verbinden
+# (Gehen Sie zu github.com und erstellen Sie ein neues Repository)
+git remote add origin https://github.com/IHR-USERNAME/jumpit-game.git
+git branch -M main
+git push -u origin main
+
+# 6. Vercel Deployment
+# Gehen Sie zu vercel.com und verbinden Sie Ihr GitHub Repository
+
