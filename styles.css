@@ -502,6 +502,7 @@ body {
     left: 50%;
     transform: translateX(-50%);
     pointer-events: auto;
+    z-index: 1000;
 }
 
 .control-row {
@@ -523,9 +524,12 @@ body {
         0 6px 20px rgba(0, 0, 0, 0.4),
         0 0 15px rgba(255, 255, 255, 0.3);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.1s;
     touch-action: manipulation;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .control-btn:active {

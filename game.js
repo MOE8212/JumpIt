@@ -75,6 +75,9 @@ window.addEventListener('load', () => {
     
     // Initialize shop system
     updateShopDisplay();
+    
+    // Add fullscreen button for mobile
+    addFullscreenButton();
 });
 
 // Create global background music that starts immediately
@@ -995,6 +998,76 @@ function formatTime(seconds) {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Fullscreen functionality
+function addFullscreenButton() {
+    // Only add on mobile devices
+    if (window.innerWidth <= 768) {
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.id = 'fullscreen-btn';
+        fullscreenBtn.innerHTML = '⛶ Fullscreen';
+        fullscreenBtn.style.cssText = `
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border: 2px solid #fff;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+        `;
+        
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+        document.body.appendChild(fullscreenBtn);
+    }
+}
+
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        // Enter fullscreen
+        document.documentElement.requestFullscreen().catch(err => {
+            console.log('Fullscreen not supported:', err);
+            // Fallback: hide browser UI elements
+            hideMobileUI();
+        });
+    } else {
+        // Exit fullscreen
+        document.exitFullscreen();
+    }
+}
+
+function hideMobileUI() {
+    // Hide mobile browser UI by adding viewport meta tag
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (viewport) {
+        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover');
+    }
+    
+    // Add CSS to hide browser UI
+    const style = document.createElement('style');
+    style.textContent = `
+        body {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        #game {
+            width: 100vw !important;
+            height: 100vh !important;
+            border: none !important;
+            border-radius: 0 !important;
+        }
+    `;
+    document.head.appendChild(style);
 }
 
 function setupMobileControls() {
