@@ -133,6 +133,11 @@ class AuthManager {
         console.log('Current user set:', this.currentUser);
         console.log('isLoggedIn set to:', this.isLoggedIn);
         
+        // Track user login
+        if (window.adminPanel) {
+            window.adminPanel.trackUserLogin(username);
+        }
+        
         // Close modal and start game
         console.log('Closing modal and starting game...');
         this.closeAuthModal();
@@ -157,6 +162,11 @@ class AuthManager {
             
             console.log('Current user set:', this.currentUser);
             console.log('isLoggedIn set to:', this.isLoggedIn);
+            
+            // Track user login
+            if (window.adminPanel) {
+                window.adminPanel.trackUserLogin(username);
+            }
             
             // Close modal and start game
             console.log('Closing modal and starting game...');
@@ -304,6 +314,220 @@ class AuthManager {
 
 // Create global auth manager instance
 window.authManager = new AuthManager();
+
+// Admin Panel System
+class AdminPanel {
+    constructor() {
+        this.isAdmin = false;
+        this.adminPassword = 'admin123'; // In production, use proper authentication
+        this.init();
+    }
+    
+    init() {
+        console.log('Admin panel initialized');
+        
+        // Check if user is admin (for demo purposes, everyone can access)
+        this.isAdmin = true;
+        
+        // Set up event listeners
+        this.setupEventListeners();
+        
+        // Track page views
+        this.trackPageView();
+    }
+    
+    setupEventListeners() {
+        // Admin button event listener
+        const adminBtn = document.getElementById('home-admin-btn');
+        if (adminBtn) {
+            adminBtn.addEventListener('click', () => {
+                console.log('Admin panel button clicked');
+                this.showAdminPanel();
+            });
+        }
+        
+        // Close admin panel
+        const closeAdminBtn = document.getElementById('close-admin');
+        if (closeAdminBtn) {
+            closeAdminBtn.addEventListener('click', () => {
+                this.hideAdminPanel();
+            });
+        }
+    }
+    
+    trackPageView() {
+        const pageViews = this.getPageViews();
+        pageViews.count++;
+        pageViews.lastVisit = new Date().toISOString();
+        localStorage.setItem('jumpit_page_views', JSON.stringify(pageViews));
+        console.log('Page view tracked:', pageViews.count);
+    }
+    
+    getPageViews() {
+        const saved = localStorage.getItem('jumpit_page_views');
+        return saved ? JSON.parse(saved) : { count: 0, lastVisit: null };
+    }
+    
+    trackUserLogin(username) {
+        const userStats = this.getUserStats();
+        if (!userStats[username]) {
+            userStats[username] = {
+                loginCount: 0,
+                gameCount: 0,
+                firstLogin: new Date().toISOString(),
+                lastLogin: null
+            };
+        }
+        
+        userStats[username].loginCount++;
+        userStats[username].lastLogin = new Date().toISOString();
+        localStorage.setItem('jumpit_user_stats', JSON.stringify(userStats));
+        console.log('User login tracked for:', username);
+    }
+    
+    trackGameSession(username) {
+        const userStats = this.getUserStats();
+        if (!userStats[username]) {
+            userStats[username] = {
+                loginCount: 0,
+                gameCount: 0,
+                firstLogin: new Date().toISOString(),
+                lastLogin: null
+            };
+        }
+        
+        userStats[username].gameCount++;
+        localStorage.setItem('jumpit_user_stats', JSON.stringify(userStats));
+        
+        // Track game session
+        const gameSessions = this.getGameSessions();
+        gameSessions.push({
+            username: username,
+            timestamp: new Date().toISOString(),
+            sessionId: Date.now()
+        });
+        
+        // Keep only last 50 sessions
+        if (gameSessions.length > 50) {
+            gameSessions.splice(0, gameSessions.length - 50);
+        }
+        
+        localStorage.setItem('jumpit_game_sessions', JSON.stringify(gameSessions));
+        console.log('Game session tracked for:', username);
+    }
+    
+    getUserStats() {
+        const saved = localStorage.getItem('jumpit_user_stats');
+        return saved ? JSON.parse(saved) : {};
+    }
+    
+    getGameSessions() {
+        const saved = localStorage.getItem('jumpit_game_sessions');
+        return saved ? JSON.parse(saved) : [];
+    }
+    
+    showAdminPanel() {
+        if (!this.isAdmin) {
+            alert('Zugriff verweigert!');
+            return;
+        }
+        
+        const modal = document.getElementById('admin-modal');
+        if (modal) {
+            this.updateAdminStats();
+            modal.classList.remove('hidden');
+            console.log('Admin panel shown');
+        }
+    }
+    
+    hideAdminPanel() {
+        const modal = document.getElementById('admin-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            console.log('Admin panel hidden');
+        }
+    }
+    
+    updateAdminStats() {
+        // Update general stats
+        const pageViews = this.getPageViews();
+        const userStats = this.getUserStats();
+        const gameSessions = this.getGameSessions();
+        
+        document.getElementById('total-page-views').textContent = pageViews.count;
+        document.getElementById('total-users').textContent = Object.keys(userStats).length;
+        document.getElementById('total-games-played').textContent = gameSessions.length;
+        
+        // Update users list
+        this.updateUsersList(userStats);
+        
+        // Update game sessions list
+        this.updateGameSessionsList(gameSessions);
+    }
+    
+    updateUsersList(userStats) {
+        const usersList = document.getElementById('users-list');
+        if (!usersList) return;
+        
+        usersList.innerHTML = '';
+        
+        const sortedUsers = Object.entries(userStats)
+            .sort(([,a], [,b]) => b.loginCount - a.loginCount);
+        
+        sortedUsers.forEach(([username, stats]) => {
+            const userItem = document.createElement('div');
+            userItem.className = 'user-item';
+            userItem.innerHTML = `
+                <div class="user-name">${username}</div>
+                <div class="user-stats">
+                    ${stats.loginCount}x eingeloggt | ${stats.gameCount} Spiele
+                </div>
+            `;
+            usersList.appendChild(userItem);
+        });
+        
+        if (sortedUsers.length === 0) {
+            usersList.innerHTML = '<p style="color: #ccc; text-align: center;">Keine Benutzer gefunden</p>';
+        }
+    }
+    
+    updateGameSessionsList(gameSessions) {
+        const sessionsList = document.getElementById('game-sessions-list');
+        if (!sessionsList) return;
+        
+        sessionsList.innerHTML = '';
+        
+        // Show last 20 sessions
+        const recentSessions = gameSessions.slice(-20).reverse();
+        
+        recentSessions.forEach(session => {
+            const sessionItem = document.createElement('div');
+            sessionItem.className = 'session-item';
+            
+            const date = new Date(session.timestamp);
+            const timeString = date.toLocaleString('de-DE', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            sessionItem.innerHTML = `
+                <div class="session-info">${session.username}</div>
+                <div class="session-stats">${timeString}</div>
+            `;
+            sessionsList.appendChild(sessionItem);
+        });
+        
+        if (recentSessions.length === 0) {
+            sessionsList.innerHTML = '<p style="color: #ccc; text-align: center;">Keine Spiel-Sessions gefunden</p>';
+        }
+    }
+}
+
+// Create global admin panel instance
+window.adminPanel = new AdminPanel();
 
 // Leaderboard display
 function showLeaderboard() {

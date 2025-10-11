@@ -673,6 +673,11 @@ function create() {
     
     console.log('Game started at:', startTime);
     
+    // Track game session
+    if (window.authManager && window.authManager.isLoggedIn && window.adminPanel) {
+        window.adminPanel.trackGameSession(window.authManager.currentUser.username);
+    }
+    
     // Start background music with user interaction
     if (this.backgroundMusic) {
         // Try to start music immediately

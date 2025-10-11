@@ -29,6 +29,10 @@
                         <span class="leaderboard-icon">🏆</span>
                         <span class="leaderboard-text">Rangliste</span>
                     </button>
+                    <button id="home-admin-btn" class="home-admin-button">
+                        <span class="admin-icon">🔧</span>
+                        <span class="admin-text">Admin</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -133,6 +137,44 @@
             </div>
         </div>
         
+        <!-- Admin Panel Modal -->
+        <div id="admin-modal" class="modal hidden">
+            <div class="modal-content admin-content">
+                <div class="admin-header">
+                    <h2>🔧 Admin Panel</h2>
+                    <button id="close-admin" class="close-btn">Schließen</button>
+                </div>
+                
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <h3>📊 Allgemeine Statistiken</h3>
+                        <div class="stat-item">
+                            <span class="stat-label">Seitenaufrufe:</span>
+                            <span id="total-page-views">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Registrierte Benutzer:</span>
+                            <span id="total-users">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Gesamt gespielt:</span>
+                            <span id="total-games-played">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>👥 Benutzer-Liste</h3>
+                        <div id="users-list" class="users-list"></div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>🎮 Spiel-Sessions</h3>
+                        <div id="game-sessions-list" class="sessions-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Shop Modal -->
         <div id="shop-modal" class="modal hidden">
             <div class="modal-content shop-content">
