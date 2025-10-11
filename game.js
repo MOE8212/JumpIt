@@ -89,6 +89,9 @@ window.addEventListener('load', () => {
             console.log('Button clickable:', testBtn.style.pointerEvents !== 'none');
         }
     }, 1000);
+    
+    // Update version display with current commit info
+    updateVersionDisplay();
 });
 
 // Create global background music that starts immediately
@@ -1014,6 +1017,33 @@ function formatTime(seconds) {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Update version display with current build info
+function updateVersionDisplay() {
+    const versionDisplay = document.getElementById('version-display');
+    if (versionDisplay) {
+        // Get current commit hash from HTML comment or use default
+        const buildInfo = getBuildInfo();
+        versionDisplay.textContent = buildInfo;
+        console.log('Version display updated:', buildInfo);
+    }
+}
+
+function getBuildInfo() {
+    // Try to extract build info from HTML comments
+    const html = document.documentElement.outerHTML;
+    const buildMatch = html.match(/<!-- Build Info: Commit ([a-f0-9]+) - (.+) -->/);
+    
+    if (buildMatch) {
+        const commitHash = buildMatch[1];
+        const description = buildMatch[2];
+        const shortHash = commitHash.substring(0, 7);
+        return `v2.1.0 (${shortHash}) - ${description}`;
+    }
+    
+    // Fallback version info
+    return 'v2.1.0 - iOS Safari Support';
 }
 
 // Fullscreen functionality - now integrated into home screen
