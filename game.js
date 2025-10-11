@@ -76,8 +76,8 @@ window.addEventListener('load', () => {
     // Initialize shop system
     updateShopDisplay();
     
-    // Add fullscreen button for mobile
-    addFullscreenButton();
+    // Setup fullscreen button
+    setupFullscreenButton();
 });
 
 // Create global background music that starts immediately
@@ -1005,44 +1005,61 @@ function formatTime(seconds) {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
-// Fullscreen functionality
-function addFullscreenButton() {
-    // Only add on mobile devices
-    if (window.innerWidth <= 768) {
-        const fullscreenBtn = document.createElement('button');
-        fullscreenBtn.id = 'fullscreen-btn';
-        fullscreenBtn.innerHTML = '⛶ Fullscreen';
-        fullscreenBtn.style.cssText = `
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            z-index: 9999;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            border: 2px solid #fff;
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 14px;
-            cursor: pointer;
-            font-family: Arial, sans-serif;
-        `;
-        
-        fullscreenBtn.addEventListener('click', toggleFullscreen);
-        document.body.appendChild(fullscreenBtn);
+// Fullscreen functionality - now integrated into home screen
+function setupFullscreenButton() {
+    const fullscreenBtn = document.getElementById('home-fullscreen-btn');
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', () => {
+            console.log('Home fullscreen button clicked');
+            toggleFullscreen();
+        });
     }
 }
 
 function toggleFullscreen() {
+    console.log('=== TOGGLING FULLSCREEN ===');
+    
     if (!document.fullscreenElement) {
-        // Enter fullscreen
-        document.documentElement.requestFullscreen().catch(err => {
+        console.log('Entering fullscreen mode...');
+        
+        // Try to enter fullscreen
+        document.documentElement.requestFullscreen().then(() => {
+            console.log('Successfully entered fullscreen');
+            updateFullscreenButton(true);
+        }).catch(err => {
             console.log('Fullscreen not supported:', err);
             // Fallback: hide browser UI elements
             hideMobileUI();
+            updateFullscreenButton(true);
         });
     } else {
+        console.log('Exiting fullscreen mode...');
+        
         // Exit fullscreen
-        document.exitFullscreen();
+        document.exitFullscreen().then(() => {
+            console.log('Successfully exited fullscreen');
+            updateFullscreenButton(false);
+        }).catch(err => {
+            console.log('Error exiting fullscreen:', err);
+        });
+    }
+}
+
+function updateFullscreenButton(isFullscreen) {
+    const fullscreenBtn = document.getElementById('home-fullscreen-btn');
+    const fullscreenIcon = document.querySelector('.fullscreen-icon');
+    const fullscreenText = document.querySelector('.fullscreen-text');
+    
+    if (fullscreenBtn && fullscreenIcon && fullscreenText) {
+        if (isFullscreen) {
+            fullscreenIcon.textContent = '⛶';
+            fullscreenText.textContent = 'Fenster';
+            fullscreenBtn.title = 'Vollbild verlassen';
+        } else {
+            fullscreenIcon.textContent = '⛶';
+            fullscreenText.textContent = 'Vollbild';
+            fullscreenBtn.title = 'Vollbild aktivieren';
+        }
     }
 }
 
