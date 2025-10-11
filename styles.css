@@ -1124,44 +1124,6 @@ body {
     text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
 }
 
-.shop-section {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-.shop-button {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ff0000 50%, #8b0000 100%);
-    border: 3px solid #ff6b6b;
-    border-radius: 50px;
-    padding: 15px 25px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: white;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    box-shadow: 
-        0 8px 25px rgba(255, 0, 0, 0.6),
-        0 0 20px rgba(255, 107, 107, 0.4);
-    transition: all 0.3s ease;
-    text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
-    animation: spookyPulse 2s ease-in-out infinite;
-    min-width: 80px;
-}
-
-.shop-button:hover {
-    background: linear-gradient(135deg, #ff0000 0%, #8b0000 50%, #ff0000 100%);
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 
-        0 12px 35px rgba(255, 0, 0, 0.8),
-        0 0 30px rgba(255, 107, 107, 0.6);
-    text-shadow: 0 0 15px rgba(255, 0, 0, 1);
-    animation: none;
-}
 
 .shop-icon {
     font-size: 1.8rem;

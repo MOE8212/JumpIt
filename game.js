@@ -1634,8 +1634,4 @@ document.addEventListener('DOMContentLoaded', () => {
         mainMenuBtn.addEventListener('click', backToMenu);
     }
     
-    const shopBtn = document.getElementById('shop-btn');
-    if (shopBtn) {
-        shopBtn.addEventListener('click', openShop);
-    }
 });
