@@ -1039,7 +1039,18 @@ function setupFullscreenButton() {
 function toggleFullscreen() {
     console.log('=== TOGGLING FULLSCREEN ===');
     console.log('Current fullscreen element:', document.fullscreenElement);
-    console.log('Fullscreen API available:', !!(document.documentElement.requestFullscreen));
+    console.log('User Agent:', navigator.userAgent);
+    console.log('Is iOS:', /iPad|iPhone|iPod/.test(navigator.userAgent));
+    
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+    
+    // iOS Safari doesn't support Fullscreen API properly
+    if (isIOS && isSafari) {
+        console.log('iOS Safari detected - using iOS-specific fullscreen method');
+        handleIOSFullscreen();
+        return;
+    }
     
     const elem = document.documentElement;
     
@@ -1096,6 +1107,87 @@ function toggleFullscreen() {
     }
 }
 
+function handleIOSFullscreen() {
+    console.log('=== HANDLING iOS FULLSCREEN ===');
+    
+    // Hide address bar and navigation
+    window.scrollTo(0, 1);
+    
+    // Add iOS-specific viewport meta tag
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (viewport) {
+        viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+    }
+    
+    // Hide browser UI by adding CSS
+    document.body.style.position = 'fixed';
+    document.body.style.top = '0';
+    document.body.style.left = '0';
+    document.body.style.width = '100%';
+    document.body.style.height = '100%';
+    document.body.style.overflow = 'hidden';
+    
+    // Add iOS-specific styles
+    const style = document.createElement('style');
+    style.setAttribute('data-ios-fullscreen', 'true');
+    style.textContent = `
+        body {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            overflow: hidden !important;
+        }
+        
+        #game-container {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Show iOS-specific message
+    const message = document.createElement('div');
+    message.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        z-index: 10000;
+        text-align: center;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 16px;
+        line-height: 1.4;
+        max-width: 300px;
+    `;
+    message.innerHTML = `
+        <h3>📱 iOS Vollbild-Modus</h3>
+        <p>Browser-UI wurde minimiert!</p>
+        <p>💡 <strong>Tipp:</strong> Wischen Sie nach oben, um die Kontrollleiste zu verstecken</p>
+        <p>🎮 Für beste Erfahrung: Gerät drehen</p>
+    `;
+    document.body.appendChild(message);
+    
+    updateFullscreenButton(true);
+    
+    setTimeout(() => {
+        if (document.body.contains(message)) {
+            document.body.removeChild(message);
+        }
+    }, 4000);
+}
+
 function handleFullscreenFallback() {
     console.log('Using fullscreen fallback - hiding mobile UI');
     hideMobileUI();
@@ -1138,12 +1230,87 @@ function updateFullscreenButton(isFullscreen) {
             fullscreenIcon.textContent = '⛶';
             fullscreenText.textContent = 'Fenster';
             fullscreenBtn.title = 'Vollbild verlassen';
+            
+            // For iOS, change the click handler to exit mode
+            fullscreenBtn.onclick = () => {
+                console.log('Exiting iOS fullscreen mode');
+                exitIOSFullscreen();
+            };
         } else {
             fullscreenIcon.textContent = '⛶';
             fullscreenText.textContent = 'Vollbild';
             fullscreenBtn.title = 'Vollbild aktivieren';
+            
+            // Reset click handler to normal fullscreen
+            fullscreenBtn.onclick = () => {
+                console.log('iOS fullscreen button clicked');
+                toggleFullscreen();
+            };
         }
     }
+}
+
+function exitIOSFullscreen() {
+    console.log('=== EXITING iOS FULLSCREEN ===');
+    
+    // Remove iOS-specific styles
+    const iosStyles = document.querySelector('style[data-ios-fullscreen]');
+    if (iosStyles) {
+        iosStyles.remove();
+    }
+    
+    // Reset viewport
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (viewport) {
+        viewport.content = 'width=device-width, initial-scale=1.0';
+    }
+    
+    // Reset body styles
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.width = '';
+    document.body.style.height = '';
+    document.body.style.overflow = '';
+    
+    // Reset container styles
+    const container = document.getElementById('game-container');
+    if (container) {
+        container.style.position = '';
+        container.style.top = '';
+        container.style.left = '';
+        container.style.width = '';
+        container.style.height = '';
+    }
+    
+    updateFullscreenButton(false);
+    
+    // Show exit message
+    const message = document.createElement('div');
+    message.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        z-index: 10000;
+        text-align: center;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    `;
+    message.innerHTML = `
+        <h3>📱 Vollbild beendet</h3>
+        <p>Browser-UI ist wieder sichtbar</p>
+    `;
+    document.body.appendChild(message);
+    
+    setTimeout(() => {
+        if (document.body.contains(message)) {
+            document.body.removeChild(message);
+        }
+    }, 2000);
 }
 
 function hideMobileUI() {
