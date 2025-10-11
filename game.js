@@ -180,33 +180,56 @@ function createGlobalBackgroundMusic() {
 
 // Function to start the game after authentication
 function startGame() {
-    console.log('Starting game...');
+    console.log('=== START GAME FUNCTION CALLED ===');
     
     // Hide home screen and show game
     const homeScreen = document.getElementById('home-screen');
     const gameElement = document.getElementById('game');
     
+    console.log('Home screen element:', homeScreen);
+    console.log('Game element:', gameElement);
+    
     if (homeScreen) {
+        console.log('Home screen classes BEFORE:', homeScreen.classList.toString());
+        console.log('Home screen display BEFORE:', window.getComputedStyle(homeScreen).display);
+        console.log('Home screen z-index BEFORE:', window.getComputedStyle(homeScreen).zIndex);
+        
         homeScreen.classList.add('hidden');
-        console.log('Home screen hidden');
+        
+        console.log('Home screen classes AFTER:', homeScreen.classList.toString());
+        console.log('Home screen display AFTER:', window.getComputedStyle(homeScreen).display);
+        console.log('Home screen z-index AFTER:', window.getComputedStyle(homeScreen).zIndex);
+        console.log('Home screen hidden successfully');
+    } else {
+        console.error('Home screen element not found!');
     }
     
     if (gameElement) {
+        console.log('Game element display BEFORE:', gameElement.style.display);
         gameElement.style.display = 'block';
-        console.log('Game element shown');
+        console.log('Game element display AFTER:', gameElement.style.display);
+        console.log('Game element shown successfully');
+    } else {
+        console.error('Game element not found!');
     }
     
+    console.log('Current game instance:', game);
+    
     if (!game) {
+        console.log('Creating new Phaser game instance...');
         try {
             game = new Phaser.Game(config);
             window.game = game; // Make globally accessible
-            console.log('Game created successfully');
+            console.log('Game created successfully:', game);
         } catch (error) {
             console.error('Error creating game:', error);
+            console.error('Error stack:', error.stack);
         }
     } else {
-        console.log('Game already exists');
+        console.log('Game already exists, skipping creation');
     }
+    
+    console.log('=== START GAME FUNCTION COMPLETED ===');
 }
 
 // Function to show home screen
@@ -631,12 +654,21 @@ function create() {
     isGameOver = false;
     isInvulnerable = false;
     
+    console.log('=== GAME INITIALIZATION ===');
+    console.log('Initial values:');
+    console.log('- gameTime:', gameTime);
+    console.log('- coinsCollected:', coinsCollected);
+    console.log('- score:', score);
+    console.log('- lives:', lives);
+    
     // Update HUD
     updateHUD();
     
     // Start game timer
     startTime = this.time.now;
     gameStarted = true;
+    
+    console.log('Game started at:', startTime);
     
     // Start background music with user interaction
     if (this.backgroundMusic) {
@@ -655,8 +687,16 @@ function update() {
     
     // Update game timer
     if (gameStarted) {
-        gameTime = Math.floor((this.time.now - startTime) / 1000);
-        updateTimer();
+        const newGameTime = Math.floor((this.time.now - startTime) / 1000);
+        if (newGameTime !== gameTime) {
+            gameTime = newGameTime;
+            updateTimer();
+            
+            // Debug timer every 10 seconds
+            if (gameTime % 10 === 0 && gameTime > 0) {
+                console.log('Game timer update:', gameTime, 'seconds');
+            }
+        }
     }
     
     // Player movement
@@ -746,9 +786,13 @@ function update() {
 }
 
 function collectCoin(player, coin) {
+    console.log('Coin collected! Current coins:', coinsCollected);
+    
     coin.disableBody(true, true);
     coinsCollected++;
     score += 10;
+    
+    console.log('After collection - Coins:', coinsCollected, 'Score:', score);
     
     // Add coins to total
     addCoins(1);
@@ -773,7 +817,7 @@ function collectCoin(player, coin) {
     });
     
     // Play coin sound effect (will be added in Phase 5)
-    console.log('Coin collected!');
+    console.log('Coin collected! Total coins now:', coinsCollected);
 }
 
 function reachGoal(player, goal) {
@@ -856,11 +900,21 @@ function startInvulnerability() {
 }
 
 function levelCompleted() {
+    console.log('=== LEVEL COMPLETED ===');
+    console.log('Game time:', gameTime);
+    console.log('Coins collected:', coinsCollected);
+    
     // Calculate final score
     const timeBonus = Math.max(0, 180 - gameTime) * 5; // Bonus for completing quickly (3 minutes max)
     const coinBonus = coinsCollected * 10;
     const completionBonus = 100; // Bonus for completing the level
     const finalScore = timeBonus + coinBonus + completionBonus;
+    
+    console.log('Score calculation:');
+    console.log('- Time bonus:', timeBonus, '(180 -', gameTime, ') * 5');
+    console.log('- Coin bonus:', coinBonus, '(', coinsCollected, '* 10)');
+    console.log('- Completion bonus:', completionBonus);
+    console.log('- Final score:', finalScore);
     
     score = finalScore;
     updateHUD();
@@ -882,7 +936,10 @@ function levelCompleted() {
     
     // Submit score to leaderboard (only for successful completions!)
     if (window.authManager && window.authManager.isLoggedIn) {
-        console.log('Level completed successfully! Submitting score to leaderboard:', finalScore);
+        console.log('Level completed successfully! Submitting score to leaderboard:');
+        console.log('- Score:', finalScore);
+        console.log('- Coins:', coinsCollected);
+        console.log('- Time:', gameTime);
         window.authManager.submitScore(finalScore, coinsCollected, gameTime);
     } else {
         console.log('Level completed but user not logged in, cannot submit score');
@@ -1012,6 +1069,7 @@ function setupMobileControls() {
 
 // Restart game function
 function restartGame() {
+    console.log('=== RESTARTING GAME ===');
     const modal = document.getElementById('game-over-modal');
     modal.classList.add('hidden');
     
@@ -1023,6 +1081,12 @@ function restartGame() {
     coinsCollected = 0;
     isGameOver = false;
     isInvulnerable = false;
+    
+    console.log('Game state reset:');
+    console.log('- gameTime:', gameTime);
+    console.log('- coinsCollected:', coinsCollected);
+    console.log('- score:', score);
+    console.log('- lives:', lives);
     
     // Restart the current game scene
     if (game) {
@@ -1116,6 +1180,7 @@ function resumeGame() {
 }
 
 function restartLevel() {
+    console.log('=== RESTARTING LEVEL ===');
     const inGameMenu = document.getElementById('in-game-menu');
     if (inGameMenu) {
         inGameMenu.classList.add('hidden');
@@ -1129,6 +1194,12 @@ function restartLevel() {
     coinsCollected = 0;
     isGameOver = false;
     isInvulnerable = false;
+    
+    console.log('Level state reset:');
+    console.log('- gameTime:', gameTime);
+    console.log('- coinsCollected:', coinsCollected);
+    console.log('- score:', score);
+    console.log('- lives:', lives);
     
     // Restart the current game scene
     if (game) {
@@ -1414,6 +1485,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     } else {
         console.error('Home shop button not found!');
+    }
+    
+    // Home leaderboard button event listener
+    const homeLeaderboardBtn = document.getElementById('home-leaderboard-btn');
+    console.log('Home leaderboard button element:', homeLeaderboardBtn);
+    if (homeLeaderboardBtn) {
+        homeLeaderboardBtn.addEventListener('click', (e) => {
+            console.log('Home leaderboard button clicked!', e);
+            console.log('showLeaderboard function exists:', typeof showLeaderboard);
+            showLeaderboard();
+        });
+    } else {
+        console.error('Home leaderboard button not found!');
     }
     
     // Shop modal event listeners

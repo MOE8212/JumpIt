@@ -25,6 +25,10 @@
                         <span class="shop-icon">🛒</span>
                         <span class="shop-text">Shop</span>
                     </button>
+                    <button id="home-leaderboard-btn" class="home-leaderboard-button">
+                        <span class="leaderboard-icon">🏆</span>
+                        <span class="leaderboard-text">Rangliste</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -91,12 +95,12 @@
         </div>
         
         <!-- Login/Register Modal -->
-        <div id="auth-modal" class="modal">
+        <div id="auth-modal" class="modal hidden auth-modal">
             <div class="modal-content">
                 <h2 id="auth-title">Anmelden</h2>
                 <form id="auth-form">
                     <input type="text" id="username" placeholder="Benutzername" required>
-                    <input type="email" id="email" placeholder="E-Mail (optional)">
+                    <input type="email" id="email" placeholder="E-Mail (optional)" style="display: none;">
                     <input type="password" id="password" placeholder="Passwort" required>
                     <button type="submit" id="auth-submit">Anmelden</button>
                 </form>
@@ -126,6 +130,50 @@
                 <h2>Rangliste</h2>
                 <div id="leaderboard-list"></div>
                 <button id="close-leaderboard">Schließen</button>
+            </div>
+        </div>
+        
+        <!-- Shop Modal -->
+        <div id="shop-modal" class="modal hidden">
+            <div class="modal-content shop-content">
+                <div class="shop-header">
+                    <h2>🛒 Shop</h2>
+                    <div class="coin-display">
+                        <span class="coin-icon">🪙</span>
+                        <span id="shop-coins">0</span>
+                    </div>
+                </div>
+                <div class="shop-items">
+                    <div class="shop-item">
+                        <div class="item-preview">👤</div>
+                        <h3>Standard</h3>
+                        <p>Der klassische Charakter</p>
+                        <div class="item-price">Kostenlos</div>
+                        <button class="buy-btn" data-skin="standard">Auswählen</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="item-preview">🐺</div>
+                        <h3>Werwolf</h3>
+                        <p>Heule zum Mond!</p>
+                        <div class="item-price">🪙 50</div>
+                        <button class="buy-btn" data-skin="werewolf">Kaufen</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="item-preview">👻</div>
+                        <h3>Geist</h3>
+                        <p>Spuke durch die Nacht!</p>
+                        <div class="item-price">🪙 100</div>
+                        <button class="buy-btn" data-skin="ghost">Kaufen</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="item-preview">🔥</div>
+                        <h3>Feuer</h3>
+                        <p>Brenne vor Energie!</p>
+                        <div class="item-price">🪙 150</div>
+                        <button class="buy-btn" data-skin="fire">Kaufen</button>
+                    </div>
+                </div>
+                <button id="close-shop" class="close-btn">Schließen</button>
             </div>
         </div>
     </div>
