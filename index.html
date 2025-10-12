@@ -3,14 +3,45 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Optimized Viewport for iOS Fullscreen -->
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
     <title>JumpIt - Das ultimative Werewolf Jump 'n Run Spiel</title>
     <meta name="description"
         content="Springen Sie als Werwolf durch das mystische Land und sammeln Sie Münzen! Kostenloses Jump 'n Run Spiel mit Shop-System.">
     <meta name="keywords" content="JumpIt, Jump and Run, Werwolf, Spiel, Kostenlos, Online Spiel">
+
+    <!-- iOS-Specific Meta Tags for Fullscreen -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="JumpIt">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- iOS App Icons -->
+    <link rel="apple-touch-icon" sizes="180x180"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%23663399' width='180' height='180'/><text x='50%' y='50%' text-anchor='middle' dy='.3em' font-size='90' fill='white'>🐺</text></svg>">
+    <link rel="apple-touch-icon" sizes="152x152"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 152 152'><rect fill='%23663399' width='152' height='152'/><text x='50%' y='50%' text-anchor='middle' dy='.3em' font-size='76' fill='white'>🐺</text></svg>">
+    <link rel="apple-touch-icon" sizes="120x120"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><rect fill='%23663399' width='120' height='120'/><text x='50%' y='50%' text-anchor='middle' dy='.3em' font-size='60' fill='white'>🐺</text></svg>">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#663399">
+    <meta name="msapplication-navbutton-color" content="#663399">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#663399">
+
+    <!-- Prevent iOS from detecting phone numbers and addresses -->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="address=no">
+
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
-    <!-- Build Info: Commit ec5adf1 - Add Cursor AI context and workspace settings for c... -->
+    <!-- Build Info: Commit ce0d534 - Version wird bei commit immer aktualisiert -->
 </head>
 
 <body>
@@ -21,7 +52,7 @@
                 <h1 class="game-title">🎮 JumpIt</h1>
                 <p class="game-subtitle">Das ultimative Jump 'n Run Abenteuer!</p>
                 <div class="version-info">
-                    <span id="version-display">v2.2.0 - Build ec5adf1</span>
+                    <span id="version-display">v2.2.0 - Build ce0d534</span>
                 </div>
                 <div class="home-buttons">
                     <button id="play-btn" class="play-button">
@@ -222,8 +253,69 @@
         </div>
     </div>
 
+    <!-- iOS Fullscreen Installation Banner -->
+    <div id="ios-install-prompt" class="ios-install-prompt hidden">
+        <div class="ios-prompt-content">
+            <div class="ios-prompt-icon">📱</div>
+            <h3>Vollbild-Modus auf iOS</h3>
+            <p>Für das beste Spielerlebnis:</p>
+            <ol>
+                <li>Tippe auf das <strong>Teilen-Symbol</strong> <span style="font-size: 20px;">⎙</span></li>
+                <li>Wähle <strong>"Zum Home-Bildschirm"</strong></li>
+                <li>Starte die App vom Home-Bildschirm</li>
+            </ol>
+            <p class="ios-prompt-benefit">✨ Dadurch läuft JumpIt im echten Vollbild ohne Browser-Leiste!</p>
+            <button id="close-ios-prompt" class="ios-prompt-btn">Verstanden</button>
+        </div>
+    </div>
+
     <script src="game.js"></script>
     <script src="auth.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        // Register Service Worker for PWA support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/JumpIt/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+
+        // Show iOS Install Prompt if needed
+        window.addEventListener('load', () => {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isInStandaloneMode = ('standalone' in window.navigator) && (window.navigator.standalone);
+            const hasSeenPrompt = localStorage.getItem('ios-install-prompt-seen');
+
+            if (isIOS && !isInStandaloneMode && !hasSeenPrompt) {
+                // Show prompt after 3 seconds
+                setTimeout(() => {
+                    const prompt = document.getElementById('ios-install-prompt');
+                    if (prompt) {
+                        prompt.classList.remove('hidden');
+                    }
+                }, 3000);
+            }
+
+            // Close button handler
+            const closeBtn = document.getElementById('close-ios-prompt');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    const prompt = document.getElementById('ios-install-prompt');
+                    if (prompt) {
+                        prompt.classList.add('hidden');
+                        localStorage.setItem('ios-install-prompt-seen', 'true');
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

@@ -5,20 +5,57 @@
     box-sizing: border-box;
 }
 
+/* iOS Fullscreen Optimizations */
+html {
+    width: 100%;
+    height: 100%;
+    /* iOS Safari specific - ensure content extends to safe areas */
+    height: -webkit-fill-available;
+    overflow: hidden;
+    position: fixed;
+}
+
 body {
     font-family: 'Arial', sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     overflow: hidden;
     height: 100vh;
+    /* iOS Safari specific - ensure content extends to safe areas */
+    height: -webkit-fill-available;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    /* iOS Safe Area Insets */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    /* Prevent iOS pull-to-refresh and bounce */
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+    /* Prevent iOS text size adjustment */
+    -webkit-text-size-adjust: 100%;
+    /* Disable iOS callouts and selection */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 #game-container {
-    position: relative;
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100vw;
     height: 100vh;
+    /* iOS Safari specific */
+    height: -webkit-fill-available;
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
 }
 
 /* Home Screen Styles */
@@ -28,7 +65,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: 
+    background:
         radial-gradient(circle at 20% 80%, rgba(139, 69, 19, 0.4) 0%, transparent 60%),
         radial-gradient(circle at 80% 20%, rgba(0, 0, 0, 0.5) 0%, transparent 50%),
         radial-gradient(circle at 50% 50%, rgba(255, 140, 0, 0.2) 0%, transparent 40%),
@@ -49,7 +86,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: 
+    background-image:
         /* Dark forest trees */
         radial-gradient(ellipse at 15% 90%, transparent 0%, transparent 25%, rgba(0, 0, 0, 0.6) 30%, rgba(0, 0, 0, 0.3) 35%, transparent 40%),
         radial-gradient(ellipse at 85% 85%, transparent 0%, transparent 20%, rgba(0, 0, 0, 0.7) 25%, rgba(0, 0, 0, 0.4) 30%, transparent 35%),
@@ -75,7 +112,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: 
+    background-image:
         /* Howling wolves */
         radial-gradient(ellipse at 20% 30%, rgba(139, 69, 19, 0.3) 0%, transparent 8%),
         radial-gradient(ellipse at 60% 25%, rgba(139, 69, 19, 0.25) 0%, transparent 6%),
@@ -94,19 +131,24 @@ body {
 }
 
 @keyframes spookyFloat {
-    0%, 100% { 
+
+    0%,
+    100% {
         transform: translateY(0px) translateX(0px) rotate(0deg);
         opacity: 0.7;
     }
-    25% { 
+
+    25% {
         transform: translateY(-10px) translateX(5px) rotate(1deg);
         opacity: 0.9;
     }
-    50% { 
+
+    50% {
         transform: translateY(-5px) translateX(-3px) rotate(-0.5deg);
         opacity: 0.8;
     }
-    75% { 
+
+    75% {
         transform: translateY(-15px) translateX(8px) rotate(0.5deg);
         opacity: 0.6;
     }
@@ -159,7 +201,7 @@ body {
     transform: translateY(-50%);
     font-size: 5rem;
     animation: spookyFloat 2s ease-in-out infinite;
-    text-shadow: 
+    text-shadow:
         0 0 25px rgba(204, 0, 0, 0.9),
         0 0 35px rgba(204, 0, 0, 0.7);
 }
@@ -172,17 +214,20 @@ body {
     transform: translateY(-50%);
     font-size: 5rem;
     animation: spookyFloat 2.5s ease-in-out infinite reverse;
-    text-shadow: 
+    text-shadow:
         0 0 25px rgba(255, 255, 255, 0.9),
         0 0 35px rgba(255, 255, 255, 0.7);
 }
 
 @keyframes spookyGlow {
-    0%, 100% { 
+
+    0%,
+    100% {
         background-position: 0% 50%;
         filter: brightness(1);
     }
-    50% { 
+
+    50% {
         background-position: 100% 50%;
         filter: brightness(1.2);
     }
@@ -252,7 +297,7 @@ body {
         inset 0 0 25px rgba(255, 255, 255, 0.2);
     transition: all 0.3s ease;
     overflow: hidden;
-    text-shadow: 
+    text-shadow:
         0 0 15px rgba(255, 0, 0, 0.9),
         2px 2px 4px rgba(0, 0, 0, 0.8);
     animation: spookyPulse 2s ease-in-out infinite;
@@ -277,7 +322,7 @@ body {
         inset 0 0 20px rgba(255, 255, 255, 0.15);
     transition: all 0.3s ease;
     overflow: hidden;
-    text-shadow: 
+    text-shadow:
         0 0 12px rgba(255, 215, 0, 0.9),
         2px 2px 4px rgba(0, 0, 0, 0.8);
     animation: spookyPulse 2.5s ease-in-out infinite;
@@ -285,14 +330,17 @@ body {
 }
 
 @keyframes spookyPulse {
-    0%, 100% { 
-        box-shadow: 
+
+    0%,
+    100% {
+        box-shadow:
             0 8px 25px rgba(255, 0, 0, 0.6),
             0 0 20px rgba(255, 107, 107, 0.4),
             inset 0 0 20px rgba(255, 255, 255, 0.1);
     }
-    50% { 
-        box-shadow: 
+
+    50% {
+        box-shadow:
             0 8px 25px rgba(255, 0, 0, 0.8),
             0 0 30px rgba(255, 107, 107, 0.6),
             inset 0 0 30px rgba(255, 255, 255, 0.2);
@@ -354,7 +402,7 @@ body {
         inset 0 0 20px rgba(255, 255, 255, 0.15);
     transition: all 0.3s ease;
     overflow: hidden;
-    text-shadow: 
+    text-shadow:
         0 0 12px rgba(255, 215, 0, 0.9),
         2px 2px 4px rgba(0, 0, 0, 0.8);
     animation: spookyPulse 2.5s ease-in-out infinite;
@@ -374,7 +422,7 @@ body {
 
 .play-button:active {
     transform: translateY(-1px) scale(0.98);
-    box-shadow: 
+    box-shadow:
         0 6px 20px rgba(255, 0, 0, 0.7),
         0 0 25px rgba(255, 107, 107, 0.5),
         inset 0 0 15px rgba(255, 255, 255, 0.2);
@@ -383,7 +431,7 @@ body {
 .play-icon {
     font-size: 2.2rem;
     transition: transform 0.3s ease;
-    text-shadow: 
+    text-shadow:
         0 0 15px rgba(255, 0, 0, 0.9),
         2px 2px 4px rgba(0, 0, 0, 0.8);
     animation: spookyFloat 1.5s ease-in-out infinite;
@@ -398,7 +446,7 @@ body {
 .play-text {
     font-size: 1.8rem;
     font-weight: bold;
-    text-shadow: 
+    text-shadow:
         0 0 15px rgba(255, 0, 0, 0.9),
         2px 2px 4px rgba(0, 0, 0, 0.8);
 }
@@ -408,6 +456,7 @@ body {
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -447,7 +496,7 @@ body {
     font-weight: bold;
     pointer-events: none;
     border: 2px solid rgba(255, 255, 255, 0.3);
-    text-shadow: 
+    text-shadow:
         3px 3px 6px rgba(0, 0, 0, 0.9),
         0 0 10px rgba(255, 255, 255, 0.5);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
@@ -459,7 +508,7 @@ body {
     gap: 15px;
     font-size: 22px;
     font-weight: bold;
-    text-shadow: 
+    text-shadow:
         2px 2px 4px rgba(0, 0, 0, 0.8),
         0 0 8px rgba(255, 255, 255, 0.3);
 }
@@ -468,7 +517,7 @@ body {
     color: #ff6b6b;
     font-size: 20px;
     font-weight: bold;
-    text-shadow: 
+    text-shadow:
         2px 2px 4px rgba(0, 0, 0, 0.8),
         0 0 8px rgba(255, 107, 107, 0.5);
 }
@@ -477,15 +526,22 @@ body {
     color: #ff4757;
     font-size: 32px;
     margin: 0 5px;
-    text-shadow: 
+    text-shadow:
         2px 2px 4px rgba(0, 0, 0, 0.8),
         0 0 10px rgba(255, 71, 87, 0.8);
     animation: heartbeat 1.5s ease-in-out infinite;
 }
 
 @keyframes heartbeat {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
 }
 
 .hud-btn {
@@ -536,7 +592,7 @@ body {
     font-size: 28px;
     font-weight: bold;
     color: #333;
-    box-shadow: 
+    box-shadow:
         0 6px 20px rgba(0, 0, 0, 0.4),
         0 0 15px rgba(255, 255, 255, 0.3);
     cursor: pointer;
@@ -558,7 +614,7 @@ body {
     color: white;
     font-size: 32px;
     border-color: rgba(255, 255, 255, 0.9);
-    box-shadow: 
+    box-shadow:
         0 6px 20px rgba(255, 71, 87, 0.6),
         0 0 20px rgba(255, 55, 66, 0.4);
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
@@ -566,14 +622,21 @@ body {
 }
 
 @keyframes jumpPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
 }
 
 .control-btn.jump:active {
     background: linear-gradient(135deg, #ff3742, #ff2f3a);
     transform: scale(0.9);
-    box-shadow: 
+    box-shadow:
         0 4px 15px rgba(255, 71, 87, 0.8),
         0 0 25px rgba(255, 55, 66, 0.6);
 }
@@ -742,9 +805,17 @@ body {
     border-radius: 5px;
 }
 
-.leaderboard-item:nth-child(1) { background: #ffd700; }
-.leaderboard-item:nth-child(2) { background: #c0c0c0; }
-.leaderboard-item:nth-child(3) { background: #cd7f32; }
+.leaderboard-item:nth-child(1) {
+    background: #ffd700;
+}
+
+.leaderboard-item:nth-child(2) {
+    background: #c0c0c0;
+}
+
+.leaderboard-item:nth-child(3) {
+    background: #cd7f32;
+}
 
 .leaderboard-table {
     width: 100%;
@@ -805,256 +876,256 @@ body {
         border: none;
         border-radius: 0;
     }
-    
+
     #hud {
         font-size: 20px;
         padding: 15px;
     }
-    
+
     .hud-item {
         font-size: 18px;
     }
-    
+
     .hud-label {
         font-size: 16px;
     }
-    
+
     .hud-btn {
         font-size: 20px;
         padding: 10px 15px;
     }
-    
+
     .modal-content {
         margin: 20px;
         padding: 20px;
     }
-    
+
     .control-btn {
         width: 80px;
         height: 80px;
         font-size: 24px;
     }
-    
+
     .control-btn.jump {
         font-size: 28px;
     }
-    
+
     .button-group {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .button-group button {
         min-width: auto;
         width: 100%;
     }
-    
+
     .home-buttons {
         bottom: 20px;
         right: 20px;
         gap: 15px;
     }
-    
+
     .play-button {
         padding: 20px 40px;
         font-size: 1.5rem;
     }
-    
+
     .home-shop-button {
         padding: 18px 35px;
         font-size: 1.3rem;
     }
-    
+
     .game-title {
         font-size: 5rem;
         letter-spacing: 2px;
     }
-    
+
     .game-title::before,
     .game-title::after {
         font-size: 3.5rem;
         left: -60px;
         right: -60px;
     }
-    
+
     .game-subtitle {
         font-size: 2.5rem;
         margin-bottom: 60px;
         letter-spacing: 1px;
     }
-    
+
     .play-icon {
         font-size: 1.8rem;
     }
-    
+
     .shop-icon {
         font-size: 1.5rem;
     }
-    
+
     .play-text {
         font-size: 1.5rem;
     }
-    
+
     .shop-text {
         font-size: 1.3rem;
     }
-    
+
     .leaderboard-text {
         font-size: 1.3rem;
     }
-    
+
     .leaderboard-icon {
         font-size: 1.5rem;
     }
-    
+
     .admin-text {
         font-size: 1.3rem;
     }
-    
+
     .admin-icon {
         font-size: 1.5rem;
     }
-    
+
     .admin-stats {
         grid-template-columns: 1fr;
         gap: 15px;
     }
-    
+
     .admin-content {
         margin: 10px;
         padding: 15px;
     }
-    
+
     .fullscreen-text {
         font-size: 1.3rem;
     }
-    
+
     .fullscreen-icon {
         font-size: 1.5rem;
     }
 
-.leaderboard-icon {
-    font-size: 1.8rem;
-    transition: transform 0.3s ease;
-    text-shadow: 
-        0 0 15px rgba(255, 215, 0, 0.9),
-        2px 2px 4px rgba(0, 0, 0, 0.8);
-    animation: spookyFloat 1.5s ease-in-out infinite;
-}
+    .leaderboard-icon {
+        font-size: 1.8rem;
+        transition: transform 0.3s ease;
+        text-shadow:
+            0 0 15px rgba(255, 215, 0, 0.9),
+            2px 2px 4px rgba(0, 0, 0, 0.8);
+        animation: spookyFloat 1.5s ease-in-out infinite;
+    }
 
-.leaderboard-text {
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-shadow: 
-        0 0 12px rgba(255, 215, 0, 0.9),
-        2px 2px 4px rgba(0, 0, 0, 0.8);
-}
+    .leaderboard-text {
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-shadow:
+            0 0 12px rgba(255, 215, 0, 0.9),
+            2px 2px 4px rgba(0, 0, 0, 0.8);
+    }
 
-.home-admin-button {
-    background: linear-gradient(135deg, #8B4513 0%, #A0522D 50%, #D2691E 100%);
-    border: 4px solid #8B4513;
-    border-radius: 50px;
-    padding: 20px 50px;
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #ffffff;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    box-shadow:
-        0 8px 25px rgba(139, 69, 19, 0.6),
-        0 0 20px rgba(160, 82, 45, 0.4),
-        inset 0 0 20px rgba(255, 255, 255, 0.15);
-    transition: all 0.3s ease;
-    overflow: hidden;
-    text-shadow: 
-        0 0 12px rgba(139, 69, 19, 0.9),
-        2px 2px 4px rgba(0, 0, 0, 0.8);
-    animation: spookyPulse 2.5s ease-in-out infinite;
-    letter-spacing: 1px;
-}
+    .home-admin-button {
+        background: linear-gradient(135deg, #8B4513 0%, #A0522D 50%, #D2691E 100%);
+        border: 4px solid #8B4513;
+        border-radius: 50px;
+        padding: 20px 50px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #ffffff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        box-shadow:
+            0 8px 25px rgba(139, 69, 19, 0.6),
+            0 0 20px rgba(160, 82, 45, 0.4),
+            inset 0 0 20px rgba(255, 255, 255, 0.15);
+        transition: all 0.3s ease;
+        overflow: hidden;
+        text-shadow:
+            0 0 12px rgba(139, 69, 19, 0.9),
+            2px 2px 4px rgba(0, 0, 0, 0.8);
+        animation: spookyPulse 2.5s ease-in-out infinite;
+        letter-spacing: 1px;
+    }
 
-.home-admin-button:hover {
-    background: linear-gradient(135deg, #A0522D 0%, #D2691E 50%, #A0522D 100%);
-    transform: translateY(-2px) scale(1.03);
-    box-shadow:
-        0 8px 25px rgba(139, 69, 19, 0.7),
-        0 0 25px rgba(160, 82, 45, 0.5),
-        inset 0 0 20px rgba(255, 255, 255, 0.2);
-    text-shadow: 0 0 12px rgba(139, 69, 19, 1);
-    animation: none;
-}
+    .home-admin-button:hover {
+        background: linear-gradient(135deg, #A0522D 0%, #D2691E 50%, #A0522D 100%);
+        transform: translateY(-2px) scale(1.03);
+        box-shadow:
+            0 8px 25px rgba(139, 69, 19, 0.7),
+            0 0 25px rgba(160, 82, 45, 0.5),
+            inset 0 0 20px rgba(255, 255, 255, 0.2);
+        text-shadow: 0 0 12px rgba(139, 69, 19, 1);
+        animation: none;
+    }
 
-.admin-icon {
-    font-size: 1.8rem;
-    transition: transform 0.3s ease;
-    text-shadow: 
-        0 0 15px rgba(139, 69, 19, 0.9),
-        2px 2px 4px rgba(0, 0, 0, 0.8);
-    animation: spookyFloat 1.5s ease-in-out infinite;
-}
+    .admin-icon {
+        font-size: 1.8rem;
+        transition: transform 0.3s ease;
+        text-shadow:
+            0 0 15px rgba(139, 69, 19, 0.9),
+            2px 2px 4px rgba(0, 0, 0, 0.8);
+        animation: spookyFloat 1.5s ease-in-out infinite;
+    }
 
-.admin-text {
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-shadow: 
-        0 0 12px rgba(139, 69, 19, 0.9),
-        2px 2px 4px rgba(0, 0, 0, 0.8);
-}
+    .admin-text {
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-shadow:
+            0 0 12px rgba(139, 69, 19, 0.9),
+            2px 2px 4px rgba(0, 0, 0, 0.8);
+    }
 
-.home-fullscreen-button {
-    background: linear-gradient(135deg, #2E8B57 0%, #3CB371 50%, #00FA9A 100%);
-    border: 4px solid #2E8B57;
-    border-radius: 50px;
-    padding: 20px 50px;
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #ffffff;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    box-shadow:
-        0 8px 25px rgba(46, 139, 87, 0.6),
-        0 0 20px rgba(60, 179, 113, 0.4),
-        inset 0 0 20px rgba(255, 255, 255, 0.15);
-    transition: all 0.3s ease;
-    overflow: hidden;
-    text-shadow: 
-        0 0 12px rgba(46, 139, 87, 0.9),
-        2px 2px 4px rgba(0, 0, 0, 0.8);
-    animation: spookyPulse 2.5s ease-in-out infinite;
-    letter-spacing: 1px;
-}
+    .home-fullscreen-button {
+        background: linear-gradient(135deg, #2E8B57 0%, #3CB371 50%, #00FA9A 100%);
+        border: 4px solid #2E8B57;
+        border-radius: 50px;
+        padding: 20px 50px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #ffffff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        box-shadow:
+            0 8px 25px rgba(46, 139, 87, 0.6),
+            0 0 20px rgba(60, 179, 113, 0.4),
+            inset 0 0 20px rgba(255, 255, 255, 0.15);
+        transition: all 0.3s ease;
+        overflow: hidden;
+        text-shadow:
+            0 0 12px rgba(46, 139, 87, 0.9),
+            2px 2px 4px rgba(0, 0, 0, 0.8);
+        animation: spookyPulse 2.5s ease-in-out infinite;
+        letter-spacing: 1px;
+    }
 
-.home-fullscreen-button:hover {
-    background: linear-gradient(135deg, #3CB371 0%, #00FA9A 50%, #3CB371 100%);
-    transform: translateY(-2px) scale(1.03);
-    box-shadow:
-        0 8px 25px rgba(46, 139, 87, 0.7),
-        0 0 25px rgba(60, 179, 113, 0.5),
-        inset 0 0 20px rgba(255, 255, 255, 0.2);
-    text-shadow: 0 0 12px rgba(46, 139, 87, 1);
-    animation: none;
-}
+    .home-fullscreen-button:hover {
+        background: linear-gradient(135deg, #3CB371 0%, #00FA9A 50%, #3CB371 100%);
+        transform: translateY(-2px) scale(1.03);
+        box-shadow:
+            0 8px 25px rgba(46, 139, 87, 0.7),
+            0 0 25px rgba(60, 179, 113, 0.5),
+            inset 0 0 20px rgba(255, 255, 255, 0.2);
+        text-shadow: 0 0 12px rgba(46, 139, 87, 1);
+        animation: none;
+    }
 
-.fullscreen-icon {
-    font-size: 1.8rem;
-    transition: transform 0.3s ease;
-    text-shadow: 
-        0 0 15px rgba(46, 139, 87, 0.9),
-        2px 2px 4px rgba(0, 0, 0, 0.8);
-    animation: spookyFloat 1.5s ease-in-out infinite;
-}
+    .fullscreen-icon {
+        font-size: 1.8rem;
+        transition: transform 0.3s ease;
+        text-shadow:
+            0 0 15px rgba(46, 139, 87, 0.9),
+            2px 2px 4px rgba(0, 0, 0, 0.8);
+        animation: spookyFloat 1.5s ease-in-out infinite;
+    }
 
-.fullscreen-text {
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-shadow: 
-        0 0 12px rgba(46, 139, 87, 0.9),
-        2px 2px 4px rgba(0, 0, 0, 0.8);
-}
+    .fullscreen-text {
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-shadow:
+            0 0 12px rgba(46, 139, 87, 0.9),
+            2px 2px 4px rgba(0, 0, 0, 0.8);
+    }
 }
 
 @media (min-width: 769px) {
@@ -1089,7 +1160,7 @@ body {
     text-align: center;
     max-width: 500px;
     width: 90%;
-    box-shadow: 
+    box-shadow:
         0 20px 60px rgba(0, 0, 0, 0.5),
         0 0 30px rgba(139, 69, 19, 0.3);
     border: 3px solid rgba(255, 140, 0, 0.3);
@@ -1100,7 +1171,7 @@ body {
     font-size: 2.5rem;
     font-weight: bold;
     margin-bottom: 30px;
-    text-shadow: 
+    text-shadow:
         0 0 10px #ff6b6b,
         0 0 20px #ff6b6b,
         0 4px 8px rgba(0, 0, 0, 0.8);
@@ -1144,7 +1215,7 @@ body {
 .shop-icon {
     font-size: 1.8rem;
     animation: spookyFloat 1.5s ease-in-out infinite;
-    text-shadow: 
+    text-shadow:
         0 0 12px rgba(255, 215, 0, 0.9),
         2px 2px 4px rgba(0, 0, 0, 0.8);
 }
@@ -1152,7 +1223,7 @@ body {
 .shop-text {
     font-size: 1.5rem;
     font-weight: bold;
-    text-shadow: 
+    text-shadow:
         0 0 12px rgba(255, 215, 0, 0.9),
         2px 2px 4px rgba(0, 0, 0, 0.8);
 }
@@ -1169,8 +1240,13 @@ body {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Shop Styles */
@@ -1218,8 +1294,15 @@ body {
 }
 
 @keyframes coinSpin {
-    0%, 100% { transform: rotateY(0deg); }
-    50% { transform: rotateY(180deg); }
+
+    0%,
+    100% {
+        transform: rotateY(0deg);
+    }
+
+    50% {
+        transform: rotateY(180deg);
+    }
 }
 
 .shop-items {
@@ -1252,8 +1335,15 @@ body {
 }
 
 @keyframes itemFloat {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
 }
 
 .shop-item h3 {
@@ -1405,13 +1495,15 @@ body {
     font-size: 1.1rem;
 }
 
-.users-list, .sessions-list {
+.users-list,
+.sessions-list {
     max-height: 200px;
     overflow-y: auto;
     margin-top: 10px;
 }
 
-.user-item, .session-item {
+.user-item,
+.session-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1422,17 +1514,168 @@ body {
     border: 1px solid rgba(139, 69, 19, 0.3);
 }
 
-.user-item:hover, .session-item:hover {
+.user-item:hover,
+.session-item:hover {
     background: rgba(139, 69, 19, 0.3);
 }
 
-.user-name, .session-info {
+.user-name,
+.session-info {
     color: #ccc;
     font-size: 0.9rem;
 }
 
-.user-stats, .session-stats {
+.user-stats,
+.session-stats {
     color: #8B4513;
     font-size: 0.8rem;
     font-weight: bold;
+}
+
+/* iOS Install Prompt Styles */
+.ios-install-prompt {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.ios-install-prompt.hidden {
+    display: none;
+}
+
+.ios-prompt-content {
+    background: linear-gradient(135deg, #2d1810, #4a2c17);
+    border: 3px solid #8B4513;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    animation: slideInUp 0.5s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.ios-prompt-icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.ios-prompt-content h3 {
+    color: #8B4513;
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    text-shadow: 0 0 10px rgba(139, 69, 19, 0.5);
+}
+
+.ios-prompt-content p {
+    color: #ccc;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.ios-prompt-content ol {
+    text-align: left;
+    color: #fff;
+    font-size: 1rem;
+    line-height: 1.8;
+    margin: 20px 0;
+    padding-left: 20px;
+}
+
+.ios-prompt-content li {
+    margin: 10px 0;
+    padding-left: 10px;
+}
+
+.ios-prompt-content strong {
+    color: #ffd700;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+}
+
+.ios-prompt-benefit {
+    background: rgba(139, 69, 19, 0.3);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 20px 0;
+    font-size: 1rem !important;
+    color: #ffd700 !important;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+}
+
+.ios-prompt-btn {
+    background: linear-gradient(135deg, #8B4513, #654321);
+    border: 2px solid #8B4513;
+    border-radius: 25px;
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 4px 15px rgba(139, 69, 19, 0.5);
+    margin-top: 10px;
+}
+
+.ios-prompt-btn:hover {
+    background: linear-gradient(135deg, #654321, #4a2c17);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 69, 19, 0.7);
+}
+
+/* Additional iOS-specific optimizations */
+@supports (-webkit-touch-callout: none) {
+
+    /* iOS-specific styles */
+    body {
+        /* Prevent iOS rubber band effect */
+        position: fixed;
+        overflow: hidden;
+    }
+
+    #game-container {
+        /* Ensure game container fills screen on iOS */
+        min-height: -webkit-fill-available;
+    }
+
+    /* Prevent double-tap zoom on iOS */
+    button,
+    a,
+    input {
+        touch-action: manipulation;
+    }
 }
