@@ -53,9 +53,6 @@
             <div class="home-content">
                 <h1 class="game-title">🎮 JumpIt</h1>
                 <p class="game-subtitle">Das ultimative Jump 'n Run Abenteuer!</p>
-                <div class="version-info">
-                    <span id="version-display">v2.2.0 - Build af1eb29</span>
-                </div>
                 <div class="home-buttons">
                     <button id="play-btn" class="play-button">
                         <span class="play-icon">▶</span>
@@ -66,15 +63,19 @@
                         <span class="leaderboard-icon">🏆</span>
                         <span class="leaderboard-text">Rangliste</span>
                     </button>
-                    <button id="home-admin-btn" class="home-admin-button">
-                        <span class="admin-icon">🔧</span>
-                        <span class="admin-text">Admin</span>
-                    </button>
-                    <button id="home-fullscreen-btn" class="home-fullscreen-button">
-                        <span class="fullscreen-icon">⛶</span>
-                        <span class="fullscreen-text">Vollbild</span>
+                    <button id="home-info-btn" class="home-info-button">
+                        <span class="info-icon">ℹ️</span>
+                        <span class="info-text">Info</span>
                     </button>
                 </div>
+                
+                <!-- Version Display - Top Right -->
+                <div class="version-info-topright">
+                    <span id="version-display">v2.2.0 - Build af1eb29</span>
+                </div>
+                
+                <!-- Hidden Admin Access - Top Left Corner -->
+                <button id="secret-admin-btn" class="secret-admin-button" title="Admin"></button>
             </div>
         </div>
 
@@ -96,7 +97,6 @@
         <div id="ui-overlay">
             <div id="hud">
                 <div class="hud-item">
-                    <span class="hud-label">Leben:</span>
                     <div id="hearts">
                         <span class="heart">♥</span>
                         <span class="heart">♥</span>
@@ -104,15 +104,11 @@
                     </div>
                 </div>
                 <div class="hud-item">
-                    <span class="hud-label">Münzen:</span>
-                    <span id="coins">0</span>
-                </div>
-                <div class="hud-item">
                     <span class="hud-label">Punkte:</span>
                     <span id="score">0</span>
                 </div>
                 <div class="hud-item">
-                    <span class="hud-label">Zeit:</span>
+                    <span class="clock-icon">🕐</span>
                     <span id="timer">00:00</span>
                 </div>
                 <div class="hud-item">
@@ -166,6 +162,56 @@
                 <h2>Rangliste</h2>
                 <div id="leaderboard-list"></div>
                 <button id="close-leaderboard">Schließen</button>
+            </div>
+        </div>
+
+        <!-- Info Modal -->
+        <div id="info-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>ℹ️ Spielanleitung</h2>
+                <div class="info-content">
+                    <h3>🎯 Spielziel</h3>
+                    <p>Steuere den Werwolf durch mystische Welten, sammle Münzen und erreiche das Ziel, ohne deine Leben zu verlieren!</p>
+                    
+                    <h3>🎮 Steuerung</h3>
+                    <p><strong>Computer:</strong></p>
+                    <ul>
+                        <li>← → Pfeiltasten: Laufen</li>
+                        <li>↑ Pfeiltaste oder Leertaste: Springen</li>
+                    </ul>
+                    <p><strong>Mobile:</strong></p>
+                    <ul>
+                        <li>Verwende die Buttons am unteren Bildschirmrand</li>
+                    </ul>
+                    
+                    <h3>💰 Spielelemente</h3>
+                    <ul>
+                        <li>🪙 <strong>Münzen:</strong> Sammle sie für Punkte!</li>
+                        <li>❤️ <strong>Leben:</strong> Du startest mit 3 Leben</li>
+                        <li>🕷️ <strong>Spinnen:</strong> Vermeide sie oder verliere Leben</li>
+                        <li>🏁 <strong>Ziel:</strong> Erreiche das Ende des Levels</li>
+                    </ul>
+                    
+                    <h3>⏱️ Punktesystem</h3>
+                    <ul>
+                        <li>Jede Münze: +10 Punkte</li>
+                        <li>Zeitbonus: Je schneller, desto besser!</li>
+                        <li>Trage dich in die Rangliste ein!</li>
+                    </ul>
+                </div>
+                <button id="close-info">Zurück zum Hauptmenü</button>
+            </div>
+        </div>
+
+        <!-- Admin Password Modal -->
+        <div id="admin-password-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>🔐 Admin Zugang</h2>
+                <form id="admin-password-form">
+                    <input type="password" id="admin-password" placeholder="Passwort eingeben" required>
+                    <button type="submit">Anmelden</button>
+                    <button type="button" id="cancel-admin">Abbrechen</button>
+                </form>
             </div>
         </div>
 

@@ -337,12 +337,54 @@ class AdminPanel {
     }
     
     setupEventListeners() {
-        // Admin button event listener
-        const adminBtn = document.getElementById('home-admin-btn');
-        if (adminBtn) {
-            adminBtn.addEventListener('click', () => {
-                console.log('Admin panel button clicked');
-                this.showAdminPanel();
+        // Secret Admin button event listener (top left corner)
+        const secretAdminBtn = document.getElementById('secret-admin-btn');
+        if (secretAdminBtn) {
+            secretAdminBtn.addEventListener('click', () => {
+                console.log('Secret admin button clicked');
+                this.showAdminPasswordModal();
+            });
+        }
+        
+        // Admin password form
+        const adminPasswordForm = document.getElementById('admin-password-form');
+        if (adminPasswordForm) {
+            adminPasswordForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const password = document.getElementById('admin-password').value;
+                if (password === 'tt1') {
+                    this.hideAdminPasswordModal();
+                    this.showAdminPanel();
+                } else {
+                    alert('❌ Falsches Passwort!');
+                    document.getElementById('admin-password').value = '';
+                }
+            });
+        }
+        
+        // Cancel admin login
+        const cancelAdminBtn = document.getElementById('cancel-admin');
+        if (cancelAdminBtn) {
+            cancelAdminBtn.addEventListener('click', () => {
+                this.hideAdminPasswordModal();
+                document.getElementById('admin-password').value = '';
+            });
+        }
+        
+        // Info button event listener
+        const infoBtn = document.getElementById('home-info-btn');
+        if (infoBtn) {
+            infoBtn.addEventListener('click', () => {
+                console.log('Info button clicked');
+                this.showInfoModal();
+            });
+        }
+        
+        // Close info modal
+        const closeInfoBtn = document.getElementById('close-info');
+        if (closeInfoBtn) {
+            closeInfoBtn.addEventListener('click', () => {
+                this.hideInfoModal();
             });
         }
         
@@ -352,6 +394,34 @@ class AdminPanel {
             closeAdminBtn.addEventListener('click', () => {
                 this.hideAdminPanel();
             });
+        }
+    }
+    
+    showAdminPasswordModal() {
+        const modal = document.getElementById('admin-password-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+        }
+    }
+    
+    hideAdminPasswordModal() {
+        const modal = document.getElementById('admin-password-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+    }
+    
+    showInfoModal() {
+        const modal = document.getElementById('info-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+        }
+    }
+    
+    hideInfoModal() {
+        const modal = document.getElementById('info-modal');
+        if (modal) {
+            modal.classList.add('hidden');
         }
     }
     
