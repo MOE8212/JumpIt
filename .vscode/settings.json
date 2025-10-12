@@ -1,0 +1,52 @@
+{
+  // JumpIt Workspace Settings
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "files.eol": "\n",
+  
+  // Files
+  "files.exclude": {
+    "**/.git": true,
+    "**/node_modules": true,
+    "**/*.zip": true,
+    "**/game.db": true
+  },
+  
+  // Search
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/backend/node_modules": true,
+    "**/*.zip": true
+  },
+  
+  // Language specific
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features",
+    "editor.formatOnSave": true
+  },
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features",
+    "editor.formatOnSave": true
+  },
+  "[css]": {
+    "editor.defaultFormatter": "vscode.css-language-features",
+    "editor.formatOnSave": true
+  },
+  
+  // Git
+  "git.ignoreLimitWarning": true,
+  
+  // Terminal
+  "terminal.integrated.cwd": "${workspaceFolder}",
+  
+  // Project specific
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact"
+  },
+  
+  // Cursor AI
+  "cursor.chat.codeContext": "auto",
+  "cursor.chat.includeWorkspaceContext": true
+}
+

@@ -1,0 +1,66 @@
+# JumpIt - Cursor AI Rules & Context
+
+## Projekt-Übersicht
+- **Name**: JumpIt - Werewolf Jump 'n Run Game
+- **Tech Stack**: Phaser.js 3.70.0, Vanilla JS, Node.js Backend
+- **Repository**: https://github.com/MOE8212/JumpIt
+- **Live Demo**: https://moe8212.github.io/JumpIt/
+
+## Projekt-Struktur
+- `index.html` - Haupt-HTML (DEPLOYED VERSION)
+- `game.js` - Phaser Game Logic
+- `auth.js` - Authentication & Leaderboard
+- `styles.css` - All Styles
+- `backend/` - Node.js Express Backend mit SQLite
+  - `server.js` - API Server
+  - Port: 3001
+
+## Wichtige Features
+- Jump 'n Run Gameplay mit Phaser.js
+- Shop-System für Skins
+- Leaderboard & User Authentication
+- Admin Panel für Statistiken
+- Mobile Controls & Touch-Support
+- Fullscreen-Modus (iOS-kompatibel)
+- Offline-Modus mit localStorage
+
+## Deployment
+- **Plattform**: GitHub Pages
+- **Branch**: main
+- **Auto-Deploy**: Bei jedem Push auf main
+- **Build-Info**: In index.html als Kommentar und Version-Display
+
+## Git Workflow
+- Main branch für Production
+- Immer vor dem Arbeiten: `git pull origin main`
+- Build-Info in index.html aktualisieren bei neuen Features
+
+## Code-Standards
+- Deutsche Kommentare und UI-Texte
+- Emojis in UI für bessere UX
+- Mobile-First Approach
+- localStorage für Offline-Features
+
+## Backend (Optional)
+- SQLite Datenbank (game.db)
+- JWT Authentication
+- CORS für Frontend-Integration
+- Läuft auf localhost:3001 in Dev
+
+## Testing
+- `test.html` für einfache Tests
+- `test-simple.html` für minimale Tests
+- Immer auf Desktop & Mobile testen
+
+## Wichtige Dateien
+- `index.html` - PRODUCTION FILE (wird deployed)
+- `index_new.html` - Alte Test-Datei (NICHT verwenden)
+- `package.json` - Frontend Scripts (Python Server)
+- `backend/package.json` - Backend Dependencies
+
+## Cursor AI Hinweise
+- Bei Änderungen an index.html: Build-Info Kommentar aktualisieren
+- Version-Display auf Home Screen synchron halten
+- Immer beide Dateien prüfen: game.js und auth.js
+- Mobile Controls in styles.css beachten
+
