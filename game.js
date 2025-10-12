@@ -823,13 +823,11 @@ function update() {
             // Platform enemies move back and forth on their platform
             if (enemy.x <= enemy.platformLeft || enemy.x >= enemy.platformRight) {
                 enemy.direction *= -1;
-                enemy.setVelocityX(enemy.direction * 40);
+                enemy.flipX = enemy.direction === 1; // Flip sprite based on direction
             }
 
-            // Keep moving in current direction
-            if (Math.abs(enemy.body.velocity.x) < 10) {
-                enemy.setVelocityX(enemy.direction * 40);
-            }
+            // Always keep moving in current direction with consistent speed
+            enemy.setVelocityX(enemy.direction * 60); // Increased speed from 40 to 60
         }
     });
 
