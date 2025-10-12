@@ -178,25 +178,18 @@ function createGlobalBackgroundMusic() {
         currentNote = (currentNote + 1) % howlMelody.length;
     };
 
-    // Start music immediately
-    isPlaying = true;
-    musicInterval = setInterval(playMelody, 800);
-    console.log('Global werewolf howling music started');
-
-    // Make it globally accessible
+    // Don't start music immediately - let game music handle it
+    // Make it globally accessible for stopping if needed
     window.globalMusic = {
         start: function () {
-            if (!isPlaying) {
-                isPlaying = true;
-                musicInterval = setInterval(playMelody, 800);
-                console.log('Global werewolf music started');
-            }
+            // Disabled - game music will play instead
+            console.log('Global music disabled in favor of game music');
         },
         stop: function () {
             if (isPlaying) {
                 isPlaying = false;
                 clearInterval(musicInterval);
-                console.log('Global werewolf music stopped');
+                console.log('Global music stopped');
             }
         }
     };
@@ -413,84 +406,95 @@ function createJumpSound() {
 }
 
 function createBackgroundMusic() {
-    // Create cheerful, upbeat background music for jump'n'run fun!
+    // Create cheerful, complex jump'n'run music with chords!
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let isPlaying = false;
     let musicInterval;
 
-    // Cheerful melody - happy and bouncy!
-    const happyMelody = [
-        { freq: 523, duration: 0.2 }, // C5 - bright start
-        { freq: 587, duration: 0.2 }, // D5
-        { freq: 659, duration: 0.2 }, // E5
-        { freq: 698, duration: 0.2 }, // F5
-        { freq: 784, duration: 0.3 }, // G5 - higher
-        { freq: 698, duration: 0.2 }, // F5
-        { freq: 659, duration: 0.2 }, // E5
-        { freq: 587, duration: 0.3 }, // D5
-        { freq: 523, duration: 0.2 }, // C5
-        { freq: 587, duration: 0.2 }, // D5
-        { freq: 659, duration: 0.4 }, // E5 - hold
-        { freq: 784, duration: 0.2 }, // G5
-        { freq: 880, duration: 0.2 }, // A5 - peak
-        { freq: 784, duration: 0.2 }, // G5
-        { freq: 659, duration: 0.3 }, // E5
-        { freq: 698, duration: 0.2 }, // F5
-        { freq: 784, duration: 0.4 }, // G5 - hold
-        { freq: 659, duration: 0.2 }, // E5
-        { freq: 587, duration: 0.2 }, // D5
-        { freq: 523, duration: 0.4 }  // C5 - end phrase
+    // Enhanced melody with bass line and harmony
+    const complexMelody = [
+        // Phrase 1
+        { melody: 523, bass: 262, harmony: 659, duration: 0.25 }, // C5 + C4 + E5
+        { melody: 587, bass: 294, harmony: 698, duration: 0.25 }, // D5 + D4 + F5
+        { melody: 659, bass: 330, harmony: 784, duration: 0.25 }, // E5 + E4 + G5
+        { melody: 698, bass: 349, harmony: 880, duration: 0.25 }, // F5 + F4 + A5
+        { melody: 784, bass: 392, harmony: 988, duration: 0.35 }, // G5 + G4 + B5
+        { melody: 784, bass: 392, harmony: 659, duration: 0.15 }, // G5 + G4 + E5
+        
+        // Phrase 2
+        { melody: 698, bass: 349, harmony: 880, duration: 0.25 }, // F5 + F4 + A5
+        { melody: 659, bass: 330, harmony: 784, duration: 0.25 }, // E5 + E4 + G5
+        { melody: 587, bass: 294, harmony: 698, duration: 0.35 }, // D5 + D4 + F5
+        { melody: 523, bass: 262, harmony: 659, duration: 0.25 }, // C5 + C4 + E5
+        
+        // Phrase 3 - Higher
+        { melody: 880, bass: 440, harmony: 1047, duration: 0.25 }, // A5 + A4 + C6
+        { melody: 784, bass: 392, harmony: 988, duration: 0.25 }, // G5 + G4 + B5
+        { melody: 698, bass: 349, harmony: 880, duration: 0.25 }, // F5 + F4 + A5
+        { melody: 659, bass: 330, harmony: 784, duration: 0.35 }, // E5 + E4 + G5
+        
+        // Phrase 4 - Resolution
+        { melody: 587, bass: 294, harmony: 698, duration: 0.25 }, // D5 + D4 + F5
+        { melody: 659, bass: 330, harmony: 784, duration: 0.25 }, // E5 + E4 + G5
+        { melody: 523, bass: 262, harmony: 659, duration: 0.5 }   // C5 + C4 + E5 - hold
     ];
     let currentNote = 0;
 
-    const playNote = (frequency, duration) => {
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        const filter = audioContext.createBiquadFilter();
+    const playChord = (melody, bass, harmony, duration) => {
+        [melody, bass, harmony].forEach((freq, idx) => {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
 
-        oscillator.connect(filter);
-        filter.connect(gainNode);
-        gainNode.connect(audioContext.destination);
+            oscillator.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(audioContext.destination);
 
-        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-        oscillator.type = 'triangle'; // Warm, friendly sound
+            oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+            oscillator.type = idx === 1 ? 'sawtooth' : 'triangle'; // Bass uses sawtooth
 
-        // Bright filter for cheerful sound
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(3000, audioContext.currentTime);
-        filter.Q.setValueAtTime(1, audioContext.currentTime);
+            // Bright filter
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(3500, audioContext.currentTime);
+            filter.Q.setValueAtTime(0.8, audioContext.currentTime);
 
-        // Quick attack, smooth release for bounce
-        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + 0.01);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            // Different volumes for melody, bass, harmony
+            const volume = idx === 0 ? 0.12 : (idx === 1 ? 0.08 : 0.06);
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
 
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + duration);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        });
     };
 
     const playMelody = () => {
         if (!isPlaying) return;
 
-        const note = happyMelody[currentNote];
-        playNote(note.freq, note.duration);
+        const note = complexMelody[currentNote];
+        playChord(note.melody, note.bass, note.harmony, note.duration);
         
-        currentNote = (currentNote + 1) % happyMelody.length;
+        currentNote = (currentNote + 1) % complexMelody.length;
     };
 
     return {
         start: function () {
             if (!isPlaying) {
                 isPlaying = true;
-                musicInterval = setInterval(playMelody, 250); // Upbeat tempo!
-                console.log('Happy jump music started!');
+                // Stop any global music first
+                if (window.globalMusic && window.globalMusic.stop) {
+                    window.globalMusic.stop();
+                }
+                musicInterval = setInterval(playMelody, 220); // Upbeat tempo!
+                console.log('Complex jump music started!');
             }
         },
         stop: function () {
             if (isPlaying) {
                 isPlaying = false;
                 clearInterval(musicInterval);
-                console.log('Happy jump music stopped');
+                console.log('Complex jump music stopped');
             }
         }
     };
@@ -1018,9 +1022,13 @@ function gameOver() {
     document.getElementById('final-time').textContent = formatTime(gameTime);
     modal.classList.remove('hidden');
 
-    // Do NOT submit score to leaderboard on Game Over
-    // Only successful completions should be in the leaderboard
-    console.log('Game Over! Score:', score, '- NOT submitting to leaderboard');
+    // Submit score to leaderboard even on Game Over
+    if (window.authManager && window.authManager.isLoggedIn) {
+        window.authManager.submitScore(score, gameTime, coinsCollected);
+        console.log('Game Over! Score:', score, '- submitted to leaderboard');
+    } else {
+        console.log('Game Over! Score:', score, '- not logged in, score not saved');
+    }
 }
 
 function updateHUD() {
