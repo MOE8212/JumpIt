@@ -4,13 +4,13 @@ const config = {
     parent: 'game',
     backgroundColor: '#87CEEB',
     scale: {
-        mode: Phaser.Scale.FIT,
+        mode: Phaser.Scale.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: 800,
-        height: 600,
-        // Mobile-optimiert: Nutze Viewport-Größe
+        width: '100%',
+        height: '100%',
         parent: 'game',
-        expandParent: false,
+        expandParent: true,
+        fullscreenTarget: 'game-container',
     },
     physics: {
         default: 'arcade',
@@ -413,96 +413,84 @@ function createJumpSound() {
 }
 
 function createBackgroundMusic() {
-    // Create Werewolf-themed background music with howling
+    // Create cheerful, upbeat background music for jump'n'run fun!
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let isPlaying = false;
     let musicInterval;
 
-    // Werewolf howling melody - low, haunting tones
-    const howlMelody = [
-        { freq: 110, duration: 1.2 }, // A2 - deep howl
-        { freq: 123, duration: 0.8 }, // B2
-        { freq: 110, duration: 0.6 }, // A2
-        { freq: 98, duration: 1.0 },  // G2 - very deep
-        { freq: 110, duration: 0.8 }, // A2
-        { freq: 123, duration: 0.6 }, // B2
-        { freq: 131, duration: 0.8 }, // C3
-        { freq: 110, duration: 1.5 }, // A2 - long howl
-        { freq: 87, duration: 0.8 },  // F2 - deepest
-        { freq: 110, duration: 0.6 }, // A2
-        { freq: 123, duration: 0.6 }, // B2
-        { freq: 110, duration: 1.0 }  // A2 - final howl
+    // Cheerful melody - happy and bouncy!
+    const happyMelody = [
+        { freq: 523, duration: 0.2 }, // C5 - bright start
+        { freq: 587, duration: 0.2 }, // D5
+        { freq: 659, duration: 0.2 }, // E5
+        { freq: 698, duration: 0.2 }, // F5
+        { freq: 784, duration: 0.3 }, // G5 - higher
+        { freq: 698, duration: 0.2 }, // F5
+        { freq: 659, duration: 0.2 }, // E5
+        { freq: 587, duration: 0.3 }, // D5
+        { freq: 523, duration: 0.2 }, // C5
+        { freq: 587, duration: 0.2 }, // D5
+        { freq: 659, duration: 0.4 }, // E5 - hold
+        { freq: 784, duration: 0.2 }, // G5
+        { freq: 880, duration: 0.2 }, // A5 - peak
+        { freq: 784, duration: 0.2 }, // G5
+        { freq: 659, duration: 0.3 }, // E5
+        { freq: 698, duration: 0.2 }, // F5
+        { freq: 784, duration: 0.4 }, // G5 - hold
+        { freq: 659, duration: 0.2 }, // E5
+        { freq: 587, duration: 0.2 }, // D5
+        { freq: 523, duration: 0.4 }  // C5 - end phrase
     ];
     let currentNote = 0;
 
-    const playHowl = (frequency, duration) => {
+    const playNote = (frequency, duration) => {
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
         const filter = audioContext.createBiquadFilter();
-        const reverb = audioContext.createConvolver();
 
         oscillator.connect(filter);
         filter.connect(gainNode);
         gainNode.connect(audioContext.destination);
 
         oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-        oscillator.type = 'sawtooth'; // Raw, animal-like sound
+        oscillator.type = 'triangle'; // Warm, friendly sound
 
-        // Create howling effect with frequency modulation
-        const lfo = audioContext.createOscillator();
-        const lfoGain = audioContext.createGain();
-        lfo.frequency.setValueAtTime(0.5, audioContext.currentTime); // Slow modulation
-        lfo.type = 'sine';
-        lfoGain.gain.setValueAtTime(20, audioContext.currentTime); // Modulation depth
-        lfo.connect(lfoGain);
-        lfoGain.connect(oscillator.frequency);
-
-        // Add reverb for echo effect
+        // Bright filter for cheerful sound
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(600, audioContext.currentTime);
-        filter.Q.setValueAtTime(0.5, audioContext.currentTime);
+        filter.frequency.setValueAtTime(3000, audioContext.currentTime);
+        filter.Q.setValueAtTime(1, audioContext.currentTime);
 
-        // Create howling tremolo effect
-        const tremolo = audioContext.createGain();
-        const tremoloLfo = audioContext.createOscillator();
-        tremoloLfo.frequency.setValueAtTime(8, audioContext.currentTime); // Fast tremolo
-        tremoloLfo.type = 'sine';
-        tremoloLfo.connect(tremolo.gain);
-        tremolo.gain.setValueAtTime(0.4, audioContext.currentTime);
-        tremolo.gain.setValueAtTime(0.1, audioContext.currentTime);
-
-        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+        // Quick attack, smooth release for bounce
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + 0.01);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
 
-        lfo.start(audioContext.currentTime);
-        tremoloLfo.start(audioContext.currentTime);
         oscillator.start(audioContext.currentTime);
         oscillator.stop(audioContext.currentTime + duration);
-        lfo.stop(audioContext.currentTime + duration);
-        tremoloLfo.stop(audioContext.currentTime + duration);
     };
 
     const playMelody = () => {
         if (!isPlaying) return;
 
-        const note = howlMelody[currentNote];
-        playHowl(note.freq, note.duration);
-        currentNote = (currentNote + 1) % howlMelody.length;
+        const note = happyMelody[currentNote];
+        playNote(note.freq, note.duration);
+        
+        currentNote = (currentNote + 1) % happyMelody.length;
     };
 
     return {
         start: function () {
             if (!isPlaying) {
                 isPlaying = true;
-                musicInterval = setInterval(playMelody, 800); // Play every 800ms for howling rhythm
-                console.log('Werewolf howling music started');
+                musicInterval = setInterval(playMelody, 250); // Upbeat tempo!
+                console.log('Happy jump music started!');
             }
         },
         stop: function () {
             if (isPlaying) {
                 isPlaying = false;
                 clearInterval(musicInterval);
-                console.log('Werewolf howling music stopped');
+                console.log('Happy jump music stopped');
             }
         }
     };
@@ -610,29 +598,48 @@ function create() {
     const enemyPositions = [
         // Left section (0-800) - Ground patrol and platform enemies
         { x: 400, y: 540, type: 'patrol', direction: 1 }, { x: 650, y: 540, type: 'patrol', direction: -1 },
-        { x: 300, y: 440, type: 'static' }, { x: 550, y: 380, type: 'static' }, { x: 750, y: 440, type: 'static' },
+        { x: 300, y: 440, type: 'platform', direction: 1, platformWidth: 200 },
+        { x: 550, y: 380, type: 'platform', direction: -1, platformWidth: 200 },
+        { x: 750, y: 440, type: 'platform', direction: 1, platformWidth: 200 },
 
         // Middle section (800-1600) - More challenging
         { x: 1000, y: 540, type: 'patrol', direction: 1 }, { x: 1300, y: 540, type: 'patrol', direction: -1 },
-        { x: 950, y: 440, type: 'static' }, { x: 1200, y: 360, type: 'static' }, { x: 1450, y: 420, type: 'static' },
+        { x: 950, y: 440, type: 'platform', direction: 1, platformWidth: 200 },
+        { x: 1200, y: 360, type: 'platform', direction: -1, platformWidth: 200 },
+        { x: 1450, y: 420, type: 'platform', direction: 1, platformWidth: 200 },
 
         // Right section (1600-2400) - Difficult
         { x: 1800, y: 540, type: 'patrol', direction: 1 }, { x: 2100, y: 540, type: 'patrol', direction: -1 },
-        { x: 1700, y: 410, type: 'static' }, { x: 2000, y: 340, type: 'static' }, { x: 2250, y: 460, type: 'static' },
+        { x: 1700, y: 410, type: 'platform', direction: 1, platformWidth: 200 },
+        { x: 2000, y: 340, type: 'platform', direction: -1, platformWidth: 200 },
+        { x: 2250, y: 460, type: 'platform', direction: 1, platformWidth: 200 },
 
         // Far right section (2400-3200) - Final challenge
         { x: 2700, y: 540, type: 'patrol', direction: 1 }, { x: 3000, y: 540, type: 'patrol', direction: -1 },
-        { x: 2600, y: 440, type: 'static' }, { x: 2850, y: 360, type: 'static' }, { x: 3100, y: 420, type: 'static' }
+        { x: 2600, y: 440, type: 'platform', direction: 1, platformWidth: 200 },
+        { x: 2850, y: 360, type: 'platform', direction: -1, platformWidth: 200 },
+        { x: 3100, y: 420, type: 'platform', direction: 1, platformWidth: 200 }
     ];
 
     enemyPositions.forEach(pos => {
         const enemy = enemies.create(pos.x, pos.y, 'enemy');
         enemy.setBounce(0.2);
         enemy.setCollideWorldBounds(true);
-        enemy.setVelocityX(pos.type === 'patrol' ? pos.direction * 50 : 0);
+        
+        // Set initial velocity for moving enemies
+        const speed = pos.type === 'platform' ? 40 : 50;
+        enemy.setVelocityX(pos.direction * speed);
+        
         enemy.enemyType = pos.type;
         enemy.direction = pos.direction || 1;
         enemy.setScale(0.8);
+        
+        // Store platform boundaries for platform enemies
+        if (pos.type === 'platform') {
+            enemy.platformLeft = pos.x - pos.platformWidth / 2;
+            enemy.platformRight = pos.x + pos.platformWidth / 2;
+            enemy.initialY = pos.y;
+        }
 
         // Add collision with platforms
         this.physics.add.collider(enemy, platforms);
@@ -798,7 +805,7 @@ function update() {
     // Update enemy AI
     enemies.children.entries.forEach(enemy => {
         if (enemy.enemyType === 'patrol') {
-            // Reverse direction when hitting world bounds or platforms
+            // Reverse direction when hitting world bounds
             if (enemy.x <= 0 || enemy.x >= WORLD_WIDTH - 32) {
                 enemy.direction *= -1;
                 enemy.setVelocityX(enemy.direction * 50);
@@ -807,6 +814,17 @@ function update() {
             // Keep moving in current direction
             if (enemy.body.velocity.x === 0) {
                 enemy.setVelocityX(enemy.direction * 50);
+            }
+        } else if (enemy.enemyType === 'platform') {
+            // Platform enemies move back and forth on their platform
+            if (enemy.x <= enemy.platformLeft || enemy.x >= enemy.platformRight) {
+                enemy.direction *= -1;
+                enemy.setVelocityX(enemy.direction * 40);
+            }
+
+            // Keep moving in current direction
+            if (Math.abs(enemy.body.velocity.x) < 10) {
+                enemy.setVelocityX(enemy.direction * 40);
             }
         }
     });

@@ -907,13 +907,13 @@ body {
     }
 
     .control-btn {
-        width: 80px;
-        height: 80px;
-        font-size: 24px;
+        width: 140px;
+        height: 140px;
+        font-size: 48px;
     }
 
     .control-btn.jump {
-        font-size: 28px;
+        font-size: 56px;
     }
 
     .button-group {
@@ -1166,15 +1166,15 @@ body {
         padding: 8px 12px;
     }
     
-    /* Compact mobile controls */
+    /* Larger mobile controls for better usability */
     .control-btn {
-        width: 60px;
-        height: 60px;
-        font-size: 20px;
+        width: 120px;
+        height: 120px;
+        font-size: 40px;
     }
     
     .control-btn.jump {
-        font-size: 24px;
+        font-size: 48px;
     }
 }
 
