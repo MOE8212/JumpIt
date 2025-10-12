@@ -412,16 +412,36 @@ class AdminPanel {
     }
     
     showInfoModal() {
+        console.log('=== SHOWING INFO MODAL ===');
         const modal = document.getElementById('info-modal');
+        const homeScreen = document.getElementById('home-screen');
+        
         if (modal) {
+            console.log('Info modal found, removing hidden class');
             modal.classList.remove('hidden');
+            
+            // Also hide home screen so info is visible
+            if (homeScreen) {
+                homeScreen.style.display = 'none';
+            }
+        } else {
+            console.error('Info modal not found!');
         }
     }
     
     hideInfoModal() {
+        console.log('=== HIDING INFO MODAL ===');
         const modal = document.getElementById('info-modal');
+        const homeScreen = document.getElementById('home-screen');
+        
         if (modal) {
+            console.log('Hiding info modal');
             modal.classList.add('hidden');
+            
+            // Show home screen again
+            if (homeScreen) {
+                homeScreen.style.display = 'flex';
+            }
         }
     }
     
@@ -617,14 +637,27 @@ function showLeaderboard() {
     const leaderboard = window.authManager.getLeaderboard();
     console.log('Leaderboard data:', leaderboard);
     
+    // Filter to show only best score per user
+    const bestScores = {};
+    leaderboard.forEach(entry => {
+        const username = entry.username;
+        if (!bestScores[username] || entry.score > bestScores[username].score) {
+            bestScores[username] = entry;
+        }
+    });
+    
+    // Convert back to array and sort by score
+    const uniqueLeaderboard = Object.values(bestScores).sort((a, b) => b.score - a.score);
+    console.log('Filtered leaderboard (best scores only):', uniqueLeaderboard);
+    
     // Clear existing content
     list.innerHTML = '';
     
-    if (leaderboard.length === 0) {
+    if (uniqueLeaderboard.length === 0) {
         console.log('No leaderboard entries found');
         list.innerHTML = '<p>Noch keine Einträge vorhanden.</p>';
     } else {
-        console.log('Creating leaderboard table with', leaderboard.length, 'entries');
+        console.log('Creating leaderboard table with', uniqueLeaderboard.length, 'unique entries');
         
         // Create leaderboard table
         const table = document.createElement('table');
@@ -636,14 +669,14 @@ function showLeaderboard() {
         table.appendChild(header);
         
         // Entries
-        leaderboard.forEach((entry, index) => {
+        uniqueLeaderboard.forEach((entry, index) => {
             console.log('Adding leaderboard entry:', entry);
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${index + 1}</td>
                 <td>${entry.username}</td>
                 <td>${entry.score}</td>
-                <td>${entry.coins}</td>
+                <td>${entry.coins || 0}</td>
                 <td>${formatTime(entry.time)}</td>
             `;
             table.appendChild(row);
