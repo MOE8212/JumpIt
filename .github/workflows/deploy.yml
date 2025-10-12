@@ -33,21 +33,13 @@ jobs:
 
       - name: 📝 Update Version Info
         run: |
-          # Get short commit hash
-          COMMIT_HASH=$(git rev-parse --short HEAD)
-          echo "Current commit: $COMMIT_HASH"
-
-          # Get commit message
-          COMMIT_MSG=$(git log -1 --pretty=%B | head -c 50)
-          echo "Commit message: $COMMIT_MSG"
-
-          # Update index.html Build Info comment
-          sed -i "s/<!-- Build Info: Commit .* -->/<!-- Build Info: Commit $COMMIT_HASH - $COMMIT_MSG -->/" index.html
-
-          # Update version display (preserve version number, only update hash)
-          sed -i "s/\(id=\"version-display\">v[0-9.]*\) - Build [a-f0-9]*/\1 - Build $COMMIT_HASH/" index.html
-
-          echo "✅ Version updated to: $COMMIT_HASH"
+          # Setup Node.js
+          node --version
+          
+          # Run our existing update script (handles special characters properly)
+          node update-version.js
+          
+          echo "✅ Version update completed"
 
       - name: 💾 Commit Updated Version (if changed)
         run: |
