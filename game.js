@@ -1033,7 +1033,10 @@ function gameOver() {
 
 function updateHUD() {
     document.getElementById('score').textContent = score;
-    document.getElementById('coins').textContent = coinsCollected;
+    
+    // Coins display is no longer in HUD (removed for cleaner UI)
+    // const coinsElement = document.getElementById('coins');
+    // if (coinsElement) coinsElement.textContent = coinsCollected;
 
     // Update hearts
     const hearts = document.querySelectorAll('.heart');
@@ -1557,11 +1560,11 @@ function updateShopDisplay() {
         shopCoinsElement.textContent = totalCoins;
     }
 
-    // Update HUD coins
-    const hudCoinsElement = document.getElementById('coins');
-    if (hudCoinsElement) {
-        hudCoinsElement.textContent = totalCoins;
-    }
+    // HUD coins display removed for cleaner UI
+    // const hudCoinsElement = document.getElementById('coins');
+    // if (hudCoinsElement) {
+    //     hudCoinsElement.textContent = totalCoins;
+    // }
 
     // Load owned skins from localStorage
     const savedSkins = localStorage.getItem('jumpit_skins');
@@ -1656,11 +1659,11 @@ function addCoins(amount) {
     totalCoins += amount;
     localStorage.setItem('jumpit_coins', totalCoins.toString());
 
-    // Update HUD
-    const hudCoinsElement = document.getElementById('coins');
-    if (hudCoinsElement) {
-        hudCoinsElement.textContent = totalCoins;
-    }
+    // HUD coins display removed for cleaner UI
+    // const hudCoinsElement = document.getElementById('coins');
+    // if (hudCoinsElement) {
+    //     hudCoinsElement.textContent = totalCoins;
+    // }
 
     console.log(`${amount} Münzen hinzugefügt! Gesamt: ${totalCoins}`);
 }
