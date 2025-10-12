@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>JumpIt - Das ultimative Werewolf Jump 'n Run Spiel</title>
-        <meta name="description" content="Springen Sie als Werwolf durch das mystische Land und sammeln Sie Münzen! Kostenloses Jump 'n Run Spiel mit Shop-System.">
-        <meta name="keywords" content="JumpIt, Jump and Run, Werwolf, Spiel, Kostenlos, Online Spiel">
+    <title>JumpIt - Das ultimative Werewolf Jump 'n Run Spiel</title>
+    <meta name="description"
+        content="Springen Sie als Werwolf durch das mystische Land und sammeln Sie Münzen! Kostenloses Jump 'n Run Spiel mit Shop-System.">
+    <meta name="keywords" content="JumpIt, Jump and Run, Werwolf, Spiel, Kostenlos, Online Spiel">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
-    <!-- Build Info: Commit 92db1eb - Version tracking and deployment monitoring -->
+    <!-- Build Info: Commit ec5adf1 - Add Cursor AI context and workspace settings for c... -->
 </head>
+
 <body>
     <div id="game-container">
         <!-- Home Screen - SICHTBAR BEIM LADEN -->
@@ -18,7 +21,7 @@
                 <h1 class="game-title">🎮 JumpIt</h1>
                 <p class="game-subtitle">Das ultimative Jump 'n Run Abenteuer!</p>
                 <div class="version-info">
-                    <span id="version-display">v2.2.0 - Build 92db1eb</span>
+                    <span id="version-display">v2.2.0 - Build ec5adf1</span>
                 </div>
                 <div class="home-buttons">
                     <button id="play-btn" class="play-button">
@@ -44,10 +47,10 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Game Canvas - VERSTECKT BEIM LADEN -->
         <div id="game" style="display: none;"></div>
-        
+
         <!-- In-Game Main Menu -->
         <div id="in-game-menu" class="in-game-menu hidden">
             <div class="menu-content">
@@ -59,7 +62,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div id="ui-overlay">
             <div id="hud">
                 <div class="hud-item">
@@ -86,7 +89,7 @@
                     <button id="menu-btn" class="hud-btn">☰</button>
                 </div>
             </div>
-            
+
             <!-- Mobile Controls -->
             <div id="mobile-controls" class="mobile-only">
                 <div class="control-row">
@@ -96,7 +99,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Login/Register Modal -->
         <div id="auth-modal" class="modal hidden auth-modal">
             <div class="modal-content">
@@ -110,7 +113,7 @@
                 <p id="auth-switch">Noch kein Konto? <a href="#" id="switch-auth">Registrieren</a></p>
             </div>
         </div>
-        
+
         <!-- Game Over Modal -->
         <div id="game-over-modal" class="modal hidden">
             <div class="modal-content">
@@ -126,7 +129,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Leaderboard Modal -->
         <div id="leaderboard-modal" class="modal hidden">
             <div class="modal-content">
@@ -135,7 +138,7 @@
                 <button id="close-leaderboard">Schließen</button>
             </div>
         </div>
-        
+
         <!-- Admin Panel Modal -->
         <div id="admin-modal" class="modal hidden">
             <div class="modal-content admin-content">
@@ -143,7 +146,7 @@
                     <h2>🔧 Admin Panel</h2>
                     <button id="close-admin" class="close-btn">Schließen</button>
                 </div>
-                
+
                 <div class="admin-stats">
                     <div class="stat-card">
                         <h3>📊 Allgemeine Statistiken</h3>
@@ -160,12 +163,12 @@
                             <span id="total-games-played">0</span>
                         </div>
                     </div>
-                    
+
                     <div class="stat-card">
                         <h3>👥 Benutzer-Liste</h3>
                         <div id="users-list" class="users-list"></div>
                     </div>
-                    
+
                     <div class="stat-card">
                         <h3>🎮 Spiel-Sessions</h3>
                         <div id="game-sessions-list" class="sessions-list"></div>
@@ -218,8 +221,9 @@
             </div>
         </div>
     </div>
-    
+
     <script src="game.js"></script>
     <script src="auth.js"></script>
 </body>
+
 </html>
