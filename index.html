@@ -325,15 +325,17 @@
     <script src="admin-supabase.js"></script>
     <script src="game.js"></script>
 
-    <!-- Legacy-Initialisierung -->
+    <!-- Supabase Initialisierung -->
     <script>
         // Init Admin Panel nach DOM Load
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('=== BACKEND MODE INITIALIZATION ===');
+            console.log('=== SUPABASE MODE INITIALIZATION ===');
 
-            // Create global admin panel instance
-            window.adminPanel = new AdminPanel();
-            console.log('✅ AdminPanel initialized (Backend Mode)');
+            // Wait for apiClient to be initialized
+            setTimeout(() => {
+                window.adminPanel = new AdminPanel();
+                console.log('✅ AdminPanel initialized (Supabase Mode)');
+            }, 100);
 
             // Admin button
             const secretAdminBtn = document.getElementById('secret-admin-btn');
@@ -412,7 +414,7 @@
                 });
             }
 
-            console.log('=== BACKEND MODE READY ===');
+            console.log('=== SUPABASE MODE READY ===');
         });
     </script>
 
