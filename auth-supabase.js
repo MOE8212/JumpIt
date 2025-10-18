@@ -241,8 +241,9 @@ class AuthManager {
         );
       }
     } catch (error) {
-      console.error('Failed to submit score:', error);
-      alert('⚠️ Score konnte nicht gespeichert werden: ' + error.message);
+      console.error('❌ Failed to submit score:', error);
+      console.error('Error details:', error.message, error.code, error.details);
+      alert('⚠️ Score konnte nicht gespeichert werden: ' + (error.message || 'Unbekannter Fehler'));
     }
   }
 

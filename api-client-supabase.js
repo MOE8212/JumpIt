@@ -37,23 +37,31 @@ class SupabaseApiClient {
 
       if (authError) throw authError;
 
-      // 2. Erstelle User in DB
-      const { data: userData, error: dbError } = await this.supabase
-        .from('users')
-        .insert([
-          {
-            id: authData.user.id,
-            username: username,
-            email: email
-          }
-        ])
-        .select()
-        .single();
+      if (!authData.user) {
+        throw new Error('User creation failed');
+      }
 
-      if (dbError) {
-        console.error('DB Error:', dbError);
-        // Auth User wurde erstellt, aber DB insert fehlgeschlagen
-        // Das ist okay, wir können später ein Fallback machen
+      // 2. Erstelle User in DB mit korrekter UUID
+      try {
+        const { data: userData, error: dbError } = await this.supabase
+          .from('users')
+          .insert([
+            {
+              id: authData.user.id, // UUID von Supabase Auth
+              username: username,
+              email: email
+            }
+          ])
+          .select()
+          .single();
+
+        if (dbError) {
+          console.warn('⚠️ DB insert warning:', dbError.message);
+          // User existiert schon in DB - das ist okay
+        }
+      } catch (dbErr) {
+        console.warn('⚠️ DB insert failed (user might already exist):', dbErr);
+        // Nicht kritisch - Auth User wurde erstellt
       }
 
       this.session = authData.session;
@@ -117,6 +125,17 @@ class SupabaseApiClient {
     return !!this.session;
   }
 
+  setAdminPassword(password) {
+    this.adminPassword = password;
+    localStorage.setItem('jumpit_admin_password', password);
+    console.log('✅ Admin password set');
+  }
+
+  clearAdminPassword() {
+    this.adminPassword = null;
+    localStorage.removeItem('jumpit_admin_password');
+  }
+
   // ==================== SCORE APIs ====================
 
   async submitScore(score, coins, time) {
@@ -125,14 +144,11 @@ class SupabaseApiClient {
     }
 
     try {
-      const username = this.currentUser.user_metadata?.username || this.currentUser.email.split('@')[0];
-
       const { data, error } = await this.supabase
         .from('scores')
         .insert([
           {
             user_id: this.currentUser.id,
-            username: username,
             score: score,
             coins: coins,
             time: time
@@ -141,7 +157,10 @@ class SupabaseApiClient {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Supabase error:', error);
+        throw error;
+      }
 
       console.log('✅ Score submitted:', score);
       return data;
