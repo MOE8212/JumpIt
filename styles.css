@@ -672,6 +672,15 @@ body {
     z-index: 2500;
 }
 
+/* Admin Modals need higher z-index than home screen */
+#admin-password-modal {
+    z-index: 2500;
+}
+
+#admin-modal {
+    z-index: 2500;
+}
+
 .modal.hidden {
     display: none;
 }
