@@ -172,20 +172,27 @@ class SupabaseApiClient {
 
   async getLeaderboard(limit = 10) {
     try {
-      // Get best score per user
+      // Get scores with username from users table via JOIN
       const { data, error } = await this.supabase
         .from('scores')
-        .select('username, score, coins, time, created_at')
+        .select('score, coins, time, created_at, users(username)')
         .order('score', { ascending: false })
-        .limit(limit);
+        .limit(limit * 3); // Get more to find unique users
 
       if (error) throw error;
 
       // Group by username and get best score
       const leaderboard = {};
       data.forEach(entry => {
-        if (!leaderboard[entry.username] || entry.score > leaderboard[entry.username].score) {
-          leaderboard[entry.username] = entry;
+        const username = entry.users?.username || 'Unknown';
+        if (!leaderboard[username] || entry.score > leaderboard[username].score) {
+          leaderboard[username] = {
+            username: username,
+            score: entry.score,
+            coins: entry.coins,
+            time: entry.time,
+            created_at: entry.created_at
+          };
         }
       });
 
@@ -298,13 +305,24 @@ class SupabaseApiClient {
     try {
       const { data, error } = await this.supabase
         .from('scores')
-        .select('*')
+        .select('id, user_id, score, coins, time, created_at, users(username)')
         .order('created_at', { ascending: false })
         .limit(limit);
 
       if (error) throw error;
 
-      return { sessions: data };
+      // Transform data to include username at top level
+      const sessions = data.map(session => ({
+        id: session.id,
+        user_id: session.user_id,
+        username: session.users?.username || 'Unknown',
+        score: session.score,
+        coins: session.coins,
+        time: session.time,
+        created_at: session.created_at
+      }));
+
+      return { sessions };
     } catch (error) {
       console.error('Get admin sessions error:', error);
       throw error;
