@@ -30,9 +30,9 @@ try {
     // Read index.html
     let content = fs.readFileSync('index.html', 'utf-8');
 
-    // Update Build Info comment
+    // Update Build Info comment (support multi-line comments)
     content = content.replace(
-        /<!-- Build Info: Commit .* -->/,
+        /<!-- Build Info: Commit [a-f0-9]+ - [^\n]*(?:\n[^>]*)*-->/,
         `<!-- Build Info: Commit ${currentHash} - ${commitMsg} -->`
     );
 
