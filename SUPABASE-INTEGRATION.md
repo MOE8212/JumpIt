@@ -23,8 +23,9 @@ Folge der Anleitung in `SUPABASE-SETUP.md`:
 Öffne `supabase-config.js` und trage deine Werte ein:
 
 ```javascript
-const SUPABASE_URL = "https://DEIN-PROJECT-ID.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+const SUPABASE_URL = "https://awfpgidutxrkfwgdjjpn.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3ZnBnaWR1dHhya2Z3Z2RqanBuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA3ODE3MDksImV4cCI6MjA3NjM1NzcwOX0.X0Ng5emoTaRpEXVPcsu2nOBZ7q4WBX1zEc9krU8KzMY";
 ```
 
 ### Schritt 3: HTML anpassen
