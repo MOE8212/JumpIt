@@ -229,6 +229,22 @@ class AuthManager {
         }
     }
 
+    logout() {
+        console.log('=== USER LOGOUT ===');
+        console.log('Logging out user:', this.currentUser?.username);
+
+        // Clear user data
+        this.currentUser = null;
+        this.isLoggedIn = false;
+        localStorage.removeItem('jumpit_user');
+
+        console.log('User logged out successfully');
+        console.log('localStorage cleared');
+
+        // Show confirmation
+        alert('✅ Du wurdest erfolgreich abgemeldet!');
+    }
+
     startGameAfterAuth() {
         console.log('=== STARTING GAME AFTER AUTH ===');
         console.log('Looking for startGame function...');
@@ -662,7 +678,7 @@ function showLeaderboard() {
 
         // Header
         const header = document.createElement('tr');
-        header.innerHTML = '<th>Rang</th><th>Spieler</th><th>Punkte</th><th>Münzen</th><th>Zeit</th>';
+        header.innerHTML = '<th>Rang</th><th>Spieler</th><th>Punkte</th>';
         table.appendChild(header);
 
         // Entries
@@ -673,8 +689,6 @@ function showLeaderboard() {
                 <td>${index + 1}</td>
                 <td>${entry.username}</td>
                 <td>${entry.score}</td>
-                <td>${entry.coins || 0}</td>
-                <td>${formatTime(entry.time)}</td>
             `;
             table.appendChild(row);
         });
