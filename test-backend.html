@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Backend Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #fff;
+    }
+
+    .test-section {
+      background: #2a2a2a;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 10px;
+    }
+
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    .error {
+      color: #ff6b6b;
+    }
+
+    .success {
+      color: #51cf66;
+    }
+
+    .output {
+      background: #1a1a1a;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 5px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>🧪 JumpIt Backend Test</h1>
+
+  <div class="test-section">
+    <h2>1. Health Check</h2>
+    <button onclick="testHealth()">🔍 Test Health Check</button>
+    <div id="health-output" class="output"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>2. Registrierung</h2>
+    <input type="text" id="reg-username" placeholder="Username"
+      style="padding: 10px; margin: 5px; border-radius: 5px; border: none;">
+    <input type="email" id="reg-email" placeholder="Email"
+      style="padding: 10px; margin: 5px; border-radius: 5px; border: none;">
+    <input type="password" id="reg-password" placeholder="Passwort"
+      style="padding: 10px; margin: 5px; border-radius: 5px; border: none;">
+    <button onclick="testRegister()">✅ Registrieren</button>
+    <div id="register-output" class="output"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>3. Login</h2>
+    <input type="text" id="login-username" placeholder="Username"
+      style="padding: 10px; margin: 5px; border-radius: 5px; border: none;">
+    <input type="password" id="login-password" placeholder="Passwort"
+      style="padding: 10px; margin: 5px; border-radius: 5px; border: none;">
+    <button onclick="testLogin()">🔐 Login</button>
+    <div id="login-output" class="output"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>4. Score Submit</h2>
+    <input type="number" id="score" placeholder="Punkte"
+      style="padding: 10px; margin: 5px; border-radius: 5px; border: none;">
+    <input type="number" id="coins" placeholder="Münzen"
+      style="padding: 10px; margin: 5px; border-radius: 5px; border: none;">
+    <input type="number" id="time" placeholder="Zeit (Sekunden)"
+      style="padding: 10px; margin: 5px; border-radius: 5px; border: none;">
+    <button onclick="testSubmitScore()">🏆 Score Submit</button>
+    <div id="score-output" class="output"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>5. Leaderboard</h2>
+    <button onclick="testLeaderboard()">📊 Load Leaderboard</button>
+    <div id="leaderboard-output" class="output"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>6. Admin APIs</h2>
+    <input type="password" id="admin-password" placeholder="Admin Passwort" value="admin123"
+      style="padding: 10px; margin: 5px; border-radius: 5px; border: none;">
+    <button onclick="testAdminUsers()">👥 Get Users</button>
+    <button onclick="testAdminSessions()">🎮 Get Sessions</button>
+    <button onclick="testAdminStats()">📈 Get Stats</button>
+    <div id="admin-output" class="output"></div>
+  </div>
+
+  <script src="api-client.js"></script>
+  <script>
+    let currentToken = null;
+
+    async function testHealth() {
+      const output = document.getElementById('health-output');
+      try {
+        const result = await window.apiClient.healthCheck();
+        output.innerHTML = '<span class="success">✅ Success!</span>\n' + JSON.stringify(result, null, 2);
+      } catch (error) {
+        output.innerHTML = '<span class="error">❌ Error!</span>\n' + error.message;
+      }
+    }
+
+    async function testRegister() {
+      const output = document.getElementById('register-output');
+      const username = document.getElementById('reg-username').value;
+      const email = document.getElementById('reg-email').value;
+      const password = document.getElementById('reg-password').value;
+
+      try {
+        const result = await window.apiClient.register(username, password, email);
+        currentToken = result.token;
+        output.innerHTML = '<span class="success">✅ Success!</span>\n' + JSON.stringify(result, null, 2);
+      } catch (error) {
+        output.innerHTML = '<span class="error">❌ Error!</span>\n' + error.message;
+      }
+    }
+
+    async function testLogin() {
+      const output = document.getElementById('login-output');
+      const username = document.getElementById('login-username').value;
+      const password = document.getElementById('login-password').value;
+
+      try {
+        const result = await window.apiClient.login(username, password);
+        currentToken = result.token;
+        output.innerHTML = '<span class="success">✅ Success!</span>\n' + JSON.stringify(result, null, 2);
+      } catch (error) {
+        output.innerHTML = '<span class="error">❌ Error!</span>\n' + error.message;
+      }
+    }
+
+    async function testSubmitScore() {
+      const output = document.getElementById('score-output');
+      const score = parseInt(document.getElementById('score').value);
+      const coins = parseInt(document.getElementById('coins').value);
+      const time = parseInt(document.getElementById('time').value);
+
+      if (!currentToken) {
+        output.innerHTML = '<span class="error">❌ Bitte erst einloggen!</span>';
+        return;
+      }
+
+      try {
+        const result = await window.apiClient.submitScore(score, coins, time);
+        output.innerHTML = '<span class="success">✅ Success!</span>\n' + JSON.stringify(result, null, 2);
+      } catch (error) {
+        output.innerHTML = '<span class="error">❌ Error!</span>\n' + error.message;
+      }
+    }
+
+    async function testLeaderboard() {
+      const output = document.getElementById('leaderboard-output');
+      try {
+        const result = await window.apiClient.getLeaderboard(10);
+        output.innerHTML = '<span class="success">✅ Success!</span>\n' + JSON.stringify(result, null, 2);
+      } catch (error) {
+        output.innerHTML = '<span class="error">❌ Error!</span>\n' + error.message;
+      }
+    }
+
+    async function testAdminUsers() {
+      const output = document.getElementById('admin-output');
+      const adminPassword = document.getElementById('admin-password').value;
+      window.apiClient.setAdminPassword(adminPassword);
+
+      try {
+        const result = await window.apiClient.getAdminUsers();
+        output.innerHTML = '<span class="success">✅ Success!</span>\n' + JSON.stringify(result, null, 2);
+      } catch (error) {
+        output.innerHTML = '<span class="error">❌ Error!</span>\n' + error.message;
+      }
+    }
+
+    async function testAdminSessions() {
+      const output = document.getElementById('admin-output');
+      const adminPassword = document.getElementById('admin-password').value;
+      window.apiClient.setAdminPassword(adminPassword);
+
+      try {
+        const result = await window.apiClient.getAdminSessions(20);
+        output.innerHTML = '<span class="success">✅ Success!</span>\n' + JSON.stringify(result, null, 2);
+      } catch (error) {
+        output.innerHTML = '<span class="error">❌ Error!</span>\n' + error.message;
+      }
+    }
+
+    async function testAdminStats() {
+      const output = document.getElementById('admin-output');
+      const adminPassword = document.getElementById('admin-password').value;
+      window.apiClient.setAdminPassword(adminPassword);
+
+      try {
+        const result = await window.apiClient.getAdminStats();
+        output.innerHTML = '<span class="success">✅ Success!</span>\n' + JSON.stringify(result, null, 2);
+      } catch (error) {
+        output.innerHTML = '<span class="error">❌ Error!</span>\n' + error.message;
+      }
+    }
+
+    // Auto-check health on load
+    window.addEventListener('load', () => {
+      setTimeout(testHealth, 500);
+    });
+  </script>
+</body>
+
+</html>

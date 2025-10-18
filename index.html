@@ -317,8 +317,102 @@
         </div>
     </div>
 
+    <!-- Backend-Integration -->
+    <script src="api-client.js"></script>
+    <script src="auth-backend.js"></script>
+    <script src="admin-backend.js"></script>
     <script src="game.js"></script>
-    <script src="auth.js"></script>
+
+    <!-- Legacy-Initialisierung -->
+    <script>
+        // Init Admin Panel nach DOM Load
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('=== BACKEND MODE INITIALIZATION ===');
+
+            // Create global admin panel instance
+            window.adminPanel = new AdminPanel();
+            console.log('✅ AdminPanel initialized (Backend Mode)');
+
+            // Admin button
+            const secretAdminBtn = document.getElementById('secret-admin-btn');
+            if (secretAdminBtn) {
+                secretAdminBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🔧 Admin button clicked');
+                    const modal = document.getElementById('admin-password-modal');
+                    if (modal) modal.classList.remove('hidden');
+                });
+            }
+
+            // Admin password form
+            const adminPasswordForm = document.getElementById('admin-password-form');
+            if (adminPasswordForm) {
+                adminPasswordForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const password = document.getElementById('admin-password').value;
+                    if (password === 'admin123') {
+                        const modal = document.getElementById('admin-password-modal');
+                        if (modal) modal.classList.add('hidden');
+                        if (window.adminPanel) {
+                            window.apiClient.setAdminPassword(password);
+                            window.adminPanel.showAdminPanel();
+                        }
+                    } else {
+                        alert('❌ Falsches Passwort!');
+                    }
+                });
+            }
+
+            // Cancel admin
+            const cancelAdminBtn = document.getElementById('cancel-admin');
+            if (cancelAdminBtn) {
+                cancelAdminBtn.addEventListener('click', () => {
+                    const modal = document.getElementById('admin-password-modal');
+                    if (modal) modal.classList.add('hidden');
+                });
+            }
+
+            // Info button
+            const infoBtn = document.getElementById('home-info-btn');
+            if (infoBtn) {
+                infoBtn.addEventListener('click', () => {
+                    const modal = document.getElementById('info-modal');
+                    if (modal) modal.classList.remove('hidden');
+                });
+            }
+
+            // Close info
+            const closeInfoBtn = document.getElementById('close-info');
+            if (closeInfoBtn) {
+                closeInfoBtn.addEventListener('click', () => {
+                    const modal = document.getElementById('info-modal');
+                    if (modal) modal.classList.add('hidden');
+                });
+            }
+
+            // Logout button
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    if (window.authManager) {
+                        window.authManager.logout();
+                    }
+                });
+            }
+
+            // Leaderboard buttons
+            const closeLeaderboardBtn = document.getElementById('close-leaderboard');
+            if (closeLeaderboardBtn) {
+                closeLeaderboardBtn.addEventListener('click', () => {
+                    const modal = document.getElementById('leaderboard-modal');
+                    if (modal) modal.classList.add('hidden');
+                });
+            }
+
+            console.log('=== BACKEND MODE READY ===');
+        });
+    </script>
 
     <!-- Service Worker Registration -->
     <script>

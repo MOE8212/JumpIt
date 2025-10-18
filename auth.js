@@ -124,6 +124,9 @@ class AuthManager {
         localStorage.setItem('jumpit_user', JSON.stringify(user));
         localStorage.setItem('jumpit_password', password); // In production, use proper encryption!
 
+        // Save to all users list (for admin panel)
+        this.saveUserToAllUsers(username, password, email);
+
         console.log('User saved to localStorage');
         console.log('LocalStorage jumpit_user:', localStorage.getItem('jumpit_user'));
 
@@ -144,6 +147,22 @@ class AuthManager {
         this.startGameAfterAuth();
     }
 
+    saveUserToAllUsers(username, password, email) {
+        const allUsers = this.getAllUsers();
+        allUsers[username] = {
+            password: password,
+            email: email || '',
+            createdAt: new Date().toISOString()
+        };
+        localStorage.setItem('jumpit_all_users', JSON.stringify(allUsers));
+        console.log('User saved to all users list');
+    }
+
+    getAllUsers() {
+        const saved = localStorage.getItem('jumpit_all_users');
+        return saved ? JSON.parse(saved) : {};
+    }
+
     async login(username, password) {
         console.log('=== LOGIN PROCESS ===');
         console.log('Attempting to login with username:', username);
@@ -159,6 +178,12 @@ class AuthManager {
             console.log('Login successful!');
             this.currentUser = JSON.parse(savedUser);
             this.isLoggedIn = true;
+
+            // Also update allUsers list if user is not there yet
+            const allUsers = this.getAllUsers();
+            if (!allUsers[username]) {
+                this.saveUserToAllUsers(username, password, this.currentUser.email || '');
+            }
 
             console.log('Current user set:', this.currentUser);
             console.log('isLoggedIn set to:', this.isLoggedIn);
@@ -313,6 +338,11 @@ class AuthManager {
         localStorage.setItem('jumpit_leaderboard', JSON.stringify(leaderboard));
         console.log('Score submitted successfully!');
         console.log('Final leaderboard saved to localStorage');
+
+        // Also track this as a game session with score data
+        if (window.adminPanel) {
+            window.adminPanel.trackGameSessionWithScore(this.currentUser.username, score, coins, time);
+        }
     }
 
     getLeaderboard() {
@@ -510,7 +540,10 @@ class AdminPanel {
         gameSessions.push({
             username: username,
             timestamp: new Date().toISOString(),
-            sessionId: Date.now()
+            sessionId: Date.now(),
+            score: 0,
+            coins: 0,
+            time: 0
         });
 
         // Keep only last 50 sessions
@@ -520,6 +553,40 @@ class AdminPanel {
 
         localStorage.setItem('jumpit_game_sessions', JSON.stringify(gameSessions));
         console.log('Game session tracked for:', username);
+    }
+
+    trackGameSessionWithScore(username, score, coins, time) {
+        const userStats = this.getUserStats();
+        if (!userStats[username]) {
+            userStats[username] = {
+                loginCount: 0,
+                gameCount: 0,
+                firstLogin: new Date().toISOString(),
+                lastLogin: null
+            };
+        }
+
+        userStats[username].gameCount++;
+        localStorage.setItem('jumpit_user_stats', JSON.stringify(userStats));
+
+        // Track game session with score data
+        const gameSessions = this.getGameSessions();
+        gameSessions.push({
+            username: username,
+            timestamp: new Date().toISOString(),
+            sessionId: Date.now(),
+            score: score || 0,
+            coins: coins || 0,
+            time: time || 0
+        });
+
+        // Keep only last 50 sessions
+        if (gameSessions.length > 50) {
+            gameSessions.splice(0, gameSessions.length - 50);
+        }
+
+        localStorage.setItem('jumpit_game_sessions', JSON.stringify(gameSessions));
+        console.log('Game session with score tracked for:', username, '- Score:', score);
     }
 
     getUserStats() {
@@ -580,13 +647,21 @@ class AdminPanel {
         const sortedUsers = Object.entries(userStats)
             .sort(([, a], [, b]) => b.loginCount - a.loginCount);
 
+        // Get all users with passwords
+        const allUsers = window.authManager ? window.authManager.getAllUsers() : {};
+
         sortedUsers.forEach(([username, stats]) => {
             const userItem = document.createElement('div');
             userItem.className = 'user-item';
+
+            // Get password for this user
+            const userPassword = allUsers[username] ? allUsers[username].password : '(unbekannt)';
+
             userItem.innerHTML = `
-                <div class="user-name">${username}</div>
-                <div class="user-stats">
-                    ${stats.loginCount}x eingeloggt | ${stats.gameCount} Spiele
+                <div class="user-name" style="font-weight: bold; margin-bottom: 5px;">${username}</div>
+                <div class="user-stats" style="font-size: 0.9em;">
+                    🔑 Passwort: <span style="color: #ff6b6b; font-family: monospace;">${userPassword}</span><br>
+                    📊 ${stats.loginCount}x eingeloggt | ${stats.gameCount} Spiele
                 </div>
             `;
             usersList.appendChild(userItem);
@@ -619,9 +694,17 @@ class AdminPanel {
                 minute: '2-digit'
             });
 
+            // Format game time
+            const gameTimeFormatted = session.time ? formatTime(session.time) : '--:--';
+
             sessionItem.innerHTML = `
-                <div class="session-info">${session.username}</div>
-                <div class="session-stats">${timeString}</div>
+                <div class="session-info" style="font-weight: bold;">${session.username}</div>
+                <div class="session-stats" style="font-size: 0.85em;">
+                    ${timeString}<br>
+                    🏆 Punkte: <span style="color: #FFD700; font-weight: bold;">${session.score || 0}</span> | 
+                    🪙 Münzen: ${session.coins || 0} | 
+                    ⏱️ Zeit: ${gameTimeFormatted}
+                </div>
             `;
             sessionsList.appendChild(sessionItem);
         });
