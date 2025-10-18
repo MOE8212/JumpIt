@@ -1809,22 +1809,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Home leaderboard button not found!');
     }
 
-    // Logout button event listener
-    const logoutBtn = document.getElementById('logout-btn');
-    console.log('Logout button element:', logoutBtn);
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            console.log('Logout button clicked!');
-            if (window.authManager) {
-                window.authManager.logout();
-            } else {
-                console.error('Auth manager not found!');
-                alert('⚠️ Logout-System nicht verfügbar');
-            }
-        });
-    } else {
-        console.error('Logout button not found!');
-    }
+    // NOTE: Logout button is registered in auth.js to avoid conflicts
 
     // Shop modal event listeners
     const shopModal = document.getElementById('shop-modal');

@@ -721,9 +721,45 @@ function showLeaderboard() {
 
 // Initialize everything after DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('=== AUTH.JS DOMContentLoaded START ===');
+
     // Create global admin panel instance (after DOM is ready)
     window.adminPanel = new AdminPanel();
     console.log('✅ AdminPanel initialized after DOM loaded');
+
+    // IMPORTANT: Re-register critical button listeners here to ensure they work
+    // Admin button
+    const secretAdminBtn = document.getElementById('secret-admin-btn');
+    console.log('Registering admin button:', secretAdminBtn);
+    if (secretAdminBtn) {
+        secretAdminBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🔧 Admin button clicked (DOMContentLoaded handler)');
+            if (window.adminPanel) {
+                window.adminPanel.showAdminPasswordModal();
+            }
+        });
+        console.log('✅ Admin button listener registered');
+    }
+
+    // Logout button
+    const logoutBtn = document.getElementById('logout-btn');
+    console.log('Registering logout button:', logoutBtn);
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🚪 Logout button clicked (DOMContentLoaded handler)');
+            if (window.authManager) {
+                window.authManager.logout();
+            } else {
+                console.error('Auth manager not found!');
+                alert('⚠️ Logout-System nicht verfügbar');
+            }
+        });
+        console.log('✅ Logout button listener registered');
+    }
 
     // Close leaderboard
     const closeLeaderboardBtn = document.getElementById('close-leaderboard');
@@ -740,6 +776,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (leaderboardBtn) {
         leaderboardBtn.addEventListener('click', showLeaderboard);
     }
+
+    console.log('=== AUTH.JS DOMContentLoaded END ===');
 });
 
 function formatTime(seconds) {
