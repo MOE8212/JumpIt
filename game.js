@@ -420,19 +420,19 @@ function createBackgroundMusic() {
         { melody: 698, bass: 349, harmony: 880, duration: 0.25 }, // F5 + F4 + A5
         { melody: 784, bass: 392, harmony: 988, duration: 0.35 }, // G5 + G4 + B5
         { melody: 784, bass: 392, harmony: 659, duration: 0.15 }, // G5 + G4 + E5
-        
+
         // Phrase 2
         { melody: 698, bass: 349, harmony: 880, duration: 0.25 }, // F5 + F4 + A5
         { melody: 659, bass: 330, harmony: 784, duration: 0.25 }, // E5 + E4 + G5
         { melody: 587, bass: 294, harmony: 698, duration: 0.35 }, // D5 + D4 + F5
         { melody: 523, bass: 262, harmony: 659, duration: 0.25 }, // C5 + C4 + E5
-        
+
         // Phrase 3 - Higher
         { melody: 880, bass: 440, harmony: 1047, duration: 0.25 }, // A5 + A4 + C6
         { melody: 784, bass: 392, harmony: 988, duration: 0.25 }, // G5 + G4 + B5
         { melody: 698, bass: 349, harmony: 880, duration: 0.25 }, // F5 + F4 + A5
         { melody: 659, bass: 330, harmony: 784, duration: 0.35 }, // E5 + E4 + G5
-        
+
         // Phrase 4 - Resolution
         { melody: 587, bass: 294, harmony: 698, duration: 0.25 }, // D5 + D4 + F5
         { melody: 659, bass: 330, harmony: 784, duration: 0.25 }, // E5 + E4 + G5
@@ -474,7 +474,7 @@ function createBackgroundMusic() {
 
         const note = complexMelody[currentNote];
         playChord(note.melody, note.bass, note.harmony, note.duration);
-        
+
         currentNote = (currentNote + 1) % complexMelody.length;
     };
 
@@ -561,9 +561,6 @@ function create() {
     this.cameras.main.startFollow(player);
     this.cameras.main.setDeadzone(100, 50); // Smooth camera movement
 
-    // Debug: Enable physics debug to see collision boxes
-    this.physics.world.createDebugGraphic();
-
     // Create coins with better placement across the larger world
     coins = this.physics.add.group();
 
@@ -629,15 +626,15 @@ function create() {
         const enemy = enemies.create(pos.x, pos.y, 'enemy');
         enemy.setBounce(0.2);
         enemy.setCollideWorldBounds(true);
-        
+
         // Set initial velocity for moving enemies
         const speed = pos.type === 'platform' ? 40 : 50;
         enemy.setVelocityX(pos.direction * speed);
-        
+
         enemy.enemyType = pos.type;
         enemy.direction = pos.direction || 1;
         enemy.setScale(0.8);
-        
+
         // Store platform boundaries for platform enemies
         if (pos.type === 'platform') {
             enemy.platformLeft = pos.x - pos.platformWidth / 2;
@@ -1031,7 +1028,7 @@ function gameOver() {
 
 function updateHUD() {
     document.getElementById('score').textContent = score;
-    
+
     // Coins display is no longer in HUD (removed for cleaner UI)
     // const coinsElement = document.getElementById('coins');
     // if (coinsElement) coinsElement.textContent = coinsCollected;
