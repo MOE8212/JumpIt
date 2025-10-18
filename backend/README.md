@@ -1,244 +1,292 @@
-# JumpIt Backend
+# 🎮 JumpIt Backend API
 
-Backend API für das JumpIt Jump 'n Run Game.
+Node.js backend mit Express, SQLite, JWT Authentication, und Admin Panel.
 
-## Features
+## 🚀 Features
 
-- **Benutzerregistrierung & Login**: Sichere Authentifizierung mit JWT
-- **Score-System**: Speichern und Abrufen von Highscores
-- **Rangliste**: Top 10 Spieler anzeigen
-- **REST API**: Einfache API-Endpunkte für Frontend-Integration
+- ✅ User Registration & Login (JWT Auth)
+- ✅ Score Tracking mit Coins & Time
+- ✅ Leaderboard (Top 10)
+- ✅ Admin Panel APIs (CRUD für Users & Sessions)
+- ✅ SQLite Database (Persistent Storage)
+- ✅ CORS konfiguriert für Frontend
+- ✅ Health Check Endpoint
 
-## Installation
+## 📦 Installation
 
-1. Abhängigkeiten installieren:
 ```bash
-cd backend
 npm install
 ```
 
-2. Umgebungsvariablen einrichten:
+## 🔧 Konfiguration
+
+Erstelle eine `.env` Datei:
+
 ```bash
-cp env.example .env
-# Bearbeite .env mit deinen Werten
-```
-
-3. Server starten:
-```bash
-# Entwicklung
-npm run dev
-
-# Produktion
-npm start
-```
-
-Der Server läuft standardmäßig auf `http://localhost:3001`.
-
-## API-Endpunkte
-
-### Authentifizierung
-
-#### POST `/api/register`
-Registriert einen neuen Benutzer.
-
-**Request:**
-```json
-{
-  "username": "spieler123",
-  "email": "spieler@example.com",
-  "password": "sicheresPasswort"
-}
-```
-
-**Response:**
-```json
-{
-  "message": "User created successfully",
-  "token": "jwt-token",
-  "user": {
-    "id": 1,
-    "username": "spieler123",
-    "email": "spieler@example.com"
-  }
-}
-```
-
-#### POST `/api/login`
-Meldet einen Benutzer an.
-
-**Request:**
-```json
-{
-  "username": "spieler123",
-  "password": "sicheresPasswort"
-}
-```
-
-**Response:**
-```json
-{
-  "message": "Login successful",
-  "token": "jwt-token",
-  "user": {
-    "id": 1,
-    "username": "spieler123",
-    "email": "spieler@example.com"
-  }
-}
-```
-
-### Scores
-
-#### POST `/api/scores`
-Speichert einen neuen Score (benötigt Authentifizierung).
-
-**Request:**
-```json
-{
-  "score": 1250,
-  "coins": 8,
-  "time": 95
-}
-```
-
-**Response:**
-```json
-{
-  "message": "Score saved successfully",
-  "scoreId": 123
-}
-```
-
-#### GET `/api/leaderboard`
-Ruft die Rangliste ab.
-
-**Query Parameter:**
-- `limit` (optional): Anzahl der Einträge (Standard: 10)
-
-**Response:**
-```json
-{
-  "leaderboard": [
-    {
-      "username": "spieler123",
-      "score": 1250,
-      "coins": 8,
-      "time": 95,
-      "created_at": "2024-01-15T10:30:00.000Z"
-    }
-  ]
-}
-```
-
-#### GET `/api/user/best-score`
-Ruft den besten Score des angemeldeten Benutzers ab (benötigt Authentifizierung).
-
-**Response:**
-```json
-{
-  "bestScore": {
-    "score": 1250,
-    "coins": 8,
-    "time": 95,
-    "created_at": "2024-01-15T10:30:00.000Z"
-  }
-}
-```
-
-### Utility
-
-#### GET `/api/health`
-Health Check Endpoint.
-
-**Response:**
-```json
-{
-  "status": "OK",
-  "timestamp": "2024-01-15T10:30:00.000Z"
-}
-```
-
-## Datenbank
-
-Das Backend verwendet SQLite mit folgenden Tabellen:
-
-### `users`
-- `id` (INTEGER PRIMARY KEY)
-- `username` (TEXT UNIQUE)
-- `email` (TEXT)
-- `password` (TEXT - gehasht)
-- `created_at` (DATETIME)
-
-### `scores`
-- `id` (INTEGER PRIMARY KEY)
-- `user_id` (INTEGER - Foreign Key)
-- `score` (INTEGER)
-- `coins` (INTEGER)
-- `time` (INTEGER)
-- `created_at` (DATETIME)
-
-## Sicherheit
-
-- Passwörter werden mit bcrypt gehasht
-- JWT-Token für Authentifizierung
-- CORS-Unterstützung für Frontend-Integration
-- Input-Validierung
-
-## Entwicklung
-
-### Umgebungsvariablen
-
-Erstelle eine `.env` Datei basierend auf `env.example`:
-
-```env
 PORT=3001
-JWT_SECRET=dein-super-geheimer-schlüssel
-DB_PATH=./game.db
-CORS_ORIGIN=http://localhost:3000
+JWT_SECRET=dein-super-secret-key-change-in-production
+ADMIN_PASSWORD=admin123
 ```
 
-### Scripts
+## ▶️ Starten
 
-- `npm start`: Startet den Server
-- `npm run dev`: Startet den Server mit nodemon (Auto-Reload)
-- `npm test`: Führt Tests aus (noch nicht implementiert)
+### Development (localhost):
 
-## Deployment
-
-### Lokale Entwicklung
-
-1. Backend starten:
-```bash
-cd backend
-npm run dev
-```
-
-2. Frontend starten:
 ```bash
 npm start
+# oder
+node server.js
 ```
 
-### Produktion
+Server läuft auf: `http://localhost:3001`
 
-Für Produktions-Deployment:
+### Production (Online Hosting):
 
-1. Setze `JWT_SECRET` auf einen sicheren Wert
-2. Konfiguriere CORS für deine Domain
-3. Verwende einen Produktions-Datenbankserver (PostgreSQL, MySQL)
-4. Setze `NODE_ENV=production`
+Siehe `../BACKEND-DEPLOYMENT.md` und `../QUICK-DEPLOY.md`
 
-## Troubleshooting
+## 📡 API Endpoints
 
-### Häufige Probleme
+### Public APIs
 
-1. **Port bereits belegt**: Ändere den PORT in der `.env` Datei
-2. **CORS-Fehler**: Überprüfe die CORS-Konfiguration
-3. **Datenbankfehler**: Stelle sicher, dass SQLite installiert ist
+#### Health Check
 
-### Logs
+```http
+GET /api/health
+```
 
-Das Backend loggt wichtige Ereignisse in die Konsole. Für Produktions-Deployment solltest du ein Logging-System wie Winston verwenden.
+Response: `{ "status": "OK", "timestamp": "2024-..." }`
 
+#### Register
 
+```http
+POST /api/register
+Content-Type: application/json
 
+{
+  "username": "player1",
+  "email": "player@example.com",
+  "password": "secure123"
+}
+```
 
+#### Login
+
+```http
+POST /api/login
+Content-Type: application/json
+
+{
+  "username": "player1",
+  "password": "secure123"
+}
+```
+
+Response: `{ "token": "jwt_token...", "user": {...} }`
+
+#### Leaderboard
+
+```http
+GET /api/leaderboard?limit=10
+```
+
+### Authenticated APIs (Require JWT Token)
+
+#### Submit Score
+
+```http
+POST /api/scores
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "score": 1000,
+  "coins": 50,
+  "time": 120
+}
+```
+
+#### Get User Best Score
+
+```http
+GET /api/user/best-score
+Authorization: Bearer <jwt_token>
+```
+
+### Admin APIs (Require Admin Password)
+
+#### Get All Users
+
+```http
+GET /api/admin/users
+X-Admin-Password: admin123
+```
+
+#### Update User
+
+```http
+PUT /api/admin/users/:id
+X-Admin-Password: admin123
+Content-Type: application/json
+
+{
+  "username": "newname",
+  "email": "new@email.com",
+  "password": "newpassword"
+}
+```
+
+#### Delete User
+
+```http
+DELETE /api/admin/users/:id
+X-Admin-Password: admin123
+```
+
+#### Get All Sessions
+
+```http
+GET /api/admin/sessions?limit=50
+X-Admin-Password: admin123
+```
+
+#### Update Session
+
+```http
+PUT /api/admin/sessions/:id
+X-Admin-Password: admin123
+Content-Type: application/json
+
+{
+  "score": 2000,
+  "coins": 100,
+  "time": 150
+}
+```
+
+#### Delete Session
+
+```http
+DELETE /api/admin/sessions/:id
+X-Admin-Password: admin123
+```
+
+#### Get Admin Stats
+
+```http
+GET /api/admin/stats
+X-Admin-Password: admin123
+```
+
+Response:
+
+```json
+{
+  "totalUsers": 10,
+  "totalGames": 50,
+  "avgScore": 1234.5,
+  "topPlayer": "player1"
+}
+```
+
+## 🗄️ Datenbank
+
+SQLite Datenbank: `game.db` (automatisch erstellt)
+
+### Tabellen:
+
+**users**
+
+- id (INTEGER PRIMARY KEY)
+- username (TEXT UNIQUE)
+- email (TEXT)
+- password (TEXT, bcrypt hashed)
+- created_at (DATETIME)
+
+**scores**
+
+- id (INTEGER PRIMARY KEY)
+- user_id (INTEGER, FOREIGN KEY)
+- score (INTEGER)
+- coins (INTEGER)
+- time (INTEGER)
+- created_at (DATETIME)
+
+## 🔒 Sicherheit
+
+- ✅ Passwörter werden mit bcrypt gehasht (10 Runden)
+- ✅ JWT Tokens für Authentication
+- ✅ Admin-Passwort für Admin-APIs
+- ✅ CORS konfiguriert
+- ⚠️ Für Production: JWT_SECRET und ADMIN_PASSWORD ändern!
+
+## 🧪 Testing
+
+```bash
+# Health Check
+curl http://localhost:3001/api/health
+
+# Register
+curl -X POST http://localhost:3001/api/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"test","email":"test@test.com","password":"test123"}'
+
+# Login
+curl -X POST http://localhost:3001/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"test","password":"test123"}'
+```
+
+## 🌐 Deployment
+
+Siehe separate Deployment-Guides:
+
+- `../BACKEND-DEPLOYMENT.md` - Detaillierte Optionen
+- `../QUICK-DEPLOY.md` - Schnellstart für Railway/Render
+
+### Quick Deploy (Railway):
+
+```bash
+npm install -g railway
+railway login
+cd backend
+railway up
+```
+
+## 📝 Logs
+
+```bash
+# Development
+node server.js
+
+# Production (mit PM2)
+pm2 start server.js --name jumpit-backend
+pm2 logs jumpit-backend
+```
+
+## 🐛 Troubleshooting
+
+**Problem: Port already in use**
+
+```bash
+# Windows
+netstat -ano | findstr :3001
+taskkill /PID <PID> /F
+
+# Mac/Linux
+lsof -i :3001
+kill -9 <PID>
+```
+
+**Problem: Database locked**
+
+```bash
+# Stoppe Server und lösche Database
+rm game.db
+# Starte Server neu - DB wird automatisch neu erstellt
+```
+
+## 📞 Support
+
+- Frontend: `index.html`, `game.js`, `auth-backend.js`
+- API Client: `api-client.js`
+- Deployment: `../BACKEND-DEPLOYMENT.md`

@@ -6,20 +6,46 @@ class APIClient {
     this.baseURL = this.getBaseURL();
     this.token = localStorage.getItem('jumpit_token') || null;
     this.adminPassword = 'admin123'; // Wird aus localStorage/Session geladen
+    this.offlineMode = false;
+    this.backendAvailable = false;
 
     console.log('🔌 API Client initialized:', this.baseURL);
+    this.checkBackendAvailability();
   }
 
   getBaseURL() {
     // Prüfe ob wir in Development oder Production sind
     const hostname = window.location.hostname;
 
+    // Erlaube manuelles Überschreiben der Backend-URL via localStorage
+    const customBackendURL = localStorage.getItem('jumpit_backend_url');
+    if (customBackendURL) {
+      console.log('📍 Using custom backend URL:', customBackendURL);
+      return customBackendURL;
+    }
+
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
       return 'http://localhost:3001/api';
     } else {
-      // Production: GitHub Pages
-      // TODO: Backend-URL hier eintragen wenn deployed
-      return 'http://localhost:3001/api';
+      // Production: GitHub Pages - Offline-Modus
+      console.log('⚠️ Production mode - Backend offline, using localStorage');
+      this.offlineMode = true;
+      return null;
+    }
+  }
+
+  async checkBackendAvailability() {
+    try {
+      const health = await this.healthCheck();
+      if (health.status === 'OK') {
+        this.backendAvailable = true;
+        this.offlineMode = false;
+        console.log('✅ Backend connected:', health.timestamp);
+      }
+    } catch (error) {
+      console.warn('⚠️ Backend nicht erreichbar - Fallback auf localStorage');
+      this.offlineMode = true;
+      this.backendAvailable = false;
     }
   }
 
@@ -42,6 +68,11 @@ class APIClient {
 
   // Helper: API Request
   async request(endpoint, options = {}) {
+    // Falls Offline-Modus oder Backend nicht erreichbar, werfe Fehler
+    if (this.offlineMode || !this.baseURL) {
+      throw new Error('Backend nicht erreichbar - Offline-Modus aktiv');
+    }
+
     const url = `${this.baseURL}${endpoint}`;
 
     try {
@@ -66,6 +97,9 @@ class APIClient {
       return data;
     } catch (error) {
       console.error('❌ API Request failed:', error);
+      // Bei Netzwerkfehler -> Offline-Modus aktivieren
+      this.offlineMode = true;
+      this.backendAvailable = false;
       throw error;
     }
   }

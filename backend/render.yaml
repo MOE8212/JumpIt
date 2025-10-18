@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: jumpit-backend
+    env: node
+    region: frankfurt
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        value: admin123
+    disk:
+      name: jumpit-data
+      mountPath: /data
+      sizeGB: 1

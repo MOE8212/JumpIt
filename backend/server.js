@@ -9,9 +9,35 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+
+// CORS Configuration for Production
+const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'https://moe8212.github.io',
+    // Füge hier deine Custom Domain hinzu falls vorhanden
+];
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Erlaube Requests ohne Origin (Mobile Apps, Postman, etc.)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            console.log('⚠️ CORS blocked origin:', origin);
+            callback(null, true); // In Development: Erlaube trotzdem
+            // callback(new Error('Not allowed by CORS')); // In Production: Blocke
+        }
+    },
+    credentials: true
+};
 
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Initialize SQLite database
@@ -220,8 +246,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // ==================== ADMIN APIs ====================
-// Admin password check
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+// Admin password check (defined at top of file)
 
 const authenticateAdmin = (req, res, next) => {
     const adminPassword = req.headers['x-admin-password'];

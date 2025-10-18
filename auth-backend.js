@@ -90,9 +90,10 @@ class AuthManager {
   }
 
   async register(username, password, email) {
-    console.log('=== REGISTER PROCESS (BACKEND) ===');
+    console.log('=== REGISTER PROCESS ===');
 
     try {
+      // Versuche Backend-Registrierung
       const response = await window.apiClient.register(username, password, email);
 
       this.currentUser = response.user;
@@ -101,7 +102,7 @@ class AuthManager {
       // Speichere User-Info für Offline-Fallback
       localStorage.setItem('jumpit_user', JSON.stringify(response.user));
 
-      console.log('Registration successful:', this.currentUser);
+      console.log('✅ Registration successful (Backend):', this.currentUser);
 
       // Track login
       if (window.adminPanel) {
@@ -111,14 +112,62 @@ class AuthManager {
       this.closeAuthModal();
       this.startGameAfterAuth();
     } catch (error) {
-      throw new Error('Registrierung fehlgeschlagen: ' + error.message);
+      // Fallback: Offline-Registrierung mit localStorage
+      console.warn('⚠️ Backend unavailable, using localStorage fallback');
+      return this.registerOffline(username, password, email);
     }
   }
 
+  registerOffline(username, password, email) {
+    console.log('=== OFFLINE REGISTER ===');
+
+    // Prüfe ob User bereits existiert
+    const allUsers = this.getAllUsersOffline();
+    if (allUsers[username]) {
+      throw new Error('Benutzername bereits vergeben');
+    }
+
+    // Erstelle neuen User
+    const newUser = {
+      id: Date.now(),
+      username: username,
+      email: email || '',
+      created_at: new Date().toISOString()
+    };
+
+    // Speichere User
+    allUsers[username] = {
+      password: password, // In Production sollte das gehasht sein!
+      email: email || '',
+      created_at: newUser.created_at
+    };
+    localStorage.setItem('jumpit_users_offline', JSON.stringify(allUsers));
+
+    this.currentUser = newUser;
+    this.isLoggedIn = true;
+    localStorage.setItem('jumpit_user', JSON.stringify(newUser));
+
+    console.log('✅ Offline registration successful:', username);
+
+    // Track login
+    if (window.adminPanel) {
+      window.adminPanel.trackUserLogin(username);
+    }
+
+    this.closeAuthModal();
+    this.startGameAfterAuth();
+  }
+
+  getAllUsersOffline() {
+    const saved = localStorage.getItem('jumpit_users_offline');
+    return saved ? JSON.parse(saved) : {};
+  }
+
   async login(username, password) {
-    console.log('=== LOGIN PROCESS (BACKEND) ===');
+    console.log('=== LOGIN PROCESS ===');
 
     try {
+      // Versuche Backend-Login
       const response = await window.apiClient.login(username, password);
 
       this.currentUser = response.user;
@@ -127,7 +176,7 @@ class AuthManager {
       // Speichere User-Info für Offline-Fallback
       localStorage.setItem('jumpit_user', JSON.stringify(response.user));
 
-      console.log('Login successful:', this.currentUser);
+      console.log('✅ Login successful (Backend):', this.currentUser);
 
       // Track login
       if (window.adminPanel) {
@@ -137,8 +186,47 @@ class AuthManager {
       this.closeAuthModal();
       this.startGameAfterAuth();
     } catch (error) {
-      throw new Error('Login fehlgeschlagen: ' + error.message);
+      // Fallback: Offline-Login mit localStorage
+      console.warn('⚠️ Backend unavailable, using localStorage fallback');
+      return this.loginOffline(username, password);
     }
+  }
+
+  loginOffline(username, password) {
+    console.log('=== OFFLINE LOGIN ===');
+
+    const allUsers = this.getAllUsersOffline();
+    const user = allUsers[username];
+
+    if (!user) {
+      throw new Error('Benutzername nicht gefunden');
+    }
+
+    if (user.password !== password) {
+      throw new Error('Falsches Passwort');
+    }
+
+    // Login erfolgreich
+    const loggedInUser = {
+      id: Date.now(),
+      username: username,
+      email: user.email || '',
+      created_at: user.created_at || new Date().toISOString()
+    };
+
+    this.currentUser = loggedInUser;
+    this.isLoggedIn = true;
+    localStorage.setItem('jumpit_user', JSON.stringify(loggedInUser));
+
+    console.log('✅ Offline login successful:', username);
+
+    // Track login
+    if (window.adminPanel) {
+      window.adminPanel.trackUserLogin(username);
+    }
+
+    this.closeAuthModal();
+    this.startGameAfterAuth();
   }
 
   closeAuthModal() {
@@ -192,7 +280,7 @@ class AuthManager {
   }
 
   async submitScore(score, coins, time) {
-    console.log('=== SUBMIT SCORE (BACKEND) ===');
+    console.log('=== SUBMIT SCORE ===');
     console.log('Score:', score, 'Coins:', coins, 'Time:', time);
 
     if (!this.isLoggedIn) {
@@ -201,22 +289,45 @@ class AuthManager {
     }
 
     try {
+      // Versuche Backend-Submit
       await window.apiClient.submitScore(score, coins, time);
-      console.log('✅ Score submitted successfully!');
-
-      // Track session lokal (für Statistiken)
-      if (window.adminPanel) {
-        window.adminPanel.trackGameSessionWithScore(
-          this.currentUser.username,
-          score,
-          coins,
-          time
-        );
-      }
+      console.log('✅ Score submitted to backend!');
     } catch (error) {
-      console.error('Failed to submit score:', error);
-      alert('⚠️ Score konnte nicht gespeichert werden');
+      // Fallback: Offline-Speicherung
+      console.warn('⚠️ Backend unavailable, saving score locally');
+      this.submitScoreOffline(score, coins, time);
     }
+
+    // Track session lokal (immer, für Statistiken)
+    if (window.adminPanel) {
+      window.adminPanel.trackGameSessionWithScore(
+        this.currentUser.username,
+        score,
+        coins,
+        time
+      );
+    }
+  }
+
+  submitScoreOffline(score, coins, time) {
+    console.log('=== OFFLINE SCORE SUBMIT ===');
+
+    const scores = this.getScoresOffline();
+    scores.push({
+      username: this.currentUser.username,
+      score: score,
+      coins: coins,
+      time: time,
+      created_at: new Date().toISOString()
+    });
+
+    localStorage.setItem('jumpit_scores_offline', JSON.stringify(scores));
+    console.log('✅ Score saved locally');
+  }
+
+  getScoresOffline() {
+    const saved = localStorage.getItem('jumpit_scores_offline');
+    return saved ? JSON.parse(saved) : [];
   }
 
   async getLeaderboard() {
@@ -224,9 +335,29 @@ class AuthManager {
       const response = await window.apiClient.getLeaderboard(10);
       return response.leaderboard || [];
     } catch (error) {
-      console.error('Failed to load leaderboard:', error);
-      return [];
+      console.warn('⚠️ Backend unavailable, loading local leaderboard');
+      return this.getLeaderboardOffline();
     }
+  }
+
+  getLeaderboardOffline() {
+    const scores = this.getScoresOffline();
+
+    // Gruppiere nach Username und nimm besten Score
+    const bestScores = {};
+    scores.forEach(entry => {
+      if (!bestScores[entry.username] || entry.score > bestScores[entry.username].score) {
+        bestScores[entry.username] = entry;
+      }
+    });
+
+    // Konvertiere zu Array und sortiere
+    const leaderboard = Object.values(bestScores)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10);
+
+    console.log('📊 Offline leaderboard:', leaderboard.length, 'entries');
+    return leaderboard;
   }
 
   // Legacy-Kompatibilität für localStorage-basierte Funktionen
