@@ -424,29 +424,36 @@ class SupabaseApiClient {
     try {
       // Get scores with username directly from scores table
       // No JOIN needed since username column exists in scores table
+      // Load many scores to ensure we find all unique users (not just top scorer's entries)
       const { data, error } = await this.supabase
         .from('scores')
         .select('username, score, coins, time, created_at')
         .order('score', { ascending: false })
-        .limit(limit * 3); // Get more to find unique users
+        .limit(Math.max(200, limit * 20)); // Load enough scores to find all unique users
 
       if (error) throw error;
 
       console.log('📊 Raw scores loaded:', data.length, 'entries');
       
-      // Debug: Log first 10 entries to see what we got
-      console.log('📋 Sample scores (first 10):');
-      data.slice(0, 10).forEach((s, i) => {
-        console.log(`  ${i+1}. Username: "${s.username}" | Score: ${s.score}`);
+      // Count unique usernames in raw data
+      const uniqueUsernamesInData = new Set(data.map(s => s.username).filter(u => u && u !== 'Unknown'));
+      console.log('👥 Unique usernames in raw data:', uniqueUsernamesInData.size);
+      
+      // Debug: Show username distribution in first 20 entries
+      const usernameCount = {};
+      data.slice(0, 20).forEach(s => {
+        usernameCount[s.username] = (usernameCount[s.username] || 0) + 1;
       });
+      console.log('📋 Username distribution (first 20):', usernameCount);
 
       // Group by username and get best score for each user
       // WICHTIG: Skip scores without valid username (NULL or empty)
       const leaderboard = {};
+      let skippedCount = 0;
       data.forEach(entry => {
         // Skip entries without valid username
         if (!entry.username || entry.username === 'Unknown' || entry.username.trim() === '') {
-          console.log('⚠️ Skipping score without valid username:', entry);
+          skippedCount++;
           return;
         }
         
@@ -461,6 +468,10 @@ class SupabaseApiClient {
           };
         }
       });
+      
+      if (skippedCount > 0) {
+        console.log('⚠️ Skipped', skippedCount, 'scores without valid username');
+      }
 
       const result = Object.values(leaderboard)
         .sort((a, b) => b.score - a.score)
