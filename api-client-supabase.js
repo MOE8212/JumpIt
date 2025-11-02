@@ -434,11 +434,11 @@ class SupabaseApiClient {
 
       console.log('📊 Raw scores loaded:', data.length, 'entries');
       
-      // Debug: Log first 5 entries to see what we got
-      console.log('📋 Sample scores:', data.slice(0, 5).map(s => ({ 
-        username: s.username, 
-        score: s.score 
-      })));
+      // Debug: Log first 10 entries to see what we got
+      console.log('📋 Sample scores (first 10):');
+      data.slice(0, 10).forEach((s, i) => {
+        console.log(`  ${i+1}. Username: "${s.username}" | Score: ${s.score}`);
+      });
 
       // Group by username and get best score for each user
       // WICHTIG: Skip scores without valid username (NULL or empty)
