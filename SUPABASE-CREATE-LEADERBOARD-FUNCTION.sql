@@ -57,14 +57,14 @@ BEGIN
           AND s.username != 'Unknown'
     )
     SELECT 
-        username,
-        score as best_score,
-        coins,
-        "time" as time_seconds,
-        created_at
-    FROM ranked_scores
-    WHERE rn = 1
-    ORDER BY best_score DESC, created_at ASC
+        rs.username,
+        rs.score as best_score,
+        rs.coins,
+        rs."time" as time_seconds,
+        rs.created_at
+    FROM ranked_scores rs
+    WHERE rs.rn = 1
+    ORDER BY rs.score DESC, rs.created_at ASC
     LIMIT score_limit;
 END;
 $$ LANGUAGE plpgsql;
