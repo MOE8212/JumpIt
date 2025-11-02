@@ -1,5 +1,5 @@
 // JumpIt Service Worker - PWA Support
-const CACHE_NAME = 'jumpit-v2';
+const CACHE_NAME = 'jumpit-v3';
 const urlsToCache = [
   '/JumpIt/',
   '/JumpIt/index.html',
@@ -61,10 +61,17 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  // Skip caching for non-GET requests (POST, PUT, DELETE, etc.)
+  // Only GET requests can be cached
+  if (event.request.method !== 'GET') {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
       .then(response => {
-        // Only cache successful responses
+        // Only cache successful GET responses
         if (response && response.status === 200) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then(cache => {
