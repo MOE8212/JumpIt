@@ -433,11 +433,24 @@ class SupabaseApiClient {
       if (error) throw error;
 
       console.log('📊 Raw scores loaded:', data.length, 'entries');
+      
+      // Debug: Log first 5 entries to see what we got
+      console.log('📋 Sample scores:', data.slice(0, 5).map(s => ({ 
+        username: s.username, 
+        score: s.score 
+      })));
 
       // Group by username and get best score for each user
+      // WICHTIG: Skip scores without valid username (NULL or empty)
       const leaderboard = {};
       data.forEach(entry => {
-        const username = entry.username || 'Unknown';
+        // Skip entries without valid username
+        if (!entry.username || entry.username === 'Unknown' || entry.username.trim() === '') {
+          console.log('⚠️ Skipping score without valid username:', entry);
+          return;
+        }
+        
+        const username = entry.username;
         if (!leaderboard[username] || entry.score > leaderboard[username].score) {
           leaderboard[username] = {
             username: username,
