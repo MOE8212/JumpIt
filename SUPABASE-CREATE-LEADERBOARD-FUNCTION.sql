@@ -6,7 +6,7 @@ RETURNS TABLE (
     username TEXT,
     best_score INTEGER,
     coins INTEGER,
-    time INTEGER,
+    time_seconds INTEGER,
     created_at TIMESTAMPTZ
 ) AS $$
 BEGIN
@@ -15,7 +15,7 @@ BEGIN
         s.username,
         s.score as best_score,
         s.coins,
-        s.time,
+        s."time" as time_seconds,
         s.created_at
     FROM public.scores s
     WHERE s.username IS NOT NULL 
@@ -38,7 +38,7 @@ RETURNS TABLE (
     username TEXT,
     best_score INTEGER,
     coins INTEGER,
-    time INTEGER,
+    time_seconds INTEGER,
     created_at TIMESTAMPTZ
 ) AS $$
 BEGIN
@@ -57,7 +57,7 @@ BEGIN
         s.username,
         s.score as best_score,
         s.coins,
-        s.time,
+        s."time" as time_seconds,
         s.created_at
     FROM public.scores s
     INNER JOIN best_scores bs ON s.username = bs.username AND s.score = bs.max_score

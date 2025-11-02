@@ -440,7 +440,7 @@ class SupabaseApiClient {
         username: entry.username,
         score: entry.best_score,
         coins: entry.coins,
-        time: entry.time,
+        time: entry.time_seconds || entry.time,
         created_at: entry.created_at
       }));
 
