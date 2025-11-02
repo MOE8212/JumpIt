@@ -296,10 +296,12 @@
             result.innerHTML = '<p>⏳ Lade Scores...</p>';
 
             try {
+                // Use JOIN to get username from users table
                 const { data, error } = await supabase
                     .from('scores')
-                    .select('*')
-                    .order('created_at', { ascending: false });
+                    .select('id, user_id, score, coins, time, created_at, users(username)')
+                    .order('created_at', { ascending: false })
+                    .limit(100);
 
                 if (error) throw error;
 
@@ -315,9 +317,10 @@
                 
                 data.forEach(score => {
                     const hasUserId = score.user_id ? '✅' : '❌';
+                    const username = score.users?.username || 'Unknown';
                     html += `<tr>
                         <td>${score.id}</td>
-                        <td><strong>${score.username}</strong></td>
+                        <td><strong>${username}</strong></td>
                         <td>${hasUserId} ${score.user_id || 'FEHLT!'}</td>
                         <td>${score.score}</td>
                         <td>${score.coins}</td>
@@ -343,25 +346,27 @@
             try {
                 const { data, error } = await supabase
                     .from('scores')
-                    .select('id, score, coins, time, username, user_id, created_at, users(username, email)')
-                    .order('score', { ascending: false });
+                    .select('id, score, coins, time, user_id, created_at, users(username, email)')
+                    .order('score', { ascending: false })
+                    .limit(100);
 
                 if (error) throw error;
 
                 console.log('📊 Scores with JOIN:', data);
 
                 let html = `<p class="success">✅ ${data.length} Scores mit JOIN geladen</p>`;
-                html += '<table><tr><th>Score ID</th><th>Username (scores)</th><th>User_ID</th><th>Username (users)</th><th>Score</th></tr>';
+                html += '<table><tr><th>Score ID</th><th>User_ID</th><th>Username (via JOIN)</th><th>Score</th><th>JOIN Status</th></tr>';
                 
                 data.forEach(score => {
                     const joinSuccess = score.users ? '✅' : '❌';
                     const usersUsername = score.users?.username || 'KEIN JOIN!';
-                    html += `<tr>
+                    const rowClass = score.users ? '' : 'style="background: #fff3cd;"';
+                    html += `<tr ${rowClass}>
                         <td>${score.id}</td>
-                        <td><strong>${score.username}</strong></td>
                         <td>${score.user_id || 'NULL'}</td>
-                        <td>${joinSuccess} ${usersUsername}</td>
+                        <td><strong>${usersUsername}</strong></td>
                         <td>${score.score}</td>
+                        <td>${joinSuccess}</td>
                     </tr>`;
                 });
                 html += '</table>';
@@ -503,10 +508,11 @@
             result.innerHTML = '<p>⏳ Prüfe Foreign Keys...</p>';
 
             try {
-                // Lade alle Scores
+                // Lade alle Scores mit JOIN
                 const { data: scores } = await supabase
                     .from('scores')
-                    .select('id, username, user_id');
+                    .select('id, user_id, score, users(username)')
+                    .limit(1000);
 
                 // Lade alle Users
                 const { data: users } = await supabase
@@ -545,14 +551,18 @@
 
                 if (scoresWithoutFK.length > 0) {
                     html += '<h3 style="margin-top: 20px; color: #ffc107;">⚠️ Scores ohne user_id:</h3>';
-                    html += '<table><tr><th>Score ID</th><th>Username</th><th>Score</th></tr>';
-                    scoresWithoutFK.forEach(score => {
+                    html += '<table><tr><th>Score ID</th><th>Username (JOIN)</th><th>Score</th></tr>';
+                    scoresWithoutFK.slice(0, 20).forEach(score => {
+                        const username = score.users?.username || 'Unknown';
                         html += `<tr>
                             <td>${score.id}</td>
-                            <td><strong>${score.username}</strong></td>
+                            <td><strong>${username}</strong></td>
                             <td>${score.score || 'N/A'}</td>
                         </tr>`;
                     });
+                    if (scoresWithoutFK.length > 20) {
+                        html += `<tr><td colspan="3" style="text-align: center;">... und ${scoresWithoutFK.length - 20} weitere</td></tr>`;
+                    }
                     html += '</table>';
                 }
 
@@ -570,62 +580,60 @@
             result.innerHTML = '<p>⏳ Diagnostiziere Problem...</p>';
 
             try {
-                // 1. Lade Scores ohne JOIN
-                const { data: scoresRaw } = await supabase
+                // 1. Lade Scores mit JOIN (limit 1000)
+                const { data: scores } = await supabase
                     .from('scores')
-                    .select('id, username, user_id, score');
+                    .select('id, user_id, score, users(username)')
+                    .limit(1000);
 
-                // 2. Lade Scores mit JOIN
-                const { data: scoresJoin } = await supabase
-                    .from('scores')
-                    .select('id, username, user_id, score, users(username)');
-
-                // 3. Lade alle User
+                // 2. Lade alle User
                 const { data: users } = await supabase
                     .from('users')
                     .select('id, username');
 
-                const diagnosis = {
-                    totalScores: scoresRaw.length,
-                    scoresWithUserId: scoresRaw.filter(s => s.user_id).length,
-                    scoresWithoutUserId: scoresRaw.filter(s => !s.user_id).length,
-                    successfulJoins: scoresJoin.filter(s => s.users).length,
-                    failedJoins: scoresJoin.filter(s => !s.users).length,
-                    totalUsers: users.length,
-                    usernamesInScores: [...new Set(scoresRaw.map(s => s.username))],
-                    usernamesInUsers: users.map(u => u.username)
-                };
+                const scoresWithUserId = scores.filter(s => s.user_id);
+                const scoresWithoutUserId = scores.filter(s => !s.user_id);
+                const successfulJoins = scores.filter(s => s.users);
+                const failedJoins = scores.filter(s => !s.users);
 
-                // Finde Scores, die keinen matching User haben
-                const userMap = new Map(users.map(u => [u.username, u.id]));
-                const unmatchedScores = scoresRaw.filter(score => {
-                    return !score.user_id || !userMap.has(score.username);
-                });
+                const diagnosis = {
+                    totalScores: scores.length,
+                    scoresWithUserId: scoresWithUserId.length,
+                    scoresWithoutUserId: scoresWithoutUserId.length,
+                    successfulJoins: successfulJoins.length,
+                    failedJoins: failedJoins.length,
+                    totalUsers: users.length
+                };
 
                 let html = '<h3>🔍 Diagnose-Ergebnis:</h3>';
                 html += '<pre>' + JSON.stringify(diagnosis, null, 2) + '</pre>';
 
-                if (unmatchedScores.length > 0) {
+                if (failedJoins.length > 0) {
                     html += `<div class="warning" style="margin-top: 20px;">
                         <h3>⚠️ Problem gefunden!</h3>
-                        <p><strong>${unmatchedScores.length} Scores</strong> haben keine gültige Verknüpfung zu einem User!</p>
+                        <p><strong>${failedJoins.length} Scores</strong> haben keine gültige Verknüpfung zu einem User!</p>
+                        <p>Diese Scores haben entweder keine user_id oder die user_id zeigt auf einen nicht-existierenden User.</p>
                     </div>`;
 
-                    html += '<h3>Betroffene Scores:</h3>';
-                    html += '<table><tr><th>Score ID</th><th>Username</th><th>User_ID</th><th>Problem</th></tr>';
-                    unmatchedScores.forEach(score => {
+                    html += '<h3>Betroffene Scores (erste 20):</h3>';
+                    html += '<table><tr><th>Score ID</th><th>User_ID</th><th>Score</th><th>Problem</th></tr>';
+                    failedJoins.slice(0, 20).forEach(score => {
                         const problem = !score.user_id ? 'Keine user_id' : 'User existiert nicht';
                         html += `<tr>
                             <td>${score.id}</td>
-                            <td><strong>${score.username}</strong></td>
                             <td>${score.user_id || 'NULL'}</td>
+                            <td>${score.score}</td>
                             <td style="color: #dc3545;">${problem}</td>
                         </tr>`;
                     });
+                    if (failedJoins.length > 20) {
+                        html += `<tr><td colspan="4" style="text-align: center;">... und ${failedJoins.length - 20} weitere</td></tr>`;
+                    }
                     html += '</table>';
 
                     html += `<div style="margin-top: 20px;">
-                        <button onclick="fixMissingUserIds()">🔧 Automatisch reparieren</button>
+                        <p><strong>Hinweis:</strong> Diese Scores können nicht automatisch repariert werden, da die username-Spalte in der scores-Tabelle fehlt.</p>
+                        <p>Führe das SQL-Script SUPABASE-ADD-USERNAME-COLUMN.sql aus, um die Spalte hinzuzufügen.</p>
                     </div>`;
                 } else {
                     html += '<p class="success">✅ Alle Scores haben gültige Verknüpfungen!</p>';
@@ -642,90 +650,9 @@
         async function fixMissingUserIds() {
             const result = document.getElementById('fix-result');
             result.style.display = 'block';
-            result.innerHTML = '<p>⏳ Repariere fehlende Verknüpfungen...</p>';
-
-            try {
-                // 1. Lade alle Scores
-                const { data: scores } = await supabase
-                    .from('scores')
-                    .select('id, username, user_id');
-
-                // 2. Lade alle Users
-                const { data: users } = await supabase
-                    .from('users')
-                    .select('id, username');
-
-                const userMap = new Map(users.map(u => [u.username, u.id]));
-                const updates = [];
-                const missing = [];
-
-                // Finde Scores ohne gültige user_id
-                scores.forEach(score => {
-                    if (!score.user_id && userMap.has(score.username)) {
-                        updates.push({
-                            id: score.id,
-                            username: score.username,
-                            correctUserId: userMap.get(score.username)
-                        });
-                    } else if (!score.user_id && !userMap.has(score.username)) {
-                        missing.push(score);
-                    }
-                });
-
-                let html = '<h3>🔧 Reparatur-Prozess:</h3>';
-                
-                if (updates.length > 0) {
-                    html += `<p class="warning">⚙️ Aktualisiere ${updates.length} Scores...</p>`;
-                    
-                    let successCount = 0;
-                    let errorCount = 0;
-
-                    for (const update of updates) {
-                        try {
-                            const { error } = await supabase
-                                .from('scores')
-                                .update({ user_id: update.correctUserId })
-                                .eq('id', update.id);
-
-                            if (error) {
-                                console.error('Update error:', error);
-                                errorCount++;
-                            } else {
-                                successCount++;
-                            }
-                        } catch (err) {
-                            console.error('Update exception:', err);
-                            errorCount++;
-                        }
-                    }
-
-                    html += `<p class="success">✅ ${successCount} Scores erfolgreich aktualisiert!</p>`;
-                    if (errorCount > 0) {
-                        html += `<p class="error">❌ ${errorCount} Scores konnten nicht aktualisiert werden</p>`;
-                    }
-                } else {
-                    html += '<p>ℹ️ Keine Scores zum Aktualisieren gefunden.</p>';
-                }
-
-                if (missing.length > 0) {
-                    html += `<div class="warning" style="margin-top: 20px;">
-                        <h3>⚠️ ${missing.length} Scores haben keine passenden User:</h3>
-                        <p>Für diese Usernames existiert kein User-Eintrag in der Datenbank:</p>
-                        <ul>`;
-                    missing.forEach(score => {
-                        html += `<li><strong>${score.username}</strong> (Score ID: ${score.id})</li>`;
-                    });
-                    html += '</ul></div>';
-                }
-
-                html += '<p style="margin-top: 20px;"><button onclick="testLeaderboardQuery()">🏆 Leaderboard erneut testen</button></p>';
-
-                result.innerHTML = html;
-            } catch (error) {
-                result.className = 'result error';
-                result.innerHTML = `<p>❌ Fehler: ${error.message}</p>`;
-                console.error('Error:', error);
-            }
+            result.innerHTML = '<p>⚙️ Diese Funktion ist nicht verfügbar ohne username-Spalte.</p>';
+            result.innerHTML += '<p>Führe zuerst das SQL-Script <strong>SUPABASE-ADD-USERNAME-COLUMN.sql</strong> aus.</p>';
+            result.innerHTML += '<p>Danach werden neue Scores automatisch mit dem korrekten username gespeichert.</p>';
         }
 
         // Auto-load stats on page load
