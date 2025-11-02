@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Worker Reload</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Service Worker Reload</h1>
+        <p>Lade den Service Worker neu, um Supabase-API-Calls zu reparieren.</p>
+        
+        <button onclick="unregisterServiceWorker()">Service Worker deaktivieren</button>
+        <button onclick="clearCacheAndReload()">Cache löschen & Neu laden</button>
+        
+        <div id="status"></div>
+    </div>
+
+    <script>
+        async function unregisterServiceWorker() {
+            const status = document.getElementById('status');
+            status.className = 'status info';
+            status.textContent = 'Deaktiviere Service Worker...';
+
+            try {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                
+                if (registrations.length === 0) {
+                    status.className = 'status info';
+                    status.textContent = 'Kein Service Worker aktiv.';
+                    return;
+                }
+
+                for (const registration of registrations) {
+                    await registration.unregister();
+                    console.log('Service Worker unregistered:', registration);
+                }
+
+                status.className = 'status success';
+                status.innerHTML = '✅ Service Worker deaktiviert!<br>Seite wird neu geladen...';
+                
+                setTimeout(() => {
+                    window.location.href = '/JumpIt/index.html';
+                }, 2000);
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = '❌ Fehler: ' + error.message;
+                console.error('Error:', error);
+            }
+        }
+
+        async function clearCacheAndReload() {
+            const status = document.getElementById('status');
+            status.className = 'status info';
+            status.textContent = 'Lösche Cache...';
+
+            try {
+                // 1. Lösche alle Caches
+                const cacheNames = await caches.keys();
+                await Promise.all(
+                    cacheNames.map(cacheName => caches.delete(cacheName))
+                );
+                console.log('Caches deleted:', cacheNames);
+
+                // 2. Unregister Service Worker
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                await Promise.all(
+                    registrations.map(reg => reg.unregister())
+                );
+                console.log('Service Workers unregistered');
+
+                status.className = 'status success';
+                status.innerHTML = '✅ Cache gelöscht & Service Worker deaktiviert!<br>Seite wird neu geladen...';
+                
+                setTimeout(() => {
+                    window.location.href = '/JumpIt/index.html';
+                }, 2000);
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = '❌ Fehler: ' + error.message;
+                console.error('Error:', error);
+            }
+        }
+
+        // Auto-Status beim Laden
+        window.addEventListener('load', async () => {
+            const status = document.getElementById('status');
+            
+            try {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                
+                if (registrations.length > 0) {
+                    status.className = 'status info';
+                    status.innerHTML = `ℹ️ ${registrations.length} Service Worker aktiv<br>Klicke auf "Cache löschen" um neu zu starten.`;
+                } else {
+                    status.className = 'status success';
+                    status.innerHTML = '✅ Kein Service Worker aktiv<br>Du kannst zurück zum Spiel.';
+                }
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = 'Fehler beim Prüfen: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>
+

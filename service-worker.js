@@ -1,5 +1,5 @@
 // JumpIt Service Worker - PWA Support
-const CACHE_NAME = 'jumpit-v3';
+const CACHE_NAME = 'jumpit-v4';
 const urlsToCache = [
   '/JumpIt/',
   '/JumpIt/index.html',
@@ -58,6 +58,13 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   // Skip chrome extension and non-http requests
   if (!event.request.url.startsWith('http')) {
+    return;
+  }
+
+  // WICHTIG: Supabase API-Calls NIEMALS cachen!
+  // Diese müssen immer live vom Server kommen
+  if (event.request.url.includes('supabase.co')) {
+    event.respondWith(fetch(event.request));
     return;
   }
 
