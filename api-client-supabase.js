@@ -4,6 +4,7 @@ class SupabaseApiClient {
     this.supabase = window.supabaseClient;
     this.currentUser = null;
     this.session = null;
+    this.isOfflineMode = false;
 
     console.log('🔌 Supabase API Client initialized');
 
@@ -12,17 +13,34 @@ class SupabaseApiClient {
   }
 
   async checkSession() {
-    const { data: { session } } = await this.supabase.auth.getSession();
-    if (session) {
-      this.session = session;
-      this.currentUser = session.user;
-      console.log('✅ Session restored:', this.currentUser.email);
+    try {
+      const { data: { session } } = await this.supabase.auth.getSession();
+      if (session) {
+        this.session = session;
+        this.currentUser = session.user;
+        console.log('✅ Session restored:', this.currentUser.email);
+      }
+      this.isOfflineMode = false;
+    } catch (error) {
+      console.warn('⚠️ Supabase not reachable, using offline mode:', error.message);
+      this.isOfflineMode = true;
+      // Try to restore from localStorage
+      const savedUser = localStorage.getItem('jumpit_user_offline');
+      if (savedUser) {
+        this.currentUser = JSON.parse(savedUser);
+        console.log('📱 Offline user restored:', this.currentUser.username);
+      }
     }
   }
 
   // ==================== AUTH APIs ====================
 
   async register(username, email, password) {
+    // Offline Fallback
+    if (this.isOfflineMode) {
+      return this._registerOffline(username, email, password);
+    }
+
     try {
       // 1. Erstelle Auth User (Supabase Auth)
       const { data: authData, error: authError } = await this.supabase.auth.signUp({
@@ -79,11 +97,60 @@ class SupabaseApiClient {
       };
     } catch (error) {
       console.error('Registration error:', error);
+      // Fallback to offline mode if network error
+      if (error.message.includes('fetch') || error.message.includes('NetworkError')) {
+        console.warn('⚠️ Network error detected, switching to offline mode');
+        this.isOfflineMode = true;
+        return this._registerOffline(username, email, password);
+      }
       throw new Error(error.message || 'Registrierung fehlgeschlagen');
     }
   }
 
+  _registerOffline(username, email, password) {
+    console.log('📱 OFFLINE REGISTRATION:', username);
+    
+    const user = {
+      id: 'offline-' + Date.now(),
+      username: username,
+      email: email,
+      createdAt: new Date().toISOString()
+    };
+
+    // Save to localStorage
+    localStorage.setItem('jumpit_user_offline', JSON.stringify(user));
+    localStorage.setItem('jumpit_password_offline', password);
+    
+    // Save to all users list
+    const allUsers = this._getAllUsersOffline();
+    allUsers[username] = {
+      password: password,
+      email: email,
+      createdAt: new Date().toISOString()
+    };
+    localStorage.setItem('jumpit_all_users_offline', JSON.stringify(allUsers));
+
+    this.currentUser = user;
+
+    alert('📱 Du bist im Offline-Modus! Deine Daten werden nur lokal gespeichert.');
+
+    return {
+      user: user,
+      session: { offline: true }
+    };
+  }
+
+  _getAllUsersOffline() {
+    const saved = localStorage.getItem('jumpit_all_users_offline');
+    return saved ? JSON.parse(saved) : {};
+  }
+
   async login(email, password) {
+    // Offline Fallback
+    if (this.isOfflineMode) {
+      return this._loginOffline(email, password);
+    }
+
     try {
       const { data, error } = await this.supabase.auth.signInWithPassword({
         email: email,
@@ -107,8 +174,47 @@ class SupabaseApiClient {
       };
     } catch (error) {
       console.error('Login error:', error);
+      // Fallback to offline mode if network error
+      if (error.message.includes('fetch') || error.message.includes('NetworkError')) {
+        console.warn('⚠️ Network error detected, switching to offline mode');
+        this.isOfflineMode = true;
+        return this._loginOffline(email, password);
+      }
       throw new Error(error.message || 'Login fehlgeschlagen');
     }
+  }
+
+  _loginOffline(usernameOrEmail, password) {
+    console.log('📱 OFFLINE LOGIN:', usernameOrEmail);
+
+    // Try to find user
+    const allUsers = this._getAllUsersOffline();
+    const username = usernameOrEmail.split('@')[0]; // Extract username from email
+
+    // Check all users
+    for (const [savedUsername, userData] of Object.entries(allUsers)) {
+      if (savedUsername === username || savedUsername === usernameOrEmail) {
+        if (userData.password === password) {
+          const user = {
+            id: 'offline-' + Date.now(),
+            username: savedUsername,
+            email: userData.email || savedUsername + '@offline.local'
+          };
+
+          localStorage.setItem('jumpit_user_offline', JSON.stringify(user));
+          this.currentUser = user;
+
+          alert('📱 Du bist im Offline-Modus! Deine Daten werden nur lokal gespeichert.');
+
+          return {
+            user: user,
+            session: { offline: true }
+          };
+        }
+      }
+    }
+
+    throw new Error('Falscher Benutzername oder Passwort (Offline-Modus)');
   }
 
   async logout() {
@@ -122,7 +228,7 @@ class SupabaseApiClient {
   }
 
   isAuthenticated() {
-    return !!this.session;
+    return !!this.session || !!this.currentUser;
   }
 
   setAdminPassword(password) {
@@ -141,6 +247,11 @@ class SupabaseApiClient {
   async submitScore(score, coins, time) {
     if (!this.isAuthenticated()) {
       throw new Error('Not authenticated');
+    }
+
+    // Offline Fallback
+    if (this.isOfflineMode) {
+      return this._submitScoreOffline(score, coins, time);
     }
 
     try {
@@ -166,11 +277,43 @@ class SupabaseApiClient {
       return data;
     } catch (error) {
       console.error('Submit score error:', error);
+      // Fallback to offline
+      if (error.message.includes('fetch') || error.message.includes('NetworkError')) {
+        this.isOfflineMode = true;
+        return this._submitScoreOffline(score, coins, time);
+      }
       throw new Error('Score konnte nicht gespeichert werden');
     }
   }
 
+  _submitScoreOffline(score, coins, time) {
+    console.log('📱 OFFLINE SCORE SUBMIT:', score);
+
+    let leaderboard = JSON.parse(localStorage.getItem('jumpit_leaderboard_offline') || '[]');
+    
+    const newEntry = {
+      username: this.currentUser.username,
+      score: score,
+      coins: coins,
+      time: time,
+      timestamp: new Date().toISOString()
+    };
+
+    leaderboard.push(newEntry);
+    leaderboard.sort((a, b) => b.score - a.score);
+    leaderboard = leaderboard.slice(0, 100); // Keep top 100
+
+    localStorage.setItem('jumpit_leaderboard_offline', JSON.stringify(leaderboard));
+    
+    return newEntry;
+  }
+
   async getLeaderboard(limit = 10) {
+    // Offline Fallback
+    if (this.isOfflineMode) {
+      return this._getLeaderboardOffline(limit);
+    }
+
     try {
       // Get scores with username from users table via JOIN
       const { data, error } = await this.supabase
@@ -204,8 +347,33 @@ class SupabaseApiClient {
       return { leaderboard: result };
     } catch (error) {
       console.error('Leaderboard error:', error);
+      // Fallback to offline
+      if (error.message.includes('fetch') || error.message.includes('NetworkError')) {
+        this.isOfflineMode = true;
+        return this._getLeaderboardOffline(limit);
+      }
       return { leaderboard: [] };
     }
+  }
+
+  _getLeaderboardOffline(limit = 10) {
+    console.log('📱 OFFLINE LEADERBOARD');
+    
+    const leaderboard = JSON.parse(localStorage.getItem('jumpit_leaderboard_offline') || '[]');
+    
+    // Group by username and get best score
+    const bestScores = {};
+    leaderboard.forEach(entry => {
+      if (!bestScores[entry.username] || entry.score > bestScores[entry.username].score) {
+        bestScores[entry.username] = entry;
+      }
+    });
+
+    const result = Object.values(bestScores)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit);
+
+    return { leaderboard: result };
   }
 
   async getUserBestScore() {
