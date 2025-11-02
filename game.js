@@ -288,25 +288,25 @@ function createColoredRectangles() {
     // Create cute purple worm enemy
     const enemyGraphics = this.add.graphics();
 
-    // Worm body (segmented)
+    // Worm body (segmented) - body gets THINNER towards head
     enemyGraphics.fillStyle(0x9B59B6); // Purple
-    enemyGraphics.fillCircle(8, 16, 6);   // Head
-    enemyGraphics.fillCircle(16, 16, 5);  // Body segment 1
-    enemyGraphics.fillCircle(24, 16, 4);  // Body segment 2
+    enemyGraphics.fillCircle(8, 16, 4);   // Body segment 1 (back)
+    enemyGraphics.fillCircle(16, 16, 5);  // Body segment 2 (middle)
+    enemyGraphics.fillCircle(24, 16, 6);  // Head (front) - biggest
 
-    // Eyes
+    // Eyes on the head (right side)
     enemyGraphics.fillStyle(0xFFFFFF);
-    enemyGraphics.fillCircle(6, 14, 2);   // Left eye
-    enemyGraphics.fillCircle(10, 14, 2);  // Right eye
+    enemyGraphics.fillCircle(22, 14, 2);   // Left eye
+    enemyGraphics.fillCircle(26, 14, 2);   // Right eye
 
     // Eye pupils
     enemyGraphics.fillStyle(0x000000);
-    enemyGraphics.fillCircle(6, 14, 1);
-    enemyGraphics.fillCircle(10, 14, 1);
+    enemyGraphics.fillCircle(22, 14, 1);
+    enemyGraphics.fillCircle(26, 14, 1);
 
     // Smile
     enemyGraphics.lineStyle(2, 0x000000);
-    enemyGraphics.arc(8, 18, 3, 0, Math.PI);
+    enemyGraphics.arc(24, 18, 3, 0, Math.PI);
 
     enemyGraphics.generateTexture('enemy', 32, 32);
     enemyGraphics.destroy();
@@ -873,7 +873,6 @@ function update() {
                 if (shouldReverse) {
                     const oldDirection = enemy.direction;
                     enemy.direction *= -1;
-                    enemy.flipX = enemy.direction === -1; // Flip sprite based on direction
                     
                     if (shouldLog || true) { // Always log direction changes
                         console.log('🔄 [PATROL] Direction changed!', {
@@ -887,6 +886,11 @@ function update() {
             } else if (shouldLog) {
                 console.log('  ⚠️ Enemy not on ground!');
             }
+            
+            // Always flip sprite based on direction (worm head is on RIGHT in texture at x=24)
+            // direction = 1 (moving right) → flipX = false (no mirror, head already faces right)
+            // direction = -1 (moving left) → flipX = true (mirror so head faces left)
+            enemy.flipX = enemy.direction === -1;
             
             // Always keep moving
             enemy.setVelocityX(enemy.direction * 50);
@@ -929,7 +933,6 @@ function update() {
             if (atLeftBoundary || atRightBoundary) {
                 const oldDirection = enemy.direction;
                 enemy.direction *= -1;
-                enemy.flipX = enemy.direction === -1; // Flip sprite based on direction
                 
                 console.log('🔄 [PLATFORM] Direction changed!', {
                     x: Math.round(enemy.x),
@@ -939,6 +942,11 @@ function update() {
                     atRight: atRightBoundary
                 });
             }
+            
+            // Always flip sprite based on direction (worm head is on RIGHT in texture at x=24)
+            // direction = 1 (moving right) → flipX = false (no mirror, head already faces right)
+            // direction = -1 (moving left) → flipX = true (mirror so head faces left)
+            enemy.flipX = enemy.direction === -1;
             
             // Always keep moving in current direction with consistent speed
             enemy.setVelocityX(enemy.direction * 60);

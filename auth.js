@@ -417,22 +417,6 @@ class AdminPanel {
             });
         }
 
-        // Info button event listener
-        const infoBtn = document.getElementById('home-info-btn');
-        if (infoBtn) {
-            infoBtn.addEventListener('click', () => {
-                console.log('Info button clicked');
-                this.showInfoModal();
-            });
-        }
-
-        // Close info modal
-        const closeInfoBtn = document.getElementById('close-info');
-        if (closeInfoBtn) {
-            closeInfoBtn.addEventListener('click', () => {
-                this.hideInfoModal();
-            });
-        }
 
         // Close admin panel
         const closeAdminBtn = document.getElementById('close-admin');
@@ -454,40 +438,6 @@ class AdminPanel {
         const modal = document.getElementById('admin-password-modal');
         if (modal) {
             modal.classList.add('hidden');
-        }
-    }
-
-    showInfoModal() {
-        console.log('=== SHOWING INFO MODAL ===');
-        const modal = document.getElementById('info-modal');
-        const homeScreen = document.getElementById('home-screen');
-
-        if (modal) {
-            console.log('Info modal found, removing hidden class');
-            modal.classList.remove('hidden');
-
-            // Also hide home screen so info is visible
-            if (homeScreen) {
-                homeScreen.style.display = 'none';
-            }
-        } else {
-            console.error('Info modal not found!');
-        }
-    }
-
-    hideInfoModal() {
-        console.log('=== HIDING INFO MODAL ===');
-        const modal = document.getElementById('info-modal');
-        const homeScreen = document.getElementById('home-screen');
-
-        if (modal) {
-            console.log('Hiding info modal');
-            modal.classList.add('hidden');
-
-            // Show home screen again
-            if (homeScreen) {
-                homeScreen.style.display = 'flex';
-            }
         }
     }
 
