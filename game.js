@@ -865,7 +865,12 @@ function update() {
                 }
                 
                 // Reverse direction at platform edge or world bounds
-                if (!hasGroundAhead || enemy.x <= 10 || enemy.x >= WORLD_WIDTH - 42) {
+                // Only reverse if moving TOWARDS the problem to prevent constant flipping
+                const atLeftEdge = enemy.x <= 10 && enemy.direction === -1;
+                const atRightEdge = enemy.x >= WORLD_WIDTH - 42 && enemy.direction === 1;
+                const shouldReverse = !hasGroundAhead || atLeftEdge || atRightEdge;
+                
+                if (shouldReverse) {
                     const oldDirection = enemy.direction;
                     enemy.direction *= -1;
                     enemy.flipX = enemy.direction === -1; // Flip sprite based on direction
@@ -875,7 +880,7 @@ function update() {
                             x: Math.round(enemy.x),
                             oldDirection,
                             newDirection: enemy.direction,
-                            reason: !hasGroundAhead ? 'NO_GROUND' : 'WORLD_BOUNDS'
+                            reason: !hasGroundAhead ? 'NO_GROUND' : (atLeftEdge ? 'LEFT_EDGE' : 'RIGHT_EDGE')
                         });
                     }
                 }
@@ -917,7 +922,11 @@ function update() {
             }
             
             // Reverse direction at platform boundaries
-            if (enemy.x <= enemy.platformLeft + 16 || enemy.x >= enemy.platformRight - 16) {
+            // Only reverse if moving TOWARDS the boundary to prevent constant flipping
+            const atLeftBoundary = enemy.x <= enemy.platformLeft + 16 && enemy.direction === -1;
+            const atRightBoundary = enemy.x >= enemy.platformRight - 16 && enemy.direction === 1;
+            
+            if (atLeftBoundary || atRightBoundary) {
                 const oldDirection = enemy.direction;
                 enemy.direction *= -1;
                 enemy.flipX = enemy.direction === -1; // Flip sprite based on direction
@@ -926,8 +935,8 @@ function update() {
                     x: Math.round(enemy.x),
                     oldDirection,
                     newDirection: enemy.direction,
-                    atLeft: enemy.x <= enemy.platformLeft + 16,
-                    atRight: enemy.x >= enemy.platformRight - 16
+                    atLeft: atLeftBoundary,
+                    atRight: atRightBoundary
                 });
             }
             
