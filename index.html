@@ -41,7 +41,7 @@
 
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
-    <!-- Build Info: v2.4.1 - Better Login Error Messages | Build: 2025-11-02 | Improved login error messages + debug-auth.html tool -->
+    <!-- Build Info: v2.5.0 - Email Required for Login | Build: 2025-11-02 | Email field always visible, required for both login and registration -->
 </head>
 
 <body>
@@ -73,7 +73,7 @@
 
                 <!-- Version Display - Top Right -->
                 <div class="version-info-topright">
-                    <span id="version-display">v2.4.0 - Enemy Movement Fixed</span>
+                    <span id="version-display">v2.5.0 - Email Required</span>
                 </div>
 
                 <!-- Hidden Admin Access - Top Left Corner -->
@@ -134,8 +134,8 @@
                 <h2 id="auth-title">Anmelden</h2>
                 <form id="auth-form">
                     <input type="text" id="username" placeholder="Benutzername" required>
-                    <input type="email" id="email" placeholder="E-Mail (optional)" style="display: none;">
-                    <input type="password" id="password" placeholder="Passwort" required>
+                    <input type="email" id="email" placeholder="E-Mail-Adresse" required>
+                    <input type="password" id="password" placeholder="Passwort (min. 6 Zeichen)" required>
                     <button type="submit" id="auth-submit">Anmelden</button>
                 </form>
                 <p id="auth-switch">Noch kein Konto? <a href="#" id="switch-auth">Registrieren</a></p>

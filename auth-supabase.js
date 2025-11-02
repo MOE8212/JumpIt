@@ -62,18 +62,21 @@ class AuthManager {
   toggleAuthMode() {
     this.isRegisterMode = !this.isRegisterMode;
 
+    const usernameInput = document.getElementById('username');
     const emailInput = document.getElementById('email');
 
     if (this.isRegisterMode) {
       this.authTitle.textContent = 'Registrieren';
       this.authSubmit.textContent = 'Registrieren';
       this.authSwitchText.innerHTML = 'Bereits registriert? <a href="#" id="switch-auth">Anmelden</a>';
-      if (emailInput) emailInput.style.display = 'block';
+      if (usernameInput) usernameInput.placeholder = 'Benutzername';
+      // Email ist immer sichtbar für Supabase
     } else {
       this.authTitle.textContent = 'Anmelden';
       this.authSubmit.textContent = 'Anmelden';
       this.authSwitchText.innerHTML = 'Noch kein Konto? <a href="#" id="switch-auth">Registrieren</a>';
-      if (emailInput) emailInput.style.display = 'none';
+      if (usernameInput) usernameInput.placeholder = 'Benutzername';
+      // Email ist immer sichtbar für Supabase
     }
 
     // Re-attach event listener
@@ -89,10 +92,10 @@ class AuthManager {
   async handleAuth(e) {
     e.preventDefault();
 
-    const username = document.getElementById('username').value;
+    const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value;
     const emailInput = document.getElementById('email');
-    const email = emailInput ? emailInput.value : '';
+    const email = emailInput ? emailInput.value.trim() : '';
 
     try {
       if (this.isRegisterMode) {
@@ -101,10 +104,17 @@ class AuthManager {
           alert('⚠️ Bitte E-Mail-Adresse eingeben');
           return;
         }
+        if (!username) {
+          alert('⚠️ Bitte Benutzernamen eingeben');
+          return;
+        }
         await this.register(username, email, password);
       } else {
-        // Bei Login können wir Username oder Email nutzen
-        // Wenn Username eingegeben wurde, suchen wir die Email
+        // Bei Login brauchen wir Email (Supabase-Pflicht!)
+        if (!email) {
+          alert('⚠️ Bitte E-Mail-Adresse eingeben\n\nTipp: Verwenden Sie die E-Mail, mit der Sie sich registriert haben.');
+          return;
+        }
         await this.login(username, password, email);
       }
     } catch (error) {
@@ -136,22 +146,17 @@ class AuthManager {
     }
   }
 
-  async login(usernameOrEmail, password, email) {
+  async login(username, password, email) {
     console.log('=== LOGIN PROCESS (SUPABASE) ===');
+    console.log('🔍 Login attempt with email:', email);
 
     try {
-      // Supabase benötigt Email für Login
-      // Wenn nur Username gegeben wurde, versuchen wir eine Email zu konstruieren
-      let loginEmail = email || usernameOrEmail;
-
-      // Falls es keine @ enthält, ist es ein Username
-      if (!loginEmail.includes('@')) {
-        // Versuche gängige Formate
-        loginEmail = usernameOrEmail + '@jumpit.local'; // Fallback
-        console.log('⚠️ Email not provided, using:', loginEmail);
+      // Supabase benötigt IMMER die echte Email für Login
+      if (!email || !email.includes('@')) {
+        throw new Error('Bitte geben Sie Ihre E-Mail-Adresse ein.\n\nTipp: Verwenden Sie die E-Mail, mit der Sie sich registriert haben (z.B. michael-eckert@gmx.at).');
       }
 
-      const response = await window.apiClient.login(loginEmail, password);
+      const response = await window.apiClient.login(email, password);
 
       this.currentUser = response.user;
       this.isLoggedIn = true;
