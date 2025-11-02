@@ -254,12 +254,13 @@
                     .from('scores')
                     .select('*', { count: 'exact', head: true });
 
-                // Get unique usernames from scores
+                // Get unique users via JOIN (don't rely on username column)
                 const { data: scores } = await supabase
                     .from('scores')
-                    .select('username, user_id');
+                    .select('user_id, users(username)')
+                    .limit(1000);
 
-                const uniqueUsernames = new Set(scores?.map(s => s.username) || []);
+                const uniqueUserIds = new Set(scores?.filter(s => s.user_id).map(s => s.user_id) || []);
                 const scoresWithUserId = scores?.filter(s => s.user_id !== null).length || 0;
                 const scoresWithoutUserId = (scores?.length || 0) - scoresWithUserId;
 
@@ -275,7 +276,7 @@
                         </div>
                         <div class="stat-card">
                             <div class="stat-label">🏆 Unique Spieler</div>
-                            <div class="stat-value">${uniqueUsernames.size}</div>
+                            <div class="stat-value">${uniqueUserIds.size}</div>
                         </div>
                         <div class="stat-card ${scoresWithoutUserId > 0 ? 'badge-warning' : ''}">
                             <div class="stat-label">⚠️ Scores ohne user_id</div>

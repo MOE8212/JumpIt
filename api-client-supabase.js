@@ -356,11 +356,17 @@ class SupabaseApiClient {
     }
 
     try {
+      // Get username for the score entry
+      const username = this.currentUser.user_metadata?.username || 
+                      this.currentUser.email?.split('@')[0] || 
+                      'Unknown';
+
       const { data, error } = await this.supabase
         .from('scores')
         .insert([
           {
             user_id: this.currentUser.id,
+            username: username,  // Store username for faster queries
             score: score,
             coins: coins,
             time: time
