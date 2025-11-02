@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JumpIt - Leaderboard Debug</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .debug-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .debug-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 5px;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+        }
+
+        .success {
+            background: #d4edda;
+            border-left-color: #28a745;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+            color: #856404;
+        }
+
+        pre {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 2px;
+        }
+
+        .badge-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .badge-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .badge-warning {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .badge-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐺 JumpIt - Leaderboard Debug</h1>
+
+        <!-- Statistiken -->
+        <div class="debug-section">
+            <h2>📊 Übersicht</h2>
+            <button onclick="loadStats()">Statistiken laden</button>
+            <div id="stats-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Alle Scores -->
+        <div class="debug-section">
+            <h2>🎮 Alle Scores in DB</h2>
+            <button onclick="loadAllScores()">Alle Scores laden</button>
+            <button onclick="loadScoresWithJoin()">Scores mit JOIN laden</button>
+            <div id="scores-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Alle Users -->
+        <div class="debug-section">
+            <h2>👥 Alle User in DB</h2>
+            <button onclick="loadAllUsers()">Alle User laden</button>
+            <div id="users-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Leaderboard Query -->
+        <div class="debug-section">
+            <h2>🏆 Leaderboard Query (wie im Code)</h2>
+            <button onclick="testLeaderboardQuery()">Leaderboard Query testen</button>
+            <div id="leaderboard-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Foreign Key Check -->
+        <div class="debug-section">
+            <h2>🔗 Foreign Key Check</h2>
+            <button onclick="checkForeignKeys()">Verknüpfungen prüfen</button>
+            <div id="fk-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Fehlende Verknüpfungen -->
+        <div class="debug-section">
+            <h2>⚠️ Diagnose & Fix</h2>
+            <button onclick="diagnoseAndFix()">Problem diagnostizieren</button>
+            <button onclick="fixMissingUserIds()">Fehlende user_id reparieren</button>
+            <div id="fix-result" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Supabase Config
+        const SUPABASE_URL = 'https://awkvwqffsimqkfzgrskn.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3a3Z3cWZmc2ltcWtmemdyc2tuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjQ2OTAsImV4cCI6MjA1Nzc0MDY5MH0.0vNSvUQJ5oNiBrj-2fPSlP6hFo3PHUOobHuDXjFpNOc';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function loadStats() {
+            const result = document.getElementById('stats-result');
+            result.style.display = 'block';
+            result.innerHTML = '<p>⏳ Lade Statistiken...</p>';
+
+            try {
+                // Count users
+                const { count: userCount, error: userError } = await supabase
+                    .from('users')
+                    .select('*', { count: 'exact', head: true });
+
+                // Count scores
+                const { count: scoreCount, error: scoreError } = await supabase
+                    .from('scores')
+                    .select('*', { count: 'exact', head: true });
+
+                // Get unique usernames from scores
+                const { data: scores } = await supabase
+                    .from('scores')
+                    .select('username, user_id');
+
+                const uniqueUsernames = new Set(scores?.map(s => s.username) || []);
+                const scoresWithUserId = scores?.filter(s => s.user_id !== null).length || 0;
+                const scoresWithoutUserId = (scores?.length || 0) - scoresWithUserId;
+
+                result.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">👥 User in DB</div>
+                            <div class="stat-value">${userCount || 0}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">🎮 Scores in DB</div>
+                            <div class="stat-value">${scoreCount || 0}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">🏆 Unique Spieler</div>
+                            <div class="stat-value">${uniqueUsernames.size}</div>
+                        </div>
+                        <div class="stat-card ${scoresWithoutUserId > 0 ? 'badge-warning' : ''}">
+                            <div class="stat-label">⚠️ Scores ohne user_id</div>
+                            <div class="stat-value">${scoresWithoutUserId}</div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `<p>❌ Fehler: ${error.message}</p>`;
+            }
+        }
+
+        async function loadAllScores() {
+            const result = document.getElementById('scores-result');
+            result.style.display = 'block';
+            result.innerHTML = '<p>⏳ Lade Scores...</p>';
+
+            try {
+                const { data, error } = await supabase
+                    .from('scores')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                console.log('📊 All Scores:', data);
+
+                if (data.length === 0) {
+                    result.innerHTML = '<p class="warning">⚠️ Keine Scores in der Datenbank!</p>';
+                    return;
+                }
+
+                let html = `<p class="success">✅ ${data.length} Scores gefunden</p>`;
+                html += '<table><tr><th>ID</th><th>Username</th><th>User_ID</th><th>Score</th><th>Coins</th><th>Time</th><th>Datum</th></tr>';
+                
+                data.forEach(score => {
+                    const hasUserId = score.user_id ? '✅' : '❌';
+                    html += `<tr>
+                        <td>${score.id}</td>
+                        <td><strong>${score.username}</strong></td>
+                        <td>${hasUserId} ${score.user_id || 'FEHLT!'}</td>
+                        <td>${score.score}</td>
+                        <td>${score.coins}</td>
+                        <td>${score.time}s</td>
+                        <td>${new Date(score.created_at).toLocaleString('de-DE')}</td>
+                    </tr>`;
+                });
+                html += '</table>';
+
+                result.innerHTML = html;
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `<p>❌ Fehler: ${error.message}</p>`;
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadScoresWithJoin() {
+            const result = document.getElementById('scores-result');
+            result.style.display = 'block';
+            result.innerHTML = '<p>⏳ Lade Scores mit JOIN...</p>';
+
+            try {
+                const { data, error } = await supabase
+                    .from('scores')
+                    .select('id, score, coins, time, username, user_id, created_at, users(username, email)')
+                    .order('score', { ascending: false });
+
+                if (error) throw error;
+
+                console.log('📊 Scores with JOIN:', data);
+
+                let html = `<p class="success">✅ ${data.length} Scores mit JOIN geladen</p>`;
+                html += '<table><tr><th>Score ID</th><th>Username (scores)</th><th>User_ID</th><th>Username (users)</th><th>Score</th></tr>';
+                
+                data.forEach(score => {
+                    const joinSuccess = score.users ? '✅' : '❌';
+                    const usersUsername = score.users?.username || 'KEIN JOIN!';
+                    html += `<tr>
+                        <td>${score.id}</td>
+                        <td><strong>${score.username}</strong></td>
+                        <td>${score.user_id || 'NULL'}</td>
+                        <td>${joinSuccess} ${usersUsername}</td>
+                        <td>${score.score}</td>
+                    </tr>`;
+                });
+                html += '</table>';
+
+                // Zähle erfolgreiche JOINs
+                const successfulJoins = data.filter(s => s.users).length;
+                const failedJoins = data.length - successfulJoins;
+
+                html += `<div style="margin-top: 15px;">
+                    <span class="badge badge-success">${successfulJoins} erfolgreiche JOINs</span>
+                    <span class="badge badge-danger">${failedJoins} fehlgeschlagene JOINs</span>
+                </div>`;
+
+                result.innerHTML = html;
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `<p>❌ Fehler: ${error.message}</p><pre>${JSON.stringify(error, null, 2)}</pre>`;
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadAllUsers() {
+            const result = document.getElementById('users-result');
+            result.style.display = 'block';
+            result.innerHTML = '<p>⏳ Lade User...</p>';
+
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                console.log('👥 All Users:', data);
+
+                if (data.length === 0) {
+                    result.innerHTML = '<p class="warning">⚠️ Keine User in der Datenbank!</p>';
+                    return;
+                }
+
+                let html = `<p class="success">✅ ${data.length} User gefunden</p>`;
+                html += '<table><tr><th>ID (UUID)</th><th>Username</th><th>Email</th><th>Erstellt</th></tr>';
+                
+                data.forEach(user => {
+                    html += `<tr>
+                        <td><code>${user.id}</code></td>
+                        <td><strong>${user.username}</strong></td>
+                        <td>${user.email || 'N/A'}</td>
+                        <td>${new Date(user.created_at).toLocaleString('de-DE')}</td>
+                    </tr>`;
+                });
+                html += '</table>';
+
+                result.innerHTML = html;
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `<p>❌ Fehler: ${error.message}</p>`;
+                console.error('Error:', error);
+            }
+        }
+
+        async function testLeaderboardQuery() {
+            const result = document.getElementById('leaderboard-result');
+            result.style.display = 'block';
+            result.innerHTML = '<p>⏳ Führe Leaderboard Query aus...</p>';
+
+            try {
+                const limit = 10;
+                
+                // Exakt die Query aus dem Code
+                const { data, error } = await supabase
+                    .from('scores')
+                    .select('score, coins, time, created_at, users(username)')
+                    .order('score', { ascending: false })
+                    .limit(limit * 3);
+
+                if (error) throw error;
+
+                console.log('🏆 Leaderboard Query Result:', data);
+
+                // Group by username and get best score (wie im Code)
+                const leaderboard = {};
+                data.forEach(entry => {
+                    const username = entry.users?.username || 'Unknown';
+                    if (!leaderboard[username] || entry.score > leaderboard[username].score) {
+                        leaderboard[username] = {
+                            username: username,
+                            score: entry.score,
+                            coins: entry.coins,
+                            time: entry.time,
+                            created_at: entry.created_at
+                        };
+                    }
+                });
+
+                const leaderboardArray = Object.values(leaderboard)
+                    .sort((a, b) => b.score - a.score)
+                    .slice(0, limit);
+
+                let html = `<p class="success">✅ Leaderboard Query erfolgreich!</p>`;
+                html += `<p><strong>Rohdaten:</strong> ${data.length} Einträge</p>`;
+                html += `<p><strong>Nach Gruppierung:</strong> ${leaderboardArray.length} Einträge</p>`;
+                
+                html += '<h3>Leaderboard:</h3>';
+                html += '<table><tr><th>Rang</th><th>Spieler</th><th>Score</th><th>Coins</th><th>Zeit</th></tr>';
+                
+                leaderboardArray.forEach((entry, index) => {
+                    const isUnknown = entry.username === 'Unknown';
+                    html += `<tr ${isUnknown ? 'style="background: #fff3cd;"' : ''}>
+                        <td>${index + 1}</td>
+                        <td><strong>${entry.username}</strong> ${isUnknown ? '⚠️' : ''}</td>
+                        <td>${entry.score}</td>
+                        <td>${entry.coins}</td>
+                        <td>${entry.time}s</td>
+                    </tr>`;
+                });
+                html += '</table>';
+
+                // Debug Info
+                html += '<h3>Debug Info:</h3><pre>' + JSON.stringify({
+                    rawDataCount: data.length,
+                    groupedCount: Object.keys(leaderboard).length,
+                    finalCount: leaderboardArray.length,
+                    usernames: leaderboardArray.map(e => e.username)
+                }, null, 2) + '</pre>';
+
+                result.innerHTML = html;
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `<p>❌ Fehler: ${error.message}</p><pre>${JSON.stringify(error, null, 2)}</pre>`;
+                console.error('Error:', error);
+            }
+        }
+
+        async function checkForeignKeys() {
+            const result = document.getElementById('fk-result');
+            result.style.display = 'block';
+            result.innerHTML = '<p>⏳ Prüfe Foreign Keys...</p>';
+
+            try {
+                // Lade alle Scores
+                const { data: scores } = await supabase
+                    .from('scores')
+                    .select('id, username, user_id');
+
+                // Lade alle Users
+                const { data: users } = await supabase
+                    .from('users')
+                    .select('id, username');
+
+                const userIds = new Set(users.map(u => u.id));
+                const scoresWithValidFK = [];
+                const scoresWithInvalidFK = [];
+                const scoresWithoutFK = [];
+
+                scores.forEach(score => {
+                    if (!score.user_id) {
+                        scoresWithoutFK.push(score);
+                    } else if (userIds.has(score.user_id)) {
+                        scoresWithValidFK.push(score);
+                    } else {
+                        scoresWithInvalidFK.push(score);
+                    }
+                });
+
+                let html = `<div class="stats-grid">
+                    <div class="stat-card" style="background: #28a745;">
+                        <div class="stat-label">✅ Gültige Verknüpfungen</div>
+                        <div class="stat-value">${scoresWithValidFK.length}</div>
+                    </div>
+                    <div class="stat-card" style="background: #ffc107;">
+                        <div class="stat-label">⚠️ Fehlende user_id</div>
+                        <div class="stat-value">${scoresWithoutFK.length}</div>
+                    </div>
+                    <div class="stat-card" style="background: #dc3545;">
+                        <div class="stat-label">❌ Ungültige user_id</div>
+                        <div class="stat-value">${scoresWithInvalidFK.length}</div>
+                    </div>
+                </div>`;
+
+                if (scoresWithoutFK.length > 0) {
+                    html += '<h3 style="margin-top: 20px; color: #ffc107;">⚠️ Scores ohne user_id:</h3>';
+                    html += '<table><tr><th>Score ID</th><th>Username</th><th>Score</th></tr>';
+                    scoresWithoutFK.forEach(score => {
+                        html += `<tr>
+                            <td>${score.id}</td>
+                            <td><strong>${score.username}</strong></td>
+                            <td>${score.score || 'N/A'}</td>
+                        </tr>`;
+                    });
+                    html += '</table>';
+                }
+
+                result.innerHTML = html;
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `<p>❌ Fehler: ${error.message}</p>`;
+                console.error('Error:', error);
+            }
+        }
+
+        async function diagnoseAndFix() {
+            const result = document.getElementById('fix-result');
+            result.style.display = 'block';
+            result.innerHTML = '<p>⏳ Diagnostiziere Problem...</p>';
+
+            try {
+                // 1. Lade Scores ohne JOIN
+                const { data: scoresRaw } = await supabase
+                    .from('scores')
+                    .select('id, username, user_id, score');
+
+                // 2. Lade Scores mit JOIN
+                const { data: scoresJoin } = await supabase
+                    .from('scores')
+                    .select('id, username, user_id, score, users(username)');
+
+                // 3. Lade alle User
+                const { data: users } = await supabase
+                    .from('users')
+                    .select('id, username');
+
+                const diagnosis = {
+                    totalScores: scoresRaw.length,
+                    scoresWithUserId: scoresRaw.filter(s => s.user_id).length,
+                    scoresWithoutUserId: scoresRaw.filter(s => !s.user_id).length,
+                    successfulJoins: scoresJoin.filter(s => s.users).length,
+                    failedJoins: scoresJoin.filter(s => !s.users).length,
+                    totalUsers: users.length,
+                    usernamesInScores: [...new Set(scoresRaw.map(s => s.username))],
+                    usernamesInUsers: users.map(u => u.username)
+                };
+
+                // Finde Scores, die keinen matching User haben
+                const userMap = new Map(users.map(u => [u.username, u.id]));
+                const unmatchedScores = scoresRaw.filter(score => {
+                    return !score.user_id || !userMap.has(score.username);
+                });
+
+                let html = '<h3>🔍 Diagnose-Ergebnis:</h3>';
+                html += '<pre>' + JSON.stringify(diagnosis, null, 2) + '</pre>';
+
+                if (unmatchedScores.length > 0) {
+                    html += `<div class="warning" style="margin-top: 20px;">
+                        <h3>⚠️ Problem gefunden!</h3>
+                        <p><strong>${unmatchedScores.length} Scores</strong> haben keine gültige Verknüpfung zu einem User!</p>
+                    </div>`;
+
+                    html += '<h3>Betroffene Scores:</h3>';
+                    html += '<table><tr><th>Score ID</th><th>Username</th><th>User_ID</th><th>Problem</th></tr>';
+                    unmatchedScores.forEach(score => {
+                        const problem = !score.user_id ? 'Keine user_id' : 'User existiert nicht';
+                        html += `<tr>
+                            <td>${score.id}</td>
+                            <td><strong>${score.username}</strong></td>
+                            <td>${score.user_id || 'NULL'}</td>
+                            <td style="color: #dc3545;">${problem}</td>
+                        </tr>`;
+                    });
+                    html += '</table>';
+
+                    html += `<div style="margin-top: 20px;">
+                        <button onclick="fixMissingUserIds()">🔧 Automatisch reparieren</button>
+                    </div>`;
+                } else {
+                    html += '<p class="success">✅ Alle Scores haben gültige Verknüpfungen!</p>';
+                }
+
+                result.innerHTML = html;
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `<p>❌ Fehler: ${error.message}</p>`;
+                console.error('Error:', error);
+            }
+        }
+
+        async function fixMissingUserIds() {
+            const result = document.getElementById('fix-result');
+            result.style.display = 'block';
+            result.innerHTML = '<p>⏳ Repariere fehlende Verknüpfungen...</p>';
+
+            try {
+                // 1. Lade alle Scores
+                const { data: scores } = await supabase
+                    .from('scores')
+                    .select('id, username, user_id');
+
+                // 2. Lade alle Users
+                const { data: users } = await supabase
+                    .from('users')
+                    .select('id, username');
+
+                const userMap = new Map(users.map(u => [u.username, u.id]));
+                const updates = [];
+                const missing = [];
+
+                // Finde Scores ohne gültige user_id
+                scores.forEach(score => {
+                    if (!score.user_id && userMap.has(score.username)) {
+                        updates.push({
+                            id: score.id,
+                            username: score.username,
+                            correctUserId: userMap.get(score.username)
+                        });
+                    } else if (!score.user_id && !userMap.has(score.username)) {
+                        missing.push(score);
+                    }
+                });
+
+                let html = '<h3>🔧 Reparatur-Prozess:</h3>';
+                
+                if (updates.length > 0) {
+                    html += `<p class="warning">⚙️ Aktualisiere ${updates.length} Scores...</p>`;
+                    
+                    let successCount = 0;
+                    let errorCount = 0;
+
+                    for (const update of updates) {
+                        try {
+                            const { error } = await supabase
+                                .from('scores')
+                                .update({ user_id: update.correctUserId })
+                                .eq('id', update.id);
+
+                            if (error) {
+                                console.error('Update error:', error);
+                                errorCount++;
+                            } else {
+                                successCount++;
+                            }
+                        } catch (err) {
+                            console.error('Update exception:', err);
+                            errorCount++;
+                        }
+                    }
+
+                    html += `<p class="success">✅ ${successCount} Scores erfolgreich aktualisiert!</p>`;
+                    if (errorCount > 0) {
+                        html += `<p class="error">❌ ${errorCount} Scores konnten nicht aktualisiert werden</p>`;
+                    }
+                } else {
+                    html += '<p>ℹ️ Keine Scores zum Aktualisieren gefunden.</p>';
+                }
+
+                if (missing.length > 0) {
+                    html += `<div class="warning" style="margin-top: 20px;">
+                        <h3>⚠️ ${missing.length} Scores haben keine passenden User:</h3>
+                        <p>Für diese Usernames existiert kein User-Eintrag in der Datenbank:</p>
+                        <ul>`;
+                    missing.forEach(score => {
+                        html += `<li><strong>${score.username}</strong> (Score ID: ${score.id})</li>`;
+                    });
+                    html += '</ul></div>';
+                }
+
+                html += '<p style="margin-top: 20px;"><button onclick="testLeaderboardQuery()">🏆 Leaderboard erneut testen</button></p>';
+
+                result.innerHTML = html;
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `<p>❌ Fehler: ${error.message}</p>`;
+                console.error('Error:', error);
+            }
+        }
+
+        // Auto-load stats on page load
+        window.addEventListener('load', () => {
+            loadStats();
+        });
+    </script>
+</body>
+</html>
+
