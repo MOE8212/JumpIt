@@ -422,19 +422,22 @@ class SupabaseApiClient {
     }
 
     try {
-      // Get scores with username from users table via JOIN
+      // Get scores with username directly from scores table
+      // No JOIN needed since username column exists in scores table
       const { data, error } = await this.supabase
         .from('scores')
-        .select('score, coins, time, created_at, users(username)')
+        .select('username, score, coins, time, created_at')
         .order('score', { ascending: false })
         .limit(limit * 3); // Get more to find unique users
 
       if (error) throw error;
 
-      // Group by username and get best score
+      console.log('📊 Raw scores loaded:', data.length, 'entries');
+
+      // Group by username and get best score for each user
       const leaderboard = {};
       data.forEach(entry => {
-        const username = entry.users?.username || 'Unknown';
+        const username = entry.username || 'Unknown';
         if (!leaderboard[username] || entry.score > leaderboard[username].score) {
           leaderboard[username] = {
             username: username,
@@ -450,7 +453,7 @@ class SupabaseApiClient {
         .sort((a, b) => b.score - a.score)
         .slice(0, limit);
 
-      console.log('📊 Leaderboard loaded:', result.length, 'entries');
+      console.log('📊 Leaderboard after grouping:', result.length, 'unique users');
       return { leaderboard: result };
     } catch (error) {
       console.error('Leaderboard error:', error);
