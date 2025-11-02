@@ -628,7 +628,7 @@ function create() {
         enemy.setCollideWorldBounds(true);
 
         // Set initial velocity for moving enemies
-        const speed = pos.type === 'platform' ? 40 : 50;
+        const speed = pos.type === 'platform' ? 60 : 50;
         enemy.setVelocityX(pos.direction * speed);
 
         enemy.enemyType = pos.type;
@@ -637,9 +637,13 @@ function create() {
 
         // Store platform boundaries for platform enemies
         if (pos.type === 'platform') {
-            enemy.platformLeft = pos.x - pos.platformWidth / 2;
-            enemy.platformRight = pos.x + pos.platformWidth / 2;
+            // Platform width is 200px (from platform creation)
+            const platformWidth = 200;
+            enemy.platformLeft = pos.x - platformWidth / 2;
+            enemy.platformRight = pos.x + platformWidth / 2;
             enemy.initialY = pos.y;
+            
+            console.log(`Platform enemy at ${pos.x}: patrol range ${enemy.platformLeft} to ${enemy.platformRight}`);
         }
 
         // Add collision with platforms
@@ -803,28 +807,56 @@ function update() {
         levelCompleted();
     }
 
-    // Update enemy AI
+    // Update enemy AI with improved patrol logic
     enemies.children.entries.forEach(enemy => {
         if (enemy.enemyType === 'patrol') {
-            // Reverse direction when hitting world bounds
-            if (enemy.x <= 0 || enemy.x >= WORLD_WIDTH - 32) {
-                enemy.direction *= -1;
-                enemy.setVelocityX(enemy.direction * 50);
+            // Ground patrol enemies - detect platform edges
+            const enemyOnGround = enemy.body.touching.down;
+            
+            if (enemyOnGround) {
+                // Check for platform edge ahead using raycasting
+                const checkDistance = 40; // Look 40px ahead
+                const rayX = enemy.x + (enemy.direction * checkDistance);
+                const rayY = enemy.y + 20; // Check slightly below enemy
+                
+                // Check if there's ground ahead
+                let hasGroundAhead = false;
+                
+                // Check if we hit a platform
+                platforms.children.entries.forEach(platform => {
+                    const platformBounds = platform.getBounds();
+                    if (rayX >= platformBounds.left && rayX <= platformBounds.right &&
+                        rayY >= platformBounds.top && rayY <= platformBounds.bottom + 10) {
+                        hasGroundAhead = true;
+                    }
+                });
+                
+                // Check if we're still on the main ground (y > 550)
+                if (rayY >= 560) {
+                    hasGroundAhead = true;
+                }
+                
+                // Reverse direction at platform edge or world bounds
+                if (!hasGroundAhead || enemy.x <= 10 || enemy.x >= WORLD_WIDTH - 42) {
+                    enemy.direction *= -1;
+                    enemy.flipX = enemy.direction === -1; // Flip sprite based on direction
+                }
             }
-
-            // Keep moving in current direction
-            if (enemy.body.velocity.x === 0) {
-                enemy.setVelocityX(enemy.direction * 50);
-            }
+            
+            // Always keep moving
+            enemy.setVelocityX(enemy.direction * 50);
+            
         } else if (enemy.enemyType === 'platform') {
-            // Platform enemies move back and forth on their platform
-            if (enemy.x <= enemy.platformLeft || enemy.x >= enemy.platformRight) {
+            // Platform enemies move back and forth within their platform bounds
+            
+            // Reverse direction at platform boundaries
+            if (enemy.x <= enemy.platformLeft + 16 || enemy.x >= enemy.platformRight - 16) {
                 enemy.direction *= -1;
-                enemy.flipX = enemy.direction === 1; // Flip sprite based on direction
+                enemy.flipX = enemy.direction === -1; // Flip sprite based on direction
             }
-
+            
             // Always keep moving in current direction with consistent speed
-            enemy.setVelocityX(enemy.direction * 60); // Increased speed from 40 to 60
+            enemy.setVelocityX(enemy.direction * 60);
         }
     });
 
