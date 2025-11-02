@@ -105,6 +105,13 @@ class SupabaseApiClient {
 
       if (authError) {
         console.error('❌ [DEBUG] Supabase signUp error:', authError);
+        console.error('❌ [DEBUG] Error details:', {
+          message: authError.message,
+          status: authError.status,
+          code: authError.code,
+          name: authError.name,
+          details: authError
+        });
         throw authError;
       }
 
@@ -150,13 +157,32 @@ class SupabaseApiClient {
       };
     } catch (error) {
       console.error('Registration error:', error);
+      
+      // Benutzerfreundliche Fehlermeldungen
+      let userMessage = 'Registrierung fehlgeschlagen';
+      
+      if (error.message) {
+        if (error.message.includes('User already registered')) {
+          userMessage = 'Diese E-Mail-Adresse ist bereits registriert!';
+        } else if (error.message.includes('Password')) {
+          userMessage = 'Passwort muss mindestens 6 Zeichen lang sein!';
+        } else if (error.message.includes('Email')) {
+          userMessage = 'Ungültige E-Mail-Adresse!';
+        } else if (error.status === 422) {
+          userMessage = 'Ungültige Daten. Bitte prüfen Sie Ihre Eingaben:\n- E-Mail muss gültig sein\n- Passwort mindestens 6 Zeichen';
+        } else {
+          userMessage = error.message;
+        }
+      }
+      
       // Fallback to offline mode if network error (only if enabled)
       if (this.OFFLINE_MODE_ENABLED && (error.message.includes('fetch') || error.message.includes('NetworkError'))) {
         console.warn('⚠️ Network error detected, switching to offline mode');
         this.isOfflineMode = true;
         return this._registerOffline(username, email, password);
       }
-      throw new Error(error.message || 'Registrierung fehlgeschlagen');
+      
+      throw new Error(userMessage);
     }
   }
 
