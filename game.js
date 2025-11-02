@@ -832,7 +832,10 @@ function update() {
                 });
             }
             
-            if (enemyOnGround) {
+            // Check if enemy is stuck (velocity near 0 but should be moving)
+            const isStuck = Math.abs(currentVelocity) < 5;
+            
+            if (enemyOnGround || isStuck) {
                 // Check for platform edge ahead using raycasting
                 const checkDistance = 40; // Look 40px ahead
                 const rayX = enemy.x + (enemy.direction * checkDistance);
@@ -860,15 +863,16 @@ function update() {
                         rayX: Math.round(rayX),
                         rayY: Math.round(rayY),
                         hasGroundAhead,
-                        atWorldBounds: enemy.x <= 10 || enemy.x >= WORLD_WIDTH - 42
+                        atWorldBounds: enemy.x <= 10 || enemy.x >= WORLD_WIDTH - 42,
+                        isStuck
                     });
                 }
                 
                 // Reverse direction at platform edge or world bounds
-                // Only reverse if moving TOWARDS the problem to prevent constant flipping
-                const atLeftEdge = enemy.x <= 10 && enemy.direction === -1;
-                const atRightEdge = enemy.x >= WORLD_WIDTH - 42 && enemy.direction === 1;
-                const shouldReverse = !hasGroundAhead || atLeftEdge || atRightEdge;
+                // Also reverse if stuck (velocity is 0 but shouldn't be)
+                const atLeftEdge = (enemy.x <= 10 && enemy.direction === -1) || (enemy.x <= 20 && isStuck);
+                const atRightEdge = (enemy.x >= WORLD_WIDTH - 42 && enemy.direction === 1) || (enemy.x >= WORLD_WIDTH - 50 && isStuck);
+                const shouldReverse = !hasGroundAhead || atLeftEdge || atRightEdge || isStuck;
                 
                 if (shouldReverse) {
                     const oldDirection = enemy.direction;
@@ -879,7 +883,7 @@ function update() {
                             x: Math.round(enemy.x),
                             oldDirection,
                             newDirection: enemy.direction,
-                            reason: !hasGroundAhead ? 'NO_GROUND' : (atLeftEdge ? 'LEFT_EDGE' : 'RIGHT_EDGE')
+                            reason: isStuck ? 'STUCK' : (!hasGroundAhead ? 'NO_GROUND' : (atLeftEdge ? 'LEFT_EDGE' : 'RIGHT_EDGE'))
                         });
                     }
                 }
@@ -894,16 +898,6 @@ function update() {
             
             // Always keep moving
             enemy.setVelocityX(enemy.direction * 50);
-            
-            // Debug: Check if enemy is stuck
-            if (Math.abs(currentVelocity) < 5) {
-                console.warn('⚠️ [PATROL] Enemy stuck!', {
-                    x: Math.round(enemy.x),
-                    y: Math.round(enemy.y),
-                    velocity: currentVelocity,
-                    direction: enemy.direction
-                });
-            }
             
         } else if (enemy.enemyType === 'platform') {
             // Platform enemies move back and forth within their platform bounds
