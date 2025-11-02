@@ -422,38 +422,58 @@ class SupabaseApiClient {
     }
 
     try {
-      // Get scores with username directly from scores table
-      // No JOIN needed since username column exists in scores table
-      // Load many scores to ensure we find all unique users (not just top scorer's entries)
+      // Use Supabase RPC function to get best score per user
+      // This is much more efficient than loading all scores and grouping client-side
+      const { data, error } = await this.supabase.rpc('get_leaderboard', { 
+        score_limit: limit 
+      });
+
+      if (error) {
+        // Fallback: If RPC function doesn't exist, use simple query with client-side grouping
+        console.log('⚠️ RPC function not found, using fallback method');
+        return await this._getLeaderboardFallback(limit);
+      }
+
+      console.log('📊 Leaderboard loaded via RPC:', data.length, 'unique users');
+      
+      const result = data.map(entry => ({
+        username: entry.username,
+        score: entry.best_score,
+        coins: entry.coins,
+        time: entry.time,
+        created_at: entry.created_at
+      }));
+
+      return { leaderboard: result };
+    } catch (error) {
+      console.error('Leaderboard error:', error);
+      // Fallback to offline (only if enabled)
+      if (this.OFFLINE_MODE_ENABLED && (error.message.includes('fetch') || error.message.includes('NetworkError'))) {
+        this.isOfflineMode = true;
+        return this._getLeaderboardOffline(limit);
+      }
+      return { leaderboard: [] };
+    }
+  }
+
+  async _getLeaderboardFallback(limit = 10) {
+    // Fallback method: Load ALL scores and group client-side
+    try {
       const { data, error } = await this.supabase
         .from('scores')
         .select('username, score, coins, time, created_at')
         .order('score', { ascending: false })
-        .limit(Math.max(200, limit * 20)); // Load enough scores to find all unique users
+        .limit(2000); // Load many scores to ensure we get all users
 
       if (error) throw error;
 
-      console.log('📊 Raw scores loaded:', data.length, 'entries');
-      
-      // Count unique usernames in raw data
-      const uniqueUsernamesInData = new Set(data.map(s => s.username).filter(u => u && u !== 'Unknown'));
-      console.log('👥 Unique usernames in raw data:', uniqueUsernamesInData.size);
-      
-      // Debug: Show username distribution in first 20 entries
-      const usernameCount = {};
-      data.slice(0, 20).forEach(s => {
-        usernameCount[s.username] = (usernameCount[s.username] || 0) + 1;
-      });
-      console.log('📋 Username distribution (first 20):', usernameCount);
+      console.log('📊 Fallback: Loaded', data.length, 'scores');
 
       // Group by username and get best score for each user
-      // WICHTIG: Skip scores without valid username (NULL or empty)
       const leaderboard = {};
-      let skippedCount = 0;
       data.forEach(entry => {
         // Skip entries without valid username
         if (!entry.username || entry.username === 'Unknown' || entry.username.trim() === '') {
-          skippedCount++;
           return;
         }
         
@@ -468,24 +488,15 @@ class SupabaseApiClient {
           };
         }
       });
-      
-      if (skippedCount > 0) {
-        console.log('⚠️ Skipped', skippedCount, 'scores without valid username');
-      }
 
       const result = Object.values(leaderboard)
         .sort((a, b) => b.score - a.score)
         .slice(0, limit);
 
-      console.log('📊 Leaderboard after grouping:', result.length, 'unique users');
+      console.log('📊 Fallback: Grouped to', result.length, 'unique users');
       return { leaderboard: result };
     } catch (error) {
-      console.error('Leaderboard error:', error);
-      // Fallback to offline (only if enabled)
-      if (this.OFFLINE_MODE_ENABLED && (error.message.includes('fetch') || error.message.includes('NetworkError'))) {
-        this.isOfflineMode = true;
-        return this._getLeaderboardOffline(limit);
-      }
+      console.error('Fallback leaderboard error:', error);
       return { leaderboard: [] };
     }
   }
