@@ -807,11 +807,30 @@ function update() {
         levelCompleted();
     }
 
-    // Update enemy AI with improved patrol logic
-    enemies.children.entries.forEach(enemy => {
+    // Update enemy AI with improved patrol logic + DEBUG
+    enemies.children.entries.forEach((enemy, index) => {
+        // Debug: Log occasionally for first enemy only
+        const shouldLog = index === 0 && Math.random() < 0.02; // 2% chance for first enemy
+        
         if (enemy.enemyType === 'patrol') {
             // Ground patrol enemies - detect platform edges
             const enemyOnGround = enemy.body.touching.down;
+            const currentVelocity = enemy.body.velocity.x;
+            
+            if (shouldLog) {
+                console.log('🐛 [PATROL DEBUG]', {
+                    x: Math.round(enemy.x),
+                    y: Math.round(enemy.y),
+                    direction: enemy.direction,
+                    velocity: Math.round(currentVelocity),
+                    onGround: enemyOnGround,
+                    touching: {
+                        left: enemy.body.touching.left,
+                        right: enemy.body.touching.right,
+                        down: enemy.body.touching.down
+                    }
+                });
+            }
             
             if (enemyOnGround) {
                 // Check for platform edge ahead using raycasting
@@ -836,27 +855,93 @@ function update() {
                     hasGroundAhead = true;
                 }
                 
+                if (shouldLog) {
+                    console.log('  ↪ Ray Check:', {
+                        rayX: Math.round(rayX),
+                        rayY: Math.round(rayY),
+                        hasGroundAhead,
+                        atWorldBounds: enemy.x <= 10 || enemy.x >= WORLD_WIDTH - 42
+                    });
+                }
+                
                 // Reverse direction at platform edge or world bounds
                 if (!hasGroundAhead || enemy.x <= 10 || enemy.x >= WORLD_WIDTH - 42) {
+                    const oldDirection = enemy.direction;
                     enemy.direction *= -1;
                     enemy.flipX = enemy.direction === -1; // Flip sprite based on direction
+                    
+                    if (shouldLog || true) { // Always log direction changes
+                        console.log('🔄 [PATROL] Direction changed!', {
+                            x: Math.round(enemy.x),
+                            oldDirection,
+                            newDirection: enemy.direction,
+                            reason: !hasGroundAhead ? 'NO_GROUND' : 'WORLD_BOUNDS'
+                        });
+                    }
                 }
+            } else if (shouldLog) {
+                console.log('  ⚠️ Enemy not on ground!');
             }
             
             // Always keep moving
             enemy.setVelocityX(enemy.direction * 50);
             
+            // Debug: Check if enemy is stuck
+            if (Math.abs(currentVelocity) < 5) {
+                console.warn('⚠️ [PATROL] Enemy stuck!', {
+                    x: Math.round(enemy.x),
+                    y: Math.round(enemy.y),
+                    velocity: currentVelocity,
+                    direction: enemy.direction
+                });
+            }
+            
         } else if (enemy.enemyType === 'platform') {
             // Platform enemies move back and forth within their platform bounds
+            const currentVelocity = enemy.body.velocity.x;
+            
+            if (shouldLog) {
+                console.log('🐛 [PLATFORM DEBUG]', {
+                    x: Math.round(enemy.x),
+                    direction: enemy.direction,
+                    velocity: Math.round(currentVelocity),
+                    bounds: {
+                        left: enemy.platformLeft,
+                        right: enemy.platformRight
+                    },
+                    distance: {
+                        toLeft: Math.round(enemy.x - enemy.platformLeft),
+                        toRight: Math.round(enemy.platformRight - enemy.x)
+                    }
+                });
+            }
             
             // Reverse direction at platform boundaries
             if (enemy.x <= enemy.platformLeft + 16 || enemy.x >= enemy.platformRight - 16) {
+                const oldDirection = enemy.direction;
                 enemy.direction *= -1;
                 enemy.flipX = enemy.direction === -1; // Flip sprite based on direction
+                
+                console.log('🔄 [PLATFORM] Direction changed!', {
+                    x: Math.round(enemy.x),
+                    oldDirection,
+                    newDirection: enemy.direction,
+                    atLeft: enemy.x <= enemy.platformLeft + 16,
+                    atRight: enemy.x >= enemy.platformRight - 16
+                });
             }
             
             // Always keep moving in current direction with consistent speed
             enemy.setVelocityX(enemy.direction * 60);
+            
+            // Debug: Check if enemy is stuck
+            if (Math.abs(currentVelocity) < 5) {
+                console.warn('⚠️ [PLATFORM] Enemy stuck!', {
+                    x: Math.round(enemy.x),
+                    velocity: currentVelocity,
+                    direction: enemy.direction
+                });
+            }
         }
     });
 
