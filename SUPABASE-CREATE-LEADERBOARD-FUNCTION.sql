@@ -32,7 +32,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Alternative: More performant version using GROUP BY
+-- Best version: Get one entry per user with their best score
 CREATE OR REPLACE FUNCTION get_leaderboard(score_limit INTEGER DEFAULT 10)
 RETURNS TABLE (
     username TEXT,
@@ -43,28 +43,28 @@ RETURNS TABLE (
 ) AS $$
 BEGIN
     RETURN QUERY
-    WITH best_scores AS (
+    WITH ranked_scores AS (
         SELECT 
             s.username,
-            MAX(s.score) as max_score
+            s.score,
+            s.coins,
+            s."time",
+            s.created_at,
+            ROW_NUMBER() OVER (PARTITION BY s.username ORDER BY s.score DESC, s.created_at ASC) as rn
         FROM public.scores s
         WHERE s.username IS NOT NULL 
           AND s.username != ''
           AND s.username != 'Unknown'
-        GROUP BY s.username
     )
     SELECT 
-        s.username,
-        s.score as best_score,
-        s.coins,
-        s."time" as time_seconds,
-        s.created_at
-    FROM public.scores s
-    INNER JOIN best_scores bs ON s.username = bs.username AND s.score = bs.max_score
-    WHERE s.username IS NOT NULL 
-      AND s.username != ''
-      AND s.username != 'Unknown'
-    ORDER BY s.score DESC, s.created_at ASC
+        username,
+        score as best_score,
+        coins,
+        "time" as time_seconds,
+        created_at
+    FROM ranked_scores
+    WHERE rn = 1
+    ORDER BY best_score DESC, created_at ASC
     LIMIT score_limit;
 END;
 $$ LANGUAGE plpgsql;
