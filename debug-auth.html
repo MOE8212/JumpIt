@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JumpIt - Auth Debug</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .test-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-right: 10px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .result.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .config-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .config-info code {
+            background: #fffbdb;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 JumpIt - Authentication Debug Tool</h1>
+
+        <div class="config-info">
+            <strong>📋 Supabase Konfiguration:</strong><br>
+            URL: <code id="config-url">Loading...</code><br>
+            API Key: <code id="config-key">Loading...</code>
+        </div>
+
+        <!-- Test 1: Check Session -->
+        <div class="test-section">
+            <h2>1️⃣ Session Status prüfen</h2>
+            <button onclick="checkSession()">Session prüfen</button>
+            <button onclick="clearSession()" class="btn-secondary">Session löschen</button>
+            <div id="session-result"></div>
+        </div>
+
+        <!-- Test 2: Register -->
+        <div class="test-section">
+            <h2>2️⃣ Neuen User registrieren</h2>
+            <div class="form-group">
+                <label>Username:</label>
+                <input type="text" id="reg-username" placeholder="z.B. TestUser">
+            </div>
+            <div class="form-group">
+                <label>E-Mail:</label>
+                <input type="email" id="reg-email" placeholder="z.B. test@example.com">
+            </div>
+            <div class="form-group">
+                <label>Passwort (min. 6 Zeichen):</label>
+                <input type="password" id="reg-password" placeholder="Mindestens 6 Zeichen">
+            </div>
+            <button onclick="testRegister()">Registrieren</button>
+            <div id="register-result"></div>
+        </div>
+
+        <!-- Test 3: Login -->
+        <div class="test-section">
+            <h2>3️⃣ Login testen</h2>
+            <div class="form-group">
+                <label>E-Mail:</label>
+                <input type="email" id="login-email" placeholder="z.B. test@example.com">
+            </div>
+            <div class="form-group">
+                <label>Passwort:</label>
+                <input type="password" id="login-password">
+            </div>
+            <button onclick="testLogin()">Login</button>
+            <div id="login-result"></div>
+        </div>
+
+        <!-- Test 4: Password Reset -->
+        <div class="test-section">
+            <h2>4️⃣ Passwort zurücksetzen</h2>
+            <div class="form-group">
+                <label>E-Mail:</label>
+                <input type="email" id="reset-email" placeholder="z.B. test@example.com">
+            </div>
+            <button onclick="testPasswordReset()">Reset-Link senden</button>
+            <div id="reset-result"></div>
+        </div>
+
+        <!-- Test 5: Check Email Confirmation Settings -->
+        <div class="test-section">
+            <h2>5️⃣ Auth-Einstellungen testen</h2>
+            <button onclick="checkAuthSettings()">Einstellungen prüfen</button>
+            <div id="settings-result"></div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Supabase
+        const SUPABASE_URL = 'https://awfpgidutxrkfwgdjjpn.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3ZnBnaWR1dHhya2Z3Z2RqanBuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA3ODE3MDksImV4cCI6MjA3NjM1NzcwOX0.X0Ng5emoTaRpEXVPcsu2nOBZ7q4WBX1zEc9krU8KzMY';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Display config
+        document.getElementById('config-url').textContent = SUPABASE_URL;
+        document.getElementById('config-key').textContent = SUPABASE_ANON_KEY.substring(0, 40) + '...';
+
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+
+        async function checkSession() {
+            showResult('session-result', 'Prüfe Session...', 'info');
+            try {
+                const { data, error } = await supabase.auth.getSession();
+                
+                if (error) throw error;
+
+                if (data.session) {
+                    showResult('session-result', 
+                        `✅ Aktive Session gefunden!\n\n` +
+                        `User ID: ${data.session.user.id}\n` +
+                        `Email: ${data.session.user.email}\n` +
+                        `Username: ${data.session.user.user_metadata?.username || 'N/A'}\n` +
+                        `Email bestätigt: ${data.session.user.email_confirmed_at ? 'Ja' : 'Nein'}\n` +
+                        `Erstellt: ${new Date(data.session.user.created_at).toLocaleString('de-DE')}`,
+                        'success'
+                    );
+                } else {
+                    showResult('session-result', '❌ Keine aktive Session gefunden.', 'error');
+                }
+            } catch (error) {
+                showResult('session-result', `❌ Fehler: ${error.message}`, 'error');
+            }
+        }
+
+        async function clearSession() {
+            try {
+                await supabase.auth.signOut();
+                showResult('session-result', '✅ Session wurde gelöscht!', 'success');
+            } catch (error) {
+                showResult('session-result', `❌ Fehler: ${error.message}`, 'error');
+            }
+        }
+
+        async function testRegister() {
+            const username = document.getElementById('reg-username').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+
+            if (!username || !email || !password) {
+                showResult('register-result', '❌ Bitte alle Felder ausfüllen!', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showResult('register-result', '❌ Passwort muss mindestens 6 Zeichen lang sein!', 'error');
+                return;
+            }
+
+            showResult('register-result', 'Registriere User...', 'info');
+
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            username: username
+                        }
+                    }
+                });
+
+                if (error) throw error;
+
+                let message = `✅ Registrierung erfolgreich!\n\n`;
+                message += `User ID: ${data.user.id}\n`;
+                message += `Email: ${data.user.email}\n`;
+                message += `Username: ${username}\n`;
+                
+                if (data.user.identities && data.user.identities.length === 0) {
+                    message += `\n⚠️ WICHTIG: User existiert bereits!\nDiese E-Mail-Adresse ist bereits registriert.`;
+                } else if (!data.session) {
+                    message += `\n⚠️ WICHTIG: Email-Bestätigung erforderlich!\nBitte prüfen Sie den Posteingang von ${email} und bestätigen Sie die E-Mail-Adresse.`;
+                }
+
+                showResult('register-result', message, data.session ? 'success' : 'info');
+            } catch (error) {
+                showResult('register-result', 
+                    `❌ Registrierung fehlgeschlagen!\n\n` +
+                    `Fehler: ${error.message}\n\n` +
+                    `Mögliche Ursachen:\n` +
+                    `• E-Mail bereits registriert\n` +
+                    `• Passwort zu schwach\n` +
+                    `• Ungültiges E-Mail-Format`,
+                    'error'
+                );
+            }
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            if (!email || !password) {
+                showResult('login-result', '❌ Bitte Email und Passwort eingeben!', 'error');
+                return;
+            }
+
+            showResult('login-result', 'Login wird versucht...', 'info');
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) throw error;
+
+                showResult('login-result', 
+                    `✅ Login erfolgreich!\n\n` +
+                    `User ID: ${data.user.id}\n` +
+                    `Email: ${data.user.email}\n` +
+                    `Username: ${data.user.user_metadata?.username || 'N/A'}\n` +
+                    `Email bestätigt: ${data.user.email_confirmed_at ? 'Ja' : 'Nein'}`,
+                    'success'
+                );
+            } catch (error) {
+                let errorMsg = `❌ Login fehlgeschlagen!\n\nFehler: ${error.message}\n\n`;
+                
+                if (error.message.includes('Invalid login credentials')) {
+                    errorMsg += `Mögliche Ursachen:\n` +
+                               `• Falsches Passwort\n` +
+                               `• E-Mail nicht bestätigt\n` +
+                               `• User existiert nicht\n\n` +
+                               `Tipp: Versuchen Sie einen Passwort-Reset (siehe unten).`;
+                }
+                
+                showResult('login-result', errorMsg, 'error');
+            }
+        }
+
+        async function testPasswordReset() {
+            const email = document.getElementById('reset-email').value.trim();
+
+            if (!email) {
+                showResult('reset-result', '❌ Bitte E-Mail-Adresse eingeben!', 'error');
+                return;
+            }
+
+            showResult('reset-result', 'Sende Reset-Link...', 'info');
+
+            try {
+                const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.origin + '/JumpIt/'
+                });
+
+                if (error) throw error;
+
+                showResult('reset-result', 
+                    `✅ Reset-Link wurde gesendet!\n\n` +
+                    `Bitte prüfen Sie den Posteingang von:\n${email}\n\n` +
+                    `Hinweis: Die E-Mail kann einige Minuten dauern.`,
+                    'success'
+                );
+            } catch (error) {
+                showResult('reset-result', 
+                    `❌ Fehler beim Senden:\n${error.message}`,
+                    'error'
+                );
+            }
+        }
+
+        async function checkAuthSettings() {
+            showResult('settings-result', 'Prüfe Auth-Einstellungen...', 'info');
+
+            try {
+                // Try to get current settings by attempting an operation
+                const { data, error } = await supabase.auth.getSession();
+                
+                let message = `📋 Supabase Auth Status:\n\n`;
+                message += `✅ Verbindung erfolgreich\n`;
+                message += `URL: ${SUPABASE_URL}\n\n`;
+                message += `Empfohlene Einstellungen in Supabase Dashboard:\n`;
+                message += `1. Authentication → Settings → Email Auth\n`;
+                message += `   • "Enable email confirmations": Aus (für Testing)\n`;
+                message += `   • "Secure email change": An\n\n`;
+                message += `2. Authentication → URL Configuration\n`;
+                message += `   • Site URL: https://moe8212.github.io/JumpIt/\n`;
+                message += `   • Redirect URLs: https://moe8212.github.io/JumpIt/**\n\n`;
+                message += `3. Authentication → Providers\n`;
+                message += `   • Email Provider: Aktiviert\n`;
+
+                showResult('settings-result', message, 'success');
+            } catch (error) {
+                showResult('settings-result', 
+                    `❌ Verbindungsfehler:\n${error.message}\n\n` +
+                    `Bitte prüfen Sie:\n` +
+                    `• Internetverbindung\n` +
+                    `• Supabase Projekt-Status\n` +
+                    `• API Key korrekt`,
+                    'error'
+                );
+            }
+        }
+
+        // Auto-check session on load
+        window.addEventListener('load', () => {
+            checkSession();
+        });
+    </script>
+</body>
+</html>
+

@@ -225,6 +225,8 @@ class SupabaseApiClient {
   }
 
   async login(email, password) {
+    console.log('🔍 [DEBUG] login() called with email:', email);
+    
     // Offline Fallback (only if enabled)
     if (this.isOfflineMode && this.OFFLINE_MODE_ENABLED) {
       return this._loginOffline(email, password);
@@ -236,7 +238,14 @@ class SupabaseApiClient {
         password: password
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('🔍 [DEBUG] Login error details:', {
+          message: error.message,
+          status: error.status,
+          name: error.name
+        });
+        throw error;
+      }
 
       this.session = data.session;
       this.currentUser = data.user;
@@ -252,14 +261,27 @@ class SupabaseApiClient {
         session: data.session
       };
     } catch (error) {
-      console.error('Login error:', error);
-      // Fallback to offline mode if network error (only if enabled)
-      if (this.OFFLINE_MODE_ENABLED && (error.message.includes('fetch') || error.message.includes('NetworkError'))) {
+      console.error('❌ Login error:', error);
+      
+      // Provide better error messages
+      let errorMessage = 'Login fehlgeschlagen';
+      
+      if (error.message.includes('Invalid login credentials')) {
+        errorMessage = 'Ungültige Anmeldedaten.\n\n' +
+                      'Mögliche Ursachen:\n' +
+                      '• Falsches Passwort\n' +
+                      '• E-Mail nicht bestätigt (prüfen Sie Ihren Posteingang)\n' +
+                      '• User existiert nicht mit dieser E-Mail\n\n' +
+                      'Tipp: Verwenden Sie die echte E-Mail-Adresse, mit der Sie sich registriert haben.';
+      } else if (error.message.includes('Email not confirmed')) {
+        errorMessage = 'E-Mail nicht bestätigt!\n\nBitte prüfen Sie Ihren Posteingang und bestätigen Sie Ihre E-Mail-Adresse.';
+      } else if (this.OFFLINE_MODE_ENABLED && (error.message.includes('fetch') || error.message.includes('NetworkError'))) {
         console.warn('⚠️ Network error detected, switching to offline mode');
         this.isOfflineMode = true;
         return this._loginOffline(email, password);
       }
-      throw new Error(error.message || 'Login fehlgeschlagen');
+      
+      throw new Error(errorMessage);
     }
   }
 
