@@ -5,8 +5,14 @@ class SupabaseApiClient {
     this.currentUser = null;
     this.session = null;
     this.isOfflineMode = false;
+    
+    // 🔧 OFFLINE MODE CONFIG
+    // Set to true to enable offline fallback (localStorage-based)
+    // Set to false to require Supabase connection (recommended)
+    this.OFFLINE_MODE_ENABLED = false;
 
     console.log('🔌 Supabase API Client initialized');
+    console.log('📱 Offline mode:', this.OFFLINE_MODE_ENABLED ? 'ENABLED' : 'DISABLED');
 
     // Check initial session
     this.checkSession();
@@ -44,14 +50,20 @@ class SupabaseApiClient {
       console.error('❌ [DEBUG] Error message:', error.message);
       console.error('❌ [DEBUG] Error stack:', error.stack);
       
-      console.warn('⚠️ Supabase not reachable, using offline mode:', error.message);
-      this.isOfflineMode = true;
-      
-      // Try to restore from localStorage
-      const savedUser = localStorage.getItem('jumpit_user_offline');
-      if (savedUser) {
-        this.currentUser = JSON.parse(savedUser);
-        console.log('📱 Offline user restored:', this.currentUser.username);
+      // Only use offline mode if explicitly enabled
+      if (this.OFFLINE_MODE_ENABLED) {
+        console.warn('⚠️ Supabase not reachable, using offline mode:', error.message);
+        this.isOfflineMode = true;
+        
+        // Try to restore from localStorage
+        const savedUser = localStorage.getItem('jumpit_user_offline');
+        if (savedUser) {
+          this.currentUser = JSON.parse(savedUser);
+          console.log('📱 Offline user restored:', this.currentUser.username);
+        }
+      } else {
+        console.error('❌ Supabase nicht erreichbar. Bitte prüfen Sie Ihre Internetverbindung.');
+        // Don't switch to offline mode - throw error instead
       }
     }
   }
@@ -63,9 +75,10 @@ class SupabaseApiClient {
     console.log('🔍 [DEBUG] Username:', username);
     console.log('🔍 [DEBUG] Email:', email);
     console.log('🔍 [DEBUG] isOfflineMode:', this.isOfflineMode);
+    console.log('🔍 [DEBUG] OFFLINE_MODE_ENABLED:', this.OFFLINE_MODE_ENABLED);
     
-    // Offline Fallback
-    if (this.isOfflineMode) {
+    // Offline Fallback (only if enabled)
+    if (this.isOfflineMode && this.OFFLINE_MODE_ENABLED) {
       console.log('⚠️ [DEBUG] Using offline fallback');
       return this._registerOffline(username, email, password);
     }
@@ -137,8 +150,8 @@ class SupabaseApiClient {
       };
     } catch (error) {
       console.error('Registration error:', error);
-      // Fallback to offline mode if network error
-      if (error.message.includes('fetch') || error.message.includes('NetworkError')) {
+      // Fallback to offline mode if network error (only if enabled)
+      if (this.OFFLINE_MODE_ENABLED && (error.message.includes('fetch') || error.message.includes('NetworkError'))) {
         console.warn('⚠️ Network error detected, switching to offline mode');
         this.isOfflineMode = true;
         return this._registerOffline(username, email, password);
@@ -186,8 +199,8 @@ class SupabaseApiClient {
   }
 
   async login(email, password) {
-    // Offline Fallback
-    if (this.isOfflineMode) {
+    // Offline Fallback (only if enabled)
+    if (this.isOfflineMode && this.OFFLINE_MODE_ENABLED) {
       return this._loginOffline(email, password);
     }
 
@@ -214,8 +227,8 @@ class SupabaseApiClient {
       };
     } catch (error) {
       console.error('Login error:', error);
-      // Fallback to offline mode if network error
-      if (error.message.includes('fetch') || error.message.includes('NetworkError')) {
+      // Fallback to offline mode if network error (only if enabled)
+      if (this.OFFLINE_MODE_ENABLED && (error.message.includes('fetch') || error.message.includes('NetworkError'))) {
         console.warn('⚠️ Network error detected, switching to offline mode');
         this.isOfflineMode = true;
         return this._loginOffline(email, password);
@@ -289,8 +302,8 @@ class SupabaseApiClient {
       throw new Error('Not authenticated');
     }
 
-    // Offline Fallback
-    if (this.isOfflineMode) {
+    // Offline Fallback (only if enabled)
+    if (this.isOfflineMode && this.OFFLINE_MODE_ENABLED) {
       return this._submitScoreOffline(score, coins, time);
     }
 
@@ -317,8 +330,8 @@ class SupabaseApiClient {
       return data;
     } catch (error) {
       console.error('Submit score error:', error);
-      // Fallback to offline
-      if (error.message.includes('fetch') || error.message.includes('NetworkError')) {
+      // Fallback to offline (only if enabled)
+      if (this.OFFLINE_MODE_ENABLED && (error.message.includes('fetch') || error.message.includes('NetworkError'))) {
         this.isOfflineMode = true;
         return this._submitScoreOffline(score, coins, time);
       }
@@ -349,8 +362,8 @@ class SupabaseApiClient {
   }
 
   async getLeaderboard(limit = 10) {
-    // Offline Fallback
-    if (this.isOfflineMode) {
+    // Offline Fallback (only if enabled)
+    if (this.isOfflineMode && this.OFFLINE_MODE_ENABLED) {
       return this._getLeaderboardOffline(limit);
     }
 
@@ -387,8 +400,8 @@ class SupabaseApiClient {
       return { leaderboard: result };
     } catch (error) {
       console.error('Leaderboard error:', error);
-      // Fallback to offline
-      if (error.message.includes('fetch') || error.message.includes('NetworkError')) {
+      // Fallback to offline (only if enabled)
+      if (this.OFFLINE_MODE_ENABLED && (error.message.includes('fetch') || error.message.includes('NetworkError'))) {
         this.isOfflineMode = true;
         return this._getLeaderboardOffline(limit);
       }
