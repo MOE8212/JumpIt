@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Connection Debug</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #00ff00;
+        }
+        .test {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #333;
+            border-radius: 5px;
+        }
+        .success { color: #00ff00; }
+        .error { color: #ff0000; }
+        .warning { color: #ffaa00; }
+        button {
+            background: #333;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #00ff00;
+            color: #1a1a1a;
+        }
+        pre {
+            background: #000;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Supabase Connection Debug Tool</h1>
+    
+    <div class="test">
+        <h2>Test 1: Supabase URL Erreichbarkeit</h2>
+        <button onclick="testDNS()">DNS Test starten</button>
+        <div id="dns-result"></div>
+    </div>
+
+    <div class="test">
+        <h2>Test 2: Supabase API Erreichbarkeit</h2>
+        <button onclick="testAPI()">API Test starten</button>
+        <div id="api-result"></div>
+    </div>
+
+    <div class="test">
+        <h2>Test 3: Supabase Health Check</h2>
+        <button onclick="testHealth()">Health Check starten</button>
+        <div id="health-result"></div>
+    </div>
+
+    <div class="test">
+        <h2>Test 4: Supabase Auth Test</h2>
+        <button onclick="testAuth()">Auth Test starten</button>
+        <div id="auth-result"></div>
+    </div>
+
+    <div class="test">
+        <h2>Netzwerk-Informationen</h2>
+        <button onclick="showNetworkInfo()">Netzwerk-Info anzeigen</button>
+        <div id="network-info"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://awfpgidutxrkfwgdjjpn.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3ZnBnaWR1dHhya2Z3Z2RqanBuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA3ODE3MDksImV4cCI6MjA3NjM1NzcwOX0.X0Ng5emoTaRpEXVPcsu2nOBZ7q4WBX1zEc9krU8KzMY';
+
+        console.log('🔍 Debug Tool gestartet');
+        console.log('Supabase URL:', SUPABASE_URL);
+
+        async function testDNS() {
+            const result = document.getElementById('dns-result');
+            result.innerHTML = '<p class="warning">⏳ Teste DNS-Auflösung...</p>';
+
+            try {
+                const startTime = Date.now();
+                const response = await fetch(SUPABASE_URL, {
+                    method: 'HEAD',
+                    mode: 'no-cors' // Wichtig: Um CORS zu umgehen
+                });
+                const duration = Date.now() - startTime;
+
+                result.innerHTML = `
+                    <p class="success">✅ DNS erfolgreich aufgelöst!</p>
+                    <pre>Zeit: ${duration}ms
+Server erreichbar: Ja
+URL: ${SUPABASE_URL}</pre>
+                `;
+            } catch (error) {
+                result.innerHTML = `
+                    <p class="error">❌ DNS-Fehler!</p>
+                    <pre>Error: ${error.message}
+Error Type: ${error.name}
+URL: ${SUPABASE_URL}
+
+Mögliche Ursachen:
+1. Supabase-Projekt ist pausiert oder gelöscht
+2. DNS kann den Server nicht finden
+3. Netzwerksperre (Firewall/Router)
+4. Internetverbindung hat Probleme</pre>
+                `;
+            }
+        }
+
+        async function testAPI() {
+            const result = document.getElementById('api-result');
+            result.innerHTML = '<p class="warning">⏳ Teste API-Endpunkt...</p>';
+
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                const duration = Date.now() - startTime;
+
+                result.innerHTML = `
+                    <p class="success">✅ API-Endpunkt erreichbar!</p>
+                    <pre>Status: ${response.status} ${response.statusText}
+Zeit: ${duration}ms
+Headers: ${JSON.stringify(Object.fromEntries(response.headers), null, 2)}</pre>
+                `;
+            } catch (error) {
+                result.innerHTML = `
+                    <p class="error">❌ API nicht erreichbar!</p>
+                    <pre>Error: ${error.message}
+Type: ${error.name}
+
+Details:
+${JSON.stringify(error, null, 2)}</pre>
+                `;
+            }
+        }
+
+        async function testHealth() {
+            const result = document.getElementById('health-result');
+            result.innerHTML = '<p class="warning">⏳ Teste Supabase Health...</p>';
+
+            try {
+                const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                
+                const startTime = Date.now();
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('count')
+                    .limit(1);
+                const duration = Date.now() - startTime;
+
+                if (error) {
+                    result.innerHTML = `
+                        <p class="warning">⚠️ Health Check mit Fehler</p>
+                        <pre>Zeit: ${duration}ms
+Error Code: ${error.code}
+Error Message: ${error.message}
+Error Details: ${error.details}
+Error Hint: ${error.hint}
+
+Supabase funktioniert, aber:
+${JSON.stringify(error, null, 2)}</pre>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <p class="success">✅ Supabase Health Check erfolgreich!</p>
+                        <pre>Zeit: ${duration}ms
+Verbindung: OK
+Datenbank: Erreichbar
+Result: ${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `
+                    <p class="error">❌ Health Check fehlgeschlagen!</p>
+                    <pre>Error: ${error.message}
+Type: ${error.name}
+Stack: ${error.stack}</pre>
+                `;
+            }
+        }
+
+        async function testAuth() {
+            const result = document.getElementById('auth-result');
+            result.innerHTML = '<p class="warning">⏳ Teste Auth-Endpunkt...</p>';
+
+            try {
+                const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                
+                const startTime = Date.now();
+                const { data, error } = await supabase.auth.getSession();
+                const duration = Date.now() - startTime;
+
+                if (error) {
+                    result.innerHTML = `
+                        <p class="warning">⚠️ Auth Check mit Fehler</p>
+                        <pre>Zeit: ${duration}ms
+Error: ${error.message}
+Details: ${JSON.stringify(error, null, 2)}</pre>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <p class="success">✅ Auth-Endpunkt erreichbar!</p>
+                        <pre>Zeit: ${duration}ms
+Session: ${data.session ? 'Vorhanden' : 'Keine aktive Session'}
+Auth funktioniert!</pre>
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `
+                    <p class="error">❌ Auth Test fehlgeschlagen!</p>
+                    <pre>Error: ${error.message}
+Type: ${error.name}
+Stack: ${error.stack}
+
+Dies ist wahrscheinlich das Hauptproblem!</pre>
+                `;
+            }
+        }
+
+        function showNetworkInfo() {
+            const result = document.getElementById('network-info');
+            
+            const info = {
+                'User Agent': navigator.userAgent,
+                'Online Status': navigator.onLine ? '✅ Online' : '❌ Offline',
+                'Connection Type': navigator.connection?.effectiveType || 'Unknown',
+                'Downlink Speed': navigator.connection?.downlink ? `${navigator.connection.downlink} Mbps` : 'Unknown',
+                'RTT': navigator.connection?.rtt ? `${navigator.connection.rtt} ms` : 'Unknown',
+                'Language': navigator.language,
+                'Platform': navigator.platform,
+                'Cookies Enabled': navigator.cookieEnabled ? '✅ Ja' : '❌ Nein',
+                'Do Not Track': navigator.doNotTrack || 'Not set'
+            };
+
+            let html = '<pre>';
+            for (const [key, value] of Object.entries(info)) {
+                html += `${key}: ${value}\n`;
+            }
+            html += `\nAktueller Zeitstempel: ${new Date().toISOString()}\n`;
+            html += `LocalStorage verfügbar: ${typeof(Storage) !== "undefined" ? '✅ Ja' : '❌ Nein'}\n`;
+            html += '</pre>';
+
+            result.innerHTML = html;
+        }
+
+        // Auto-run on load
+        window.addEventListener('load', () => {
+            console.log('🚀 Debug Tool geladen');
+            showNetworkInfo();
+        });
+    </script>
+</body>
+</html>
+

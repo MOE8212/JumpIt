@@ -13,17 +13,40 @@ class SupabaseApiClient {
   }
 
   async checkSession() {
+    console.log('🔍 [DEBUG] checkSession() started');
+    console.log('🔍 [DEBUG] Supabase client:', this.supabase);
+    
     try {
-      const { data: { session } } = await this.supabase.auth.getSession();
+      console.log('🔍 [DEBUG] Calling getSession()...');
+      const startTime = Date.now();
+      const { data: { session }, error } = await this.supabase.auth.getSession();
+      const duration = Date.now() - startTime;
+      
+      console.log(`🔍 [DEBUG] getSession() completed in ${duration}ms`);
+      console.log('🔍 [DEBUG] Session data:', session);
+      console.log('🔍 [DEBUG] Error:', error);
+      
+      if (error) {
+        throw error;
+      }
+      
       if (session) {
         this.session = session;
         this.currentUser = session.user;
         console.log('✅ Session restored:', this.currentUser.email);
+      } else {
+        console.log('ℹ️ No active session found');
       }
       this.isOfflineMode = false;
     } catch (error) {
+      console.error('❌ [DEBUG] checkSession() error:', error);
+      console.error('❌ [DEBUG] Error type:', error.constructor.name);
+      console.error('❌ [DEBUG] Error message:', error.message);
+      console.error('❌ [DEBUG] Error stack:', error.stack);
+      
       console.warn('⚠️ Supabase not reachable, using offline mode:', error.message);
       this.isOfflineMode = true;
+      
       // Try to restore from localStorage
       const savedUser = localStorage.getItem('jumpit_user_offline');
       if (savedUser) {
@@ -36,12 +59,21 @@ class SupabaseApiClient {
   // ==================== AUTH APIs ====================
 
   async register(username, email, password) {
+    console.log('🔍 [DEBUG] register() called');
+    console.log('🔍 [DEBUG] Username:', username);
+    console.log('🔍 [DEBUG] Email:', email);
+    console.log('🔍 [DEBUG] isOfflineMode:', this.isOfflineMode);
+    
     // Offline Fallback
     if (this.isOfflineMode) {
+      console.log('⚠️ [DEBUG] Using offline fallback');
       return this._registerOffline(username, email, password);
     }
 
     try {
+      console.log('🔍 [DEBUG] Calling Supabase signUp()...');
+      const startTime = Date.now();
+      
       // 1. Erstelle Auth User (Supabase Auth)
       const { data: authData, error: authError } = await this.supabase.auth.signUp({
         email: email,
@@ -52,8 +84,16 @@ class SupabaseApiClient {
           }
         }
       });
+      
+      const duration = Date.now() - startTime;
+      console.log(`🔍 [DEBUG] signUp() completed in ${duration}ms`);
+      console.log('🔍 [DEBUG] Auth data:', authData);
+      console.log('🔍 [DEBUG] Auth error:', authError);
 
-      if (authError) throw authError;
+      if (authError) {
+        console.error('❌ [DEBUG] Supabase signUp error:', authError);
+        throw authError;
+      }
 
       if (!authData.user) {
         throw new Error('User creation failed');
