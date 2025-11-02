@@ -709,6 +709,16 @@ body {
     z-index: 2500;
 }
 
+/* Info Modal needs higher z-index than home screen */
+#info-modal {
+    z-index: 2500;
+}
+
+/* Leaderboard Modal needs higher z-index than home screen */
+#leaderboard-modal {
+    z-index: 2500;
+}
+
 .modal.hidden {
     display: none;
 }
