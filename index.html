@@ -391,21 +391,39 @@
                 });
             }
 
-            // Info button
+            // Info button - mit sofortiger Registrierung
             const infoBtn = document.getElementById('home-info-btn');
             if (infoBtn) {
-                infoBtn.addEventListener('click', () => {
+                console.log('Info button found, adding event listener');
+                infoBtn.addEventListener('click', (e) => {
+                    console.log('Info button clicked!');
+                    e.preventDefault();
+                    e.stopPropagation();
                     const modal = document.getElementById('info-modal');
-                    if (modal) modal.classList.remove('hidden');
+                    if (modal) {
+                        console.log('Opening info modal');
+                        modal.classList.remove('hidden');
+                    } else {
+                        console.error('Info modal not found');
+                    }
                 });
+            } else {
+                console.error('Info button not found');
             }
 
             // Close info
             const closeInfoBtn = document.getElementById('close-info');
             if (closeInfoBtn) {
-                closeInfoBtn.addEventListener('click', () => {
+                console.log('Close info button found, adding event listener');
+                closeInfoBtn.addEventListener('click', (e) => {
+                    console.log('Close info button clicked!');
+                    e.preventDefault();
+                    e.stopPropagation();
                     const modal = document.getElementById('info-modal');
-                    if (modal) modal.classList.add('hidden');
+                    if (modal) {
+                        console.log('Closing info modal');
+                        modal.classList.add('hidden');
+                    }
                 });
             }
 
