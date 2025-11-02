@@ -422,14 +422,35 @@
     <script>
         // Register Service Worker for PWA support
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/JumpIt/service-worker.js')
-                    .then(registration => {
-                        console.log('Service Worker registered successfully:', registration);
-                    })
-                    .catch(error => {
-                        console.log('Service Worker registration failed:', error);
-                    });
+            window.addEventListener('load', async () => {
+                try {
+                    // FORCE UPDATE: Unregister old service workers first
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (const registration of registrations) {
+                        await registration.unregister();
+                        console.log('🔄 Old Service Worker unregistered');
+                    }
+
+                    // Clear old caches
+                    const cacheNames = await caches.keys();
+                    for (const cacheName of cacheNames) {
+                        if (cacheName.startsWith('jumpit-') && cacheName !== 'jumpit-v4') {
+                            await caches.delete(cacheName);
+                            console.log('🗑️ Old cache deleted:', cacheName);
+                        }
+                    }
+
+                    // Register new service worker
+                    const registration = await navigator.serviceWorker.register('/JumpIt/service-worker.js');
+                    console.log('✅ Service Worker registered successfully:', registration);
+                    
+                    // Force immediate activation
+                    if (registration.waiting) {
+                        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    }
+                } catch (error) {
+                    console.log('⚠️ Service Worker registration failed:', error);
+                }
             });
         }
 

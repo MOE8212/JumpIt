@@ -33,7 +33,14 @@ self.addEventListener('install', event => {
       })
       .catch(err => console.log('Service Worker: Cache failed', err))
   );
-  self.skipWaiting();
+  self.skipWaiting(); // Force immediate activation
+});
+
+// Listen for skip waiting message
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 // Activate Service Worker
