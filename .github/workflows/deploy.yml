@@ -94,7 +94,7 @@ jobs:
           echo "=== Production Files ==="
           ls -la deploy/ | head -20
           echo "=== Key Files Check ==="
-          ls -la deploy/index.html deploy/game.js deploy/auth.js deploy/styles.css 2>/dev/null || echo "Some files missing"
+          ls -la deploy/index.html deploy/game.js deploy/auth-supabase.js deploy/styles.css 2>/dev/null || echo "Some files missing"
 
       - name: 📤 Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
