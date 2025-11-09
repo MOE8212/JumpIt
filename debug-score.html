@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JumpIt - Score Debug</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-ok {
+            background: #4ade80;
+        }
+
+        .status-error {
+            background: #f87171;
+        }
+
+        .status-warning {
+            background: #fbbf24;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            opacity: 0.8;
+        }
+
+        .info-value {
+            font-family: monospace;
+            text-align: right;
+            word-break: break-all;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: #4ade80;
+            color: #1f2937;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+            background: #22c55e;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn-secondary:active {
+            transform: scale(0.98);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .log-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-time {
+            opacity: 0.6;
+            margin-right: 10px;
+        }
+
+        .log-success {
+            color: #4ade80;
+        }
+
+        .log-error {
+            color: #f87171;
+        }
+
+        .log-info {
+            color: #60a5fa;
+        }
+
+        .log-warning {
+            color: #fbbf24;
+        }
+
+        .error-box {
+            background: rgba(248, 113, 113, 0.2);
+            border: 2px solid #f87171;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .error-box.show {
+            display: block;
+        }
+
+        .error-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .error-message {
+            font-family: monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .success-box {
+            background: rgba(74, 222, 128, 0.2);
+            border: 2px solid #4ade80;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .success-box.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 JumpIt Score Debug</h1>
+
+        <!-- System Info -->
+        <div class="card">
+            <h2>
+                <span class="status-indicator" id="system-status"></span>
+                System-Informationen
+            </h2>
+            <div class="info-row">
+                <span class="info-label">Device:</span>
+                <span class="info-value" id="device-info">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Browser:</span>
+                <span class="info-value" id="browser-info">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Online:</span>
+                <span class="info-value" id="online-status">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">User Agent:</span>
+                <span class="info-value" id="user-agent" style="font-size: 10px;">-</span>
+            </div>
+        </div>
+
+        <!-- Supabase Connection -->
+        <div class="card">
+            <h2>
+                <span class="status-indicator" id="supabase-status"></span>
+                Supabase Verbindung
+            </h2>
+            <div class="info-row">
+                <span class="info-label">Status:</span>
+                <span class="info-value" id="supabase-connection">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">URL:</span>
+                <span class="info-value" id="supabase-url" style="font-size: 10px;">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Session:</span>
+                <span class="info-value" id="session-status">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">User:</span>
+                <span class="info-value" id="current-user">-</span>
+            </div>
+        </div>
+
+        <!-- Test Actions -->
+        <div class="card">
+            <h2>🧪 Test-Aktionen</h2>
+            <button class="btn btn-primary" id="test-connection" onclick="testConnection()">
+                Verbindung testen
+            </button>
+            <button class="btn btn-primary" id="test-score" onclick="testScoreSubmit()">
+                Test-Score senden
+            </button>
+            <button class="btn btn-secondary" onclick="refreshInfo()">
+                Informationen aktualisieren
+            </button>
+            <button class="btn btn-secondary" onclick="window.location.href='index.html'">
+                Zurück zum Spiel
+            </button>
+        </div>
+
+        <!-- Success Box -->
+        <div class="success-box" id="success-box">
+            <div class="error-title">✅ Erfolg!</div>
+            <div class="error-message" id="success-message"></div>
+        </div>
+
+        <!-- Error Box -->
+        <div class="error-box" id="error-box">
+            <div class="error-title">❌ Fehler</div>
+            <div class="error-message" id="error-message"></div>
+        </div>
+
+        <!-- Logs -->
+        <div class="card">
+            <h2>📋 Live-Logs</h2>
+            <div class="log-container" id="log-container">
+                <div class="log-entry log-info">
+                    <span class="log-time">--:--:--</span>
+                    Debug-Seite geladen
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+
+    <script>
+        // Logging-System
+        const logContainer = document.getElementById('log-container');
+        
+        function log(message, type = 'info') {
+            const time = new Date().toLocaleTimeString('de-DE');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.innerHTML = `<span class="log-time">${time}</span>${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function showError(message) {
+            const errorBox = document.getElementById('error-box');
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.textContent = message;
+            errorBox.classList.add('show');
+            setTimeout(() => errorBox.classList.remove('show'), 10000);
+        }
+
+        function showSuccess(message) {
+            const successBox = document.getElementById('success-box');
+            const successMessage = document.getElementById('success-message');
+            successMessage.textContent = message;
+            successBox.classList.add('show');
+            setTimeout(() => successBox.classList.remove('show'), 5000);
+        }
+
+        // System-Informationen sammeln
+        function collectSystemInfo() {
+            log('Sammle System-Informationen...', 'info');
+
+            // Device Detection
+            const isIPhone = /iPhone|iPad|iPod/.test(navigator.userAgent);
+            const isAndroid = /Android/.test(navigator.userAgent);
+            const deviceType = isIPhone ? '📱 iPhone/iPad' : (isAndroid ? '📱 Android' : '💻 Desktop');
+            document.getElementById('device-info').textContent = deviceType;
+
+            // Browser Detection
+            const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+            const isChrome = /Chrome/.test(navigator.userAgent);
+            const isFirefox = /Firefox/.test(navigator.userAgent);
+            const browser = isSafari ? 'Safari' : (isChrome ? 'Chrome' : (isFirefox ? 'Firefox' : 'Unbekannt'));
+            document.getElementById('browser-info').textContent = browser;
+
+            // Online Status
+            const isOnline = navigator.onLine;
+            document.getElementById('online-status').textContent = isOnline ? '✅ Online' : '❌ Offline';
+            document.getElementById('system-status').className = `status-indicator ${isOnline ? 'status-ok' : 'status-error'}`;
+
+            // User Agent
+            document.getElementById('user-agent').textContent = navigator.userAgent;
+
+            log(`Device: ${deviceType}`, 'info');
+            log(`Browser: ${browser}`, 'info');
+            log(`Online: ${isOnline ? 'Ja' : 'Nein'}`, isOnline ? 'success' : 'error');
+        }
+
+        // Supabase-Informationen sammeln
+        async function collectSupabaseInfo() {
+            log('Prüfe Supabase-Verbindung...', 'info');
+
+            try {
+                // Supabase URL
+                document.getElementById('supabase-url').textContent = window.SUPABASE_URL || 'Nicht geladen';
+
+                // Session Status
+                const { data: { session }, error } = await window.supabaseClient.auth.getSession();
+                
+                if (error) {
+                    throw error;
+                }
+
+                if (session) {
+                    document.getElementById('session-status').textContent = '✅ Aktiv';
+                    document.getElementById('current-user').textContent = session.user.email;
+                    log('Session aktiv: ' + session.user.email, 'success');
+                } else {
+                    document.getElementById('session-status').textContent = '❌ Keine Session';
+                    document.getElementById('current-user').textContent = 'Nicht eingeloggt';
+                    log('Keine aktive Session', 'warning');
+                }
+
+                document.getElementById('supabase-connection').textContent = '✅ Verbunden';
+                document.getElementById('supabase-status').className = 'status-indicator status-ok';
+                log('Supabase erreichbar', 'success');
+
+            } catch (error) {
+                document.getElementById('supabase-connection').textContent = '❌ Fehler';
+                document.getElementById('supabase-status').className = 'status-indicator status-error';
+                log('Supabase-Fehler: ' + error.message, 'error');
+                showError('Supabase-Verbindung fehlgeschlagen:\n' + error.message);
+            }
+        }
+
+        // Verbindung testen
+        async function testConnection() {
+            log('=== VERBINDUNGSTEST GESTARTET ===', 'info');
+            const btn = document.getElementById('test-connection');
+            btn.innerHTML = '<span class="loading"></span> Teste...';
+            btn.disabled = true;
+
+            try {
+                // Test 1: DNS Resolution
+                log('Test 1: DNS-Auflösung...', 'info');
+                const dnsStart = Date.now();
+                const response = await fetch(window.SUPABASE_URL, { 
+                    method: 'HEAD', 
+                    mode: 'no-cors' 
+                });
+                const dnsDuration = Date.now() - dnsStart;
+                log(`✅ DNS erfolgreich (${dnsDuration}ms)`, 'success');
+
+                // Test 2: Supabase API Test
+                log('Test 2: Supabase API...', 'info');
+                const apiStart = Date.now();
+                const { error } = await window.supabaseClient
+                    .from('users')
+                    .select('count')
+                    .limit(1);
+                const apiDuration = Date.now() - apiStart;
+
+                if (error) {
+                    throw error;
+                }
+
+                log(`✅ API erreichbar (${apiDuration}ms)`, 'success');
+
+                // Test 3: Session Check
+                log('Test 3: Session-Status...', 'info');
+                const { data: { session }, error: sessionError } = await window.supabaseClient.auth.getSession();
+                
+                if (sessionError) {
+                    throw sessionError;
+                }
+
+                if (session) {
+                    log(`✅ Session aktiv (User: ${session.user.email})`, 'success');
+                } else {
+                    log('⚠️ Keine aktive Session - Login erforderlich', 'warning');
+                }
+
+                log('=== ALLE TESTS ERFOLGREICH ===', 'success');
+                showSuccess('Verbindung erfolgreich!\n\nDNS: ' + dnsDuration + 'ms\nAPI: ' + apiDuration + 'ms\nSession: ' + (session ? 'Aktiv' : 'Keine'));
+
+            } catch (error) {
+                log('❌ TEST FEHLGESCHLAGEN: ' + error.message, 'error');
+                showError('Verbindungstest fehlgeschlagen:\n\n' + error.message + '\n\nTyp: ' + error.constructor.name);
+                console.error('Connection test error:', error);
+            } finally {
+                btn.innerHTML = 'Verbindung testen';
+                btn.disabled = false;
+            }
+        }
+
+        // Test-Score senden
+        async function testScoreSubmit() {
+            log('=== TEST-SCORE WIRD GESENDET ===', 'info');
+            const btn = document.getElementById('test-score');
+            btn.innerHTML = '<span class="loading"></span> Sende...';
+            btn.disabled = true;
+
+            try {
+                // Prüfe Session
+                const { data: { session }, error: sessionError } = await window.supabaseClient.auth.getSession();
+                
+                if (sessionError) {
+                    throw sessionError;
+                }
+
+                if (!session) {
+                    throw new Error('Nicht eingeloggt! Bitte zuerst im Spiel anmelden.');
+                }
+
+                log('Session vorhanden: ' + session.user.email, 'success');
+
+                // Test-Daten
+                const testScore = {
+                    user_id: session.user.id,
+                    username: session.user.user_metadata?.username || session.user.email.split('@')[0],
+                    score: Math.floor(Math.random() * 1000),
+                    coins: Math.floor(Math.random() * 50),
+                    time: Math.floor(Math.random() * 300)
+                };
+
+                log('Sende Daten: ' + JSON.stringify(testScore), 'info');
+
+                // Score senden
+                const submitStart = Date.now();
+                const { data, error } = await window.supabaseClient
+                    .from('scores')
+                    .insert([testScore])
+                    .select()
+                    .single();
+                const submitDuration = Date.now() - submitStart;
+
+                if (error) {
+                    log('Supabase Error Code: ' + error.code, 'error');
+                    log('Supabase Error Hint: ' + error.hint, 'error');
+                    log('Supabase Error Details: ' + JSON.stringify(error.details), 'error');
+                    throw error;
+                }
+
+                log(`✅ Score erfolgreich gespeichert (${submitDuration}ms)`, 'success');
+                log('Response: ' + JSON.stringify(data), 'success');
+                log('=== TEST-SCORE ERFOLGREICH ===', 'success');
+
+                showSuccess('✅ Test-Score erfolgreich gespeichert!\n\nScore: ' + testScore.score + '\nDauer: ' + submitDuration + 'ms\n\nDas Problem ist behoben!');
+
+            } catch (error) {
+                log('❌ FEHLER BEIM SPEICHERN: ' + error.message, 'error');
+                log('Error Type: ' + error.constructor.name, 'error');
+                log('Error Code: ' + (error.code || 'N/A'), 'error');
+                
+                // Detaillierte Fehleranalyse
+                let errorDetails = 'Fehler beim Score-Speichern:\n\n';
+                errorDetails += 'Message: ' + error.message + '\n';
+                errorDetails += 'Code: ' + (error.code || 'N/A') + '\n';
+                errorDetails += 'Hint: ' + (error.hint || 'N/A') + '\n';
+                errorDetails += '\nMögliche Ursachen:\n';
+                
+                if (!navigator.onLine) {
+                    errorDetails += '• Keine Internetverbindung\n';
+                } else if (error.message.includes('fetch')) {
+                    errorDetails += '• Netzwerkproblem (DNS, Firewall, VPN)\n';
+                } else if (error.code === '42501') {
+                    errorDetails += '• Keine Berechtigung (RLS Policy)\n';
+                } else if (error.code === '23505') {
+                    errorDetails += '• Unique Constraint Fehler\n';
+                } else {
+                    errorDetails += '• Unbekannter Datenbankfehler\n';
+                }
+
+                showError(errorDetails);
+                console.error('Score submit error:', error);
+            } finally {
+                btn.innerHTML = 'Test-Score senden';
+                btn.disabled = false;
+            }
+        }
+
+        // Informationen aktualisieren
+        function refreshInfo() {
+            log('Aktualisiere Informationen...', 'info');
+            collectSystemInfo();
+            collectSupabaseInfo();
+        }
+
+        // Initial laden
+        window.addEventListener('load', () => {
+            log('Debug-Seite geladen', 'success');
+            collectSystemInfo();
+            setTimeout(() => collectSupabaseInfo(), 500);
+        });
+
+        // Online/Offline Events
+        window.addEventListener('online', () => {
+            log('📡 Verbindung wiederhergestellt', 'success');
+            refreshInfo();
+        });
+
+        window.addEventListener('offline', () => {
+            log('📡 Verbindung verloren', 'error');
+            refreshInfo();
+        });
+    </script>
+</body>
+</html>
+
