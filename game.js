@@ -1037,6 +1037,12 @@ function hitEnemy(player, enemy) {
 }
 
 function loseLife() {
+    // Don't lose life if player is invulnerable
+    if (isInvulnerable) {
+        console.log('Player is invulnerable, ignoring damage');
+        return;
+    }
+    
     lives--;
     updateHUD();
 
