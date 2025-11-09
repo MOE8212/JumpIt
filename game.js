@@ -1625,14 +1625,14 @@ function restartLevel() {
         inGameMenu.classList.add('hidden');
     }
 
-    // Reset game state
+    // Reset game state BEFORE scene restart
     gameStarted = false;
     gameTime = 0;
     score = 0;
     lives = 3;
     coinsCollected = 0;
     isGameOver = false;
-    isInvulnerable = false;
+    isInvulnerable = true; // Set invulnerable during restart to prevent life loss
 
     console.log('Level state reset:');
     console.log('- gameTime:', gameTime);
@@ -1640,12 +1640,21 @@ function restartLevel() {
     console.log('- score:', score);
     console.log('- lives:', lives);
 
+    // Update HUD immediately to show reset values
+    updateHUD();
+
     // Restart the current game scene
-    if (game) {
-        game.scene.restart();
-        console.log('Level restarted');
+    if (game && game.scene && game.scene.scenes[0]) {
+        game.scene.scenes[0].scene.restart();
+        console.log('Level scene restarted');
+        
+        // Remove invulnerability after scene is ready (give it 500ms to initialize)
+        setTimeout(() => {
+            isInvulnerable = false;
+            console.log('Invulnerability removed after level restart');
+        }, 500);
     } else {
-        console.log('No game to restart');
+        console.log('No game scene to restart');
     }
 }
 
