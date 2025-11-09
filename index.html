@@ -46,7 +46,7 @@
 
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
-    <!-- Build Info: v2.6.0 - AdSense Ready | Build: 2025-11-09 | Rechtliche Seiten für Google AdSense Compliance hinzugefügt: Datenschutz, Impressum, Über JumpIt, Anleitung -->
+    <!-- Build Info: v2.6.1 - Cache-Fix | Build: 2025-11-09 | Cache-Buster für JavaScript-Dateien hinzugefügt -->
 </head>
 
 <body>
@@ -87,7 +87,7 @@
 
                 <!-- Version Display - Top Right -->
                 <div class="version-info-topright">
-                    <span id="version-display">v2.6.0 - AdSense Ready</span>
+                    <span id="version-display">v2.6.1 - Cache-Fix</span>
                 </div>
 
                 <!-- Hidden Admin Access - Top Left Corner -->
@@ -251,6 +251,10 @@
                             <span id="total-page-views">0</span>
                         </div>
                         <div class="stat-item">
+                            <span class="stat-label">Unique Visitors:</span>
+                            <span id="unique-visitors">0</span>
+                        </div>
+                        <div class="stat-item">
                             <span class="stat-label">Registrierte Benutzer:</span>
                             <span id="total-users">0</span>
                         </div>
@@ -258,6 +262,26 @@
                             <span class="stat-label">Gesamt gespielt:</span>
                             <span id="total-games-played">0</span>
                         </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>📱 Geräte-Statistik (30 Tage)</h3>
+                        <div id="device-stats"></div>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>🌐 Browser-Statistik (30 Tage)</h3>
+                        <div id="browser-stats"></div>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>📄 Top Seiten (30 Tage)</h3>
+                        <div id="top-pages"></div>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>🔗 Traffic-Quellen (30 Tage)</h3>
+                        <div id="referrer-stats"></div>
                     </div>
 
                     <div class="stat-card">
