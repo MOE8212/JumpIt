@@ -681,26 +681,19 @@ function create() {
         toggleInGameMenu();
     });
 
-    // Game state
-    gameStarted = false;
-    gameTime = 0;
-    score = 0;
-    lives = 3;
-    coinsCollected = 0;
-    isGameOver = false;
-    isInvulnerable = false;
-
+    // Game state values are preserved from restartGame() or initial values at file top
+    // Don't reset them here to allow proper restart functionality
     console.log('=== GAME INITIALIZATION ===');
-    console.log('Initial values:');
+    console.log('Current values:');
     console.log('- gameTime:', gameTime);
     console.log('- coinsCollected:', coinsCollected);
     console.log('- score:', score);
     console.log('- lives:', lives);
 
-    // Update HUD
+    // Update HUD to reflect current state
     updateHUD();
 
-    // Start game timer
+    // Reset game timer for new level
     startTime = this.time.now;
     gameStarted = true;
 
@@ -1510,7 +1503,7 @@ function restartGame() {
     const modal = document.getElementById('game-over-modal');
     modal.classList.add('hidden');
 
-    // Reset game state
+    // Reset game state BEFORE scene restart
     gameStarted = false;
     gameTime = 0;
     score = 0;
@@ -1525,12 +1518,15 @@ function restartGame() {
     console.log('- score:', score);
     console.log('- lives:', lives);
 
+    // Update HUD immediately to show reset values
+    updateHUD();
+
     // Restart the current game scene
-    if (game) {
-        game.scene.restart();
-        console.log('Game restarted!');
+    if (game && game.scene && game.scene.scenes[0]) {
+        game.scene.scenes[0].scene.restart();
+        console.log('Game scene restarted!');
     } else {
-        console.log('No game to restart');
+        console.log('No game scene to restart');
     }
 }
 
