@@ -226,6 +226,8 @@ class AuthManager {
   async submitScore(score, coins, time) {
     console.log('=== SUBMIT SCORE (SUPABASE) ===');
     console.log('Score:', score, 'Coins:', coins, 'Time:', time);
+    console.log('🔍 [iPhone Debug] User Agent:', navigator.userAgent);
+    console.log('🔍 [iPhone Debug] Online status:', navigator.onLine);
 
     if (!this.isLoggedIn) {
       console.log('Cannot submit score - user not logged in');
@@ -247,8 +249,45 @@ class AuthManager {
       }
     } catch (error) {
       console.error('❌ Failed to submit score:', error);
-      console.error('Error details:', error.message, error.code, error.details);
-      alert('⚠️ Score konnte nicht gespeichert werden: ' + (error.message || 'Unbekannter Fehler'));
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        name: error.name,
+        stack: error.stack
+      });
+
+      // iPhone-spezifische Diagnose
+      const isIPhone = /iPhone|iPad|iPod/.test(navigator.userAgent);
+      const isOnline = navigator.onLine;
+
+      let errorMessage = '⚠️ Score konnte nicht gespeichert werden\n\n';
+      
+      if (!isOnline) {
+        errorMessage += '🔴 Problem: Keine Internetverbindung\n\n';
+        errorMessage += 'Lösung:\n';
+        errorMessage += '• Prüfen Sie Ihre WLAN-Verbindung\n';
+        errorMessage += '• Aktivieren Sie mobile Daten\n';
+        errorMessage += '• Versuchen Sie es später erneut';
+      } else if (isIPhone) {
+        errorMessage += '📱 iPhone erkannt\n\n';
+        errorMessage += 'Mögliche Ursachen:\n';
+        errorMessage += '• Safari blockiert Verbindung\n';
+        errorMessage += '• DNS-Problem (Supabase nicht erreichbar)\n';
+        errorMessage += '• Firewall/VPN blockiert Zugriff\n\n';
+        errorMessage += 'Lösungsvorschläge:\n';
+        errorMessage += '• Deaktivieren Sie "Intelligenter Tracking-Schutz" in Safari\n';
+        errorMessage += '• Wechseln Sie zu anderem WLAN-Netzwerk\n';
+        errorMessage += '• Deaktivieren Sie VPN falls aktiv\n';
+        errorMessage += '• Verwenden Sie Chrome oder Firefox Browser';
+      } else {
+        errorMessage += 'Technischer Fehler: ' + (error.message || 'Unbekannt') + '\n\n';
+        errorMessage += 'Versuchen Sie:\n';
+        errorMessage += '• Browser-Cache leeren\n';
+        errorMessage += '• Seite neu laden\n';
+        errorMessage += '• Später erneut versuchen';
+      }
+
+      alert(errorMessage);
     }
   }
 

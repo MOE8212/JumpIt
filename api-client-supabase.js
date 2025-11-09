@@ -346,6 +346,12 @@ class SupabaseApiClient {
   // ==================== SCORE APIs ====================
 
   async submitScore(score, coins, time) {
+    console.log('🔍 [API] submitScore called:', { score, coins, time });
+    console.log('🔍 [API] isAuthenticated:', this.isAuthenticated());
+    console.log('🔍 [API] currentUser:', this.currentUser);
+    console.log('🔍 [API] isOfflineMode:', this.isOfflineMode);
+    console.log('🔍 [API] navigator.onLine:', navigator.onLine);
+
     if (!this.isAuthenticated()) {
       throw new Error('Not authenticated');
     }
@@ -361,6 +367,16 @@ class SupabaseApiClient {
                       this.currentUser.email?.split('@')[0] || 
                       'Unknown';
 
+      console.log('🔍 [API] Inserting score into Supabase...');
+      console.log('🔍 [API] Data:', {
+        user_id: this.currentUser.id,
+        username: username,
+        score: score,
+        coins: coins,
+        time: time
+      });
+
+      const startTime = Date.now();
       const { data, error } = await this.supabase
         .from('scores')
         .insert([
@@ -374,22 +390,59 @@ class SupabaseApiClient {
         ])
         .select()
         .single();
+      
+      const duration = Date.now() - startTime;
+      console.log(`🔍 [API] Insert completed in ${duration}ms`);
 
       if (error) {
-        console.error('❌ Supabase error:', error);
+        console.error('❌ [API] Supabase insert error:', error);
+        console.error('❌ [API] Error details:', {
+          message: error.message,
+          code: error.code,
+          hint: error.hint,
+          details: error.details,
+          status: error.status
+        });
         throw error;
       }
 
-      console.log('✅ Score submitted:', score);
+      console.log('✅ [API] Score submitted successfully:', score);
+      console.log('✅ [API] Response data:', data);
       return data;
     } catch (error) {
-      console.error('Submit score error:', error);
+      console.error('❌ [API] Submit score error:', error);
+      console.error('❌ [API] Error type:', error.constructor.name);
+      console.error('❌ [API] Error message:', error.message);
+      console.error('❌ [API] Error stack:', error.stack);
+      
+      // Check if it's a network error
+      const isNetworkError = error.message.includes('fetch') || 
+                            error.message.includes('NetworkError') ||
+                            error.message.includes('Failed to fetch') ||
+                            error.message.includes('timeout') ||
+                            !navigator.onLine;
+      
+      console.log('🔍 [API] Is network error?', isNetworkError);
+
       // Fallback to offline (only if enabled)
-      if (this.OFFLINE_MODE_ENABLED && (error.message.includes('fetch') || error.message.includes('NetworkError'))) {
+      if (this.OFFLINE_MODE_ENABLED && isNetworkError) {
+        console.warn('⚠️ [API] Switching to offline mode due to network error');
         this.isOfflineMode = true;
         return this._submitScoreOffline(score, coins, time);
       }
-      throw new Error('Score konnte nicht gespeichert werden');
+      
+      // Provide more specific error message
+      let errorMessage = 'Score konnte nicht gespeichert werden';
+      
+      if (isNetworkError) {
+        errorMessage += ' (Netzwerkfehler - keine Verbindung zu Supabase)';
+      } else if (error.code) {
+        errorMessage += ` (DB-Fehler: ${error.code})`;
+      } else {
+        errorMessage += ` (${error.message})`;
+      }
+      
+      throw new Error(errorMessage);
     }
   }
 
