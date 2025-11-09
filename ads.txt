@@ -1,0 +1,13 @@
+# ads.txt für JumpIt - AdSense Autorisierung
+# =====================================================
+# WICHTIG: Ersetze "pub-XXXXXXXXXXXXXXXXX" mit deiner echten Publisher-ID!
+# 
+# Deine Publisher-ID findest du hier:
+# 1. Gehe zu: https://www.google.com/adsense/
+# 2. Klicke auf "Konto" → "Einstellungen"
+# 3. Unter "Konto-Informationen" findest du deine Publisher-ID
+#    (Format: pub-1234567890123456)
+# =====================================================
+
+google.com, pub-XXXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+
