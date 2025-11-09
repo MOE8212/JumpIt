@@ -410,6 +410,7 @@ function createBackgroundMusic() {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let isPlaying = false;
     let musicInterval;
+    let activeOscillators = []; // Track all active oscillators for cleanup
 
     // Enhanced melody with bass line and harmony
     const complexMelody = [
@@ -466,6 +467,17 @@ function createBackgroundMusic() {
 
             oscillator.start(audioContext.currentTime);
             oscillator.stop(audioContext.currentTime + duration);
+            
+            // Track oscillator for cleanup
+            activeOscillators.push(oscillator);
+            
+            // Auto-remove from tracking after it stops
+            setTimeout(() => {
+                const index = activeOscillators.indexOf(oscillator);
+                if (index > -1) {
+                    activeOscillators.splice(index, 1);
+                }
+            }, duration * 1000 + 100);
         });
     };
 
@@ -494,7 +506,19 @@ function createBackgroundMusic() {
             if (isPlaying) {
                 isPlaying = false;
                 clearInterval(musicInterval);
-                console.log('Complex jump music stopped');
+                
+                // Stop all active oscillators immediately
+                activeOscillators.forEach(osc => {
+                    try {
+                        osc.stop();
+                        osc.disconnect();
+                    } catch (e) {
+                        // Oscillator might already be stopped
+                    }
+                });
+                activeOscillators = [];
+                
+                console.log('Complex jump music stopped and all oscillators cleaned up');
             }
         }
     };
@@ -706,9 +730,25 @@ function create() {
 
     // Start background music with user interaction
     if (this.backgroundMusic) {
+        // WICHTIG: Alte Musik-Instanzen stoppen falls vorhanden
+        // Dies ist eine zusätzliche Absicherung für den Fall, dass beim Restart etwas schiefgeht
+        if (game && game.scene && game.scene.scenes[0]) {
+            const currentScene = game.scene.scenes[0];
+            // Prüfe ob es eine alte Musik-Instanz gibt und stoppe sie
+            if (currentScene.backgroundMusic && currentScene.backgroundMusic !== this.backgroundMusic) {
+                console.log('Found old music instance, stopping it...');
+                try {
+                    currentScene.backgroundMusic.stop();
+                } catch (e) {
+                    console.log('Could not stop old music:', e);
+                }
+            }
+        }
+        
         // Try to start music immediately
         try {
             this.backgroundMusic.start();
+            console.log('New background music started');
         } catch (error) {
             console.log('Music start failed, will try again on user interaction');
         }
@@ -1132,9 +1172,10 @@ function levelCompleted() {
 function gameOver() {
     isGameOver = true;
 
-    // Stop background music
-    if (game && game.backgroundMusic) {
-        game.backgroundMusic.stop();
+    // Stop background music - KORRIGIERT: Richtige Referenz verwenden
+    if (game && game.scene && game.scene.scenes[0] && game.scene.scenes[0].backgroundMusic) {
+        console.log('Stopping background music on game over...');
+        game.scene.scenes[0].backgroundMusic.stop();
     }
 
     // Show game over modal
@@ -1509,6 +1550,12 @@ function restartGame() {
     const modal = document.getElementById('game-over-modal');
     modal.classList.add('hidden');
 
+    // WICHTIG: Musik stoppen BEVOR Scene neu gestartet wird
+    if (game && game.scene && game.scene.scenes[0] && game.scene.scenes[0].backgroundMusic) {
+        console.log('Stopping background music before restart...');
+        game.scene.scenes[0].backgroundMusic.stop();
+    }
+
     // Reset game state BEFORE scene restart
     gameStarted = false;
     gameTime = 0;
@@ -1552,6 +1599,12 @@ function backToMenu() {
     const inGameMenu = document.getElementById('in-game-menu');
     if (inGameMenu) {
         inGameMenu.classList.add('hidden');
+    }
+
+    // WICHTIG: Musik stoppen BEVOR Game destroyed wird
+    if (game && game.scene && game.scene.scenes[0] && game.scene.scenes[0].backgroundMusic) {
+        console.log('Stopping background music before returning to menu...');
+        game.scene.scenes[0].backgroundMusic.stop();
     }
 
     // Reset game state
@@ -1629,6 +1682,12 @@ function restartLevel() {
     const inGameMenu = document.getElementById('in-game-menu');
     if (inGameMenu) {
         inGameMenu.classList.add('hidden');
+    }
+
+    // WICHTIG: Musik stoppen BEVOR Scene neu gestartet wird
+    if (game && game.scene && game.scene.scenes[0] && game.scene.scenes[0].backgroundMusic) {
+        console.log('Stopping background music before level restart...');
+        game.scene.scenes[0].backgroundMusic.stop();
     }
 
     // Reset game state BEFORE scene restart

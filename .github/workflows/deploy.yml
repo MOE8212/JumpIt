@@ -1,13 +1,12 @@
 name: Deploy to GitHub Pages
 
 # Trigger-Optionen:
-# 1. Automatisch bei jedem Push auf main oder beta
+# 1. Automatisch bei jedem Push auf main
 # 2. Manuell über "Actions" → "Deploy to GitHub Pages" → "Run workflow"
 on:
   push:
     branches:
       - main
-      - beta
   workflow_dispatch: # Ermöglicht manuelles Triggern
 
 # Berechtigungen für GitHub Pages
@@ -78,33 +77,10 @@ jobs:
         run: |
           mkdir -p deploy
           
-          # Download aktuellen gh-pages Stand (wenn vorhanden)
-          echo "Fetching current gh-pages content..."
-          git fetch origin gh-pages 2>/dev/null || echo "No gh-pages branch yet"
+          echo "📦 Preparing PRODUCTION deployment..."
           
-          # Versuche gh-pages Inhalt zu holen
-          if git rev-parse origin/gh-pages >/dev/null 2>&1; then
-            echo "Copying current gh-pages content..."
-            git --work-tree=deploy checkout origin/gh-pages -- . 2>/dev/null || true
-          fi
-          
-          # Jetzt Update basierend auf Branch
-          if [ "${{ github.ref_name }}" = "main" ]; then
-            echo "📦 Updating PRODUCTION (root)..."
-            # Lösche alles außer beta/
-            find deploy -mindepth 1 -maxdepth 1 ! -name 'beta' -exec rm -rf {} + 2>/dev/null || true
-            # Kopiere neue Files
-            find . -maxdepth 1 ! -name '.' ! -name '..' ! -name '.git' ! -name 'deploy' ! -name 'backend' ! -name 'node_modules' -exec cp -r {} deploy/ \;
-            # Stelle sicher dass beta/ existiert
-            mkdir -p deploy/beta
-          elif [ "${{ github.ref_name }}" = "beta" ]; then
-            echo "📦 Updating BETA (/beta/)..."
-            # Lösche nur beta/ Inhalt
-            rm -rf deploy/beta
-            mkdir -p deploy/beta
-            # Kopiere neue Files nach beta/
-            find . -maxdepth 1 ! -name '.' ! -name '..' ! -name '.git' ! -name 'deploy' ! -name 'backend' ! -name 'node_modules' -exec cp -r {} deploy/beta/ \;
-          fi
+          # Kopiere alle Files ins deploy Verzeichnis
+          find . -maxdepth 1 ! -name '.' ! -name '..' ! -name '.git' ! -name 'deploy' ! -name 'backend' ! -name 'node_modules' -exec cp -r {} deploy/ \;
           
           # Cleanup
           rm -rf deploy/.git 2>/dev/null || true
@@ -115,12 +91,10 @@ jobs:
 
       - name: 🔍 Verify Deployment Structure
         run: |
-          echo "=== Deploy Root Files ==="
+          echo "=== Production Files ==="
           ls -la deploy/ | head -20
-          if [ -d "deploy/beta" ]; then
-            echo "=== Beta Directory ==="
-            ls -la deploy/beta/ | head -10
-          fi
+          echo "=== Key Files Check ==="
+          ls -la deploy/index.html deploy/game.js deploy/auth.js deploy/styles.css 2>/dev/null || echo "Some files missing"
 
       - name: 📤 Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
