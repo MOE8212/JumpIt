@@ -239,11 +239,11 @@ class SupabaseApiClient {
       });
 
       if (error) {
-        // // console.error('🔍 [DEBUG] Login error details:', {
+        /* // console.error('🔍 [DEBUG] Login error details:', {
           message: error.message,
           status: error.status,
           name: error.name
-        });
+        }); */
         throw error;
       }
 

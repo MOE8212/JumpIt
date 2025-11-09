@@ -917,13 +917,13 @@ function update() {
                 }
                 
                 if (shouldLog) {
-                    // // console.log('  ↪ Ray Check:', {
+                    /* // console.log('  ↪ Ray Check:', {
                         rayX: Math.round(rayX),
                         rayY: Math.round(rayY),
                         hasGroundAhead,
                         atWorldBounds: enemy.x <= 10 || enemy.x >= WORLD_WIDTH - 42,
                         isStuck
-                    });
+                    }); */
                 }
                 
                 // Reverse direction at platform edge or world bounds
