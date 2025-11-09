@@ -1,62 +1,112 @@
-# 🐺 JumpIt - Das ultimative Werewolf Jump 'n Run Spiel
+# 🐺 JumpIt - Werewolf Jump 'n Run Game
 
-Ein spannendes Jump 'n Run Spiel mit Halloween-Theme, in dem Sie als Werwolf durch ein mystisches Land springen und Münzen sammeln!
+Ein Jump 'n Run Spiel mit Phaser.js, entwickelt von MOE8212.
 
-## 🎮 Features
+## 🎮 Live Demo
 
-- **Werewolf-Theme**: Spooky Halloween-Atmosphäre mit Werwolf-Charakter
-- **Jump 'n Run Gameplay**: Springen Sie über Plattformen und sammeln Sie Münzen
-- **Shop-System**: Kaufen Sie neue Skins mit gesammelten Münzen
-- **Offline-Modus**: Spielen Sie auch ohne Internetverbindung
-- **Leaderboard**: Vergleichen Sie Ihre Highscores mit anderen Spielern
-- **Responsive Design**: Funktioniert auf Desktop und Mobile
+**Production**: [jump-verse.com](https://jump-verse.com)
 
-## 🚀 Live Demo
+## 🛠️ Tech Stack
 
-[Spielen Sie jetzt!](https://your-vercel-url.vercel.app)
+- **Frontend**: Phaser.js 3.70.0, Vanilla JavaScript
+- **Backend**: Node.js + Express + SQLite (optional)
+- **Deployment**: GitHub Pages
+- **Database**: Supabase (Cloud)
 
-## 🎯 Spielanleitung
+## 🚀 Features
 
-1. **Springen**: Verwenden Sie die Leertaste oder den Jump-Button
-2. **Bewegen**: Pfeiltasten oder WASD
-3. **Münzen sammeln**: Springen Sie über goldene Münzen
-4. **Ziel erreichen**: Berühren Sie die rechte Wand zum Gewinnen
-5. **Shop besuchen**: Kaufen Sie neue Skins mit gesammelten Münzen
+- 🏃 Jump 'n Run Gameplay mit Phaser.js
+- 🛒 Shop-System für Skins
+- 🏆 Leaderboard & User Authentication (Supabase)
+- 📊 Admin Panel für Statistiken
+- 📱 Mobile Controls & Touch-Support
+- 🖥️ Fullscreen-Modus (iOS-kompatibel)
+- 💾 Offline-Modus mit localStorage
 
-## 🛠️ Technische Details
+## 📁 Projekt-Struktur
 
-- **Engine**: Phaser.js 3.70.0
-- **Audio**: Web Audio API
-- **Storage**: localStorage für Offline-Modus
-- **Responsive**: CSS Grid und Flexbox
+```
+JumpIt/
+├── index.html              # Haupt-HTML (DEPLOYED)
+├── game.js                 # Phaser Game Logic
+├── auth-supabase.js        # Supabase Authentication
+├── api-client-supabase.js  # Supabase API Client
+├── styles.css              # All Styles
+├── backend/                # Node.js Backend (Optional/Legacy)
+│   ├── server.js          # Express Server
+│   └── game.db            # SQLite Database
+└── .github/
+    └── workflows/
+        └── deploy.yml     # GitHub Actions Deployment
+```
 
-## 📱 Mobile Controls
+## 🔧 Lokale Entwicklung
 
-- **Jump Button**: Rechts unten auf dem Bildschirm
-- **Touch Controls**: Optimiert für Touch-Geräte
+### 1. Repository klonen
+```bash
+git clone https://github.com/MOE8212/JumpIt.git
+cd JumpIt
+```
 
-## 🎨 Skins
+### 2. Live Server starten
+```bash
+# Python Server (einfachste Methode)
+python -m http.server 8000
 
-- **Standard**: Klassischer Werwolf
-- **Vampir**: Elegant und mystisch
-- **Zombie**: Gruselig und robust
-- **Geist**: Transparent und schwebend
+# Oder Node.js Server
+npx http-server -p 8000
+```
 
-## 🔧 Installation
+### 3. Im Browser öffnen
+```
+http://localhost:8000
+```
 
-1. Repository klonen
-2. `npm install` (optional)
-3. `npm start` für lokale Entwicklung
-4. Oder einfach `index.html` im Browser öffnen
+## 🚢 Deployment
+
+### GitHub Pages (Aktuell)
+Das Spiel wird automatisch deployed bei jedem Push auf `main`:
+
+```bash
+git add .
+git commit -m "Deine Änderung"
+git push origin main
+```
+
+➡️ Automatisches Deployment via GitHub Actions zu [jump-verse.com](https://jump-verse.com)
+
+### Deployment-Workflow
+- **Branch**: `main` (Production only)
+- **Platform**: GitHub Pages
+- **Domain**: jump-verse.com
+- **Build Info**: Wird automatisch in index.html als Kommentar eingefügt
+
+## 📝 Code-Standards
+
+- Deutsche Kommentare und UI-Texte
+- Emojis in UI für bessere UX
+- Mobile-First Approach
+- localStorage für Offline-Features
+
+## 🎯 Features in Entwicklung
+
+- [ ] Weitere Levels
+- [ ] Mehr Skins
+- [ ] Achievements System
+- [ ] Multiplayer Mode (geplant)
 
 ## 📄 Lizenz
 
-MIT License - Sie können das Spiel frei verwenden und modifizieren.
+Dieses Projekt ist privat und nicht für kommerzielle Nutzung bestimmt.
 
-## 🤝 Beitragen
+## 👤 Autor
 
-Verbesserungsvorschläge und Bug-Reports sind willkommen!
+**MOE8212**
+- GitHub: [@MOE8212](https://github.com/MOE8212)
+- Website: [jump-verse.com](https://jump-verse.com)
 
----
+## 🙏 Credits
 
-**Viel Spaß beim Spielen! 🎮✨**
+- Game Engine: [Phaser.js](https://phaser.io/)
+- Backend: [Supabase](https://supabase.com/)
+- Hosting: [GitHub Pages](https://pages.github.com/)
