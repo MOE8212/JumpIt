@@ -7,6 +7,12 @@
 
 class TrafficTracker {
     constructor() {
+        // In-Memory Fallback wenn Storage blockiert ist
+        this.memoryStorage = {
+            sessionId: null,
+            sessionStart: null
+        };
+        this.storageAvailable = this.checkStorageAvailability();
         this.sessionId = this.getOrCreateSessionId();
         this.init();
     }
@@ -28,16 +34,57 @@ class TrafficTracker {
         });
     }
 
-    // ==================== SESSION MANAGEMENT ====================
+    // ==================== STORAGE AVAILABILITY CHECK ====================
+    
+    checkStorageAvailability() {
+        try {
+            const test = '__storage_test__';
+            sessionStorage.setItem(test, test);
+            sessionStorage.removeItem(test);
+            return true;
+        } catch (e) {
+            console.warn('⚠️ sessionStorage not available (Tracking Prevention?), using in-memory fallback');
+            return false;
+        }
+    }
+
+    // ==================== SESSION MANAGEMENT (Storage-Safe) ====================
     
     getOrCreateSessionId() {
-        let sessionId = sessionStorage.getItem('jumpit_session_id');
+        let sessionId = null;
         
+        // Versuche aus sessionStorage zu lesen
+        if (this.storageAvailable) {
+            try {
+                sessionId = sessionStorage.getItem('jumpit_session_id');
+            } catch (e) {
+                console.warn('⚠️ Could not read from sessionStorage:', e.message);
+            }
+        }
+        
+        // Fallback: Memory Storage
+        if (!sessionId && this.memoryStorage.sessionId) {
+            sessionId = this.memoryStorage.sessionId;
+        }
+        
+        // Wenn immer noch keine Session ID: Neue generieren
         if (!sessionId) {
-            // Neue Session ID generieren
             sessionId = this.generateSessionId();
-            sessionStorage.setItem('jumpit_session_id', sessionId);
-            sessionStorage.setItem('jumpit_session_start', Date.now().toString());
+            const now = Date.now().toString();
+            
+            // Speichere in sessionStorage (wenn verfügbar)
+            if (this.storageAvailable) {
+                try {
+                    sessionStorage.setItem('jumpit_session_id', sessionId);
+                    sessionStorage.setItem('jumpit_session_start', now);
+                } catch (e) {
+                    console.warn('⚠️ Could not write to sessionStorage:', e.message);
+                }
+            }
+            
+            // Immer auch in Memory speichern
+            this.memoryStorage.sessionId = sessionId;
+            this.memoryStorage.sessionStart = now;
         }
         
         return sessionId;
@@ -48,7 +95,23 @@ class TrafficTracker {
     }
 
     getSessionDuration() {
-        const startTime = parseInt(sessionStorage.getItem('jumpit_session_start') || Date.now());
+        let startTime = Date.now();
+        
+        // Versuche aus sessionStorage zu lesen
+        if (this.storageAvailable) {
+            try {
+                const stored = sessionStorage.getItem('jumpit_session_start');
+                if (stored) startTime = parseInt(stored);
+            } catch (e) {
+                // Ignorieren
+            }
+        }
+        
+        // Fallback: Memory
+        if (this.memoryStorage.sessionStart) {
+            startTime = parseInt(this.memoryStorage.sessionStart);
+        }
+        
         return Math.floor((Date.now() - startTime) / 1000); // Sekunden
     }
 
@@ -142,10 +205,16 @@ class TrafficTracker {
         }
     }
 
-    // ==================== FALLBACK: LOCALSTORAGE ====================
+    // ==================== FALLBACK: LOCALSTORAGE (Storage-Safe) ====================
     
     saveToLocalStorage(type, data) {
         try {
+            // Test ob localStorage verfügbar ist
+            const test = '__test__';
+            localStorage.setItem(test, test);
+            localStorage.removeItem(test);
+            
+            // Wenn verfügbar, speichere Daten
             const key = `jumpit_${type}_fallback`;
             const existing = JSON.parse(localStorage.getItem(key) || '[]');
             existing.push(data);
@@ -156,8 +225,10 @@ class TrafficTracker {
             }
             
             localStorage.setItem(key, JSON.stringify(existing));
+            console.log('📦 Saved to localStorage fallback');
         } catch (error) {
-            console.error('Failed to save to localStorage:', error);
+            console.warn('⚠️ localStorage not available, data not persisted:', error.message);
+            // Kein Problem - Tracking funktioniert trotzdem über Supabase
         }
     }
 
