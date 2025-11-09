@@ -775,6 +775,143 @@ class SupabaseApiClient {
       };
     }
   }
+
+  // ==================== TRAFFIC TRACKING APIs ====================
+
+  async trackPageView(trackingData) {
+    try {
+      const { data, error } = await this.supabase
+        .from('traffic')
+        .insert([trackingData])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // // console.log('✅ Page view tracked');
+      return data;
+    } catch (error) {
+      // // console.error('Track page view error:', error);
+      throw error;
+    }
+  }
+
+  async trackSessionEnd(sessionData) {
+    try {
+      const { data, error } = await this.supabase
+        .from('traffic')
+        .update({
+          session_duration: sessionData.duration_seconds,
+          session_ended_at: sessionData.timestamp
+        })
+        .eq('session_id', sessionData.session_id)
+        .is('session_ended_at', null)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // // console.log('✅ Session end tracked');
+      return data;
+    } catch (error) {
+      // // console.error('Track session end error:', error);
+      // Nicht kritisch wenn es fehlschlägt
+      return null;
+    }
+  }
+
+  async trackEvent(eventData) {
+    try {
+      const { data, error } = await this.supabase
+        .from('events')
+        .insert([eventData])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // // console.log('✅ Event tracked');
+      return data;
+    } catch (error) {
+      // // console.error('Track event error:', error);
+      throw error;
+    }
+  }
+
+  async getTrafficStats(days = 30) {
+    try {
+      const since = new Date();
+      since.setDate(since.getDate() - days);
+
+      const { data, error } = await this.supabase
+        .from('traffic')
+        .select('*')
+        .gte('timestamp', since.toISOString())
+        .order('timestamp', { ascending: false });
+
+      if (error) throw error;
+
+      // Statistiken berechnen
+      const stats = {
+        total_pageviews: data.length,
+        unique_sessions: new Set(data.map(d => d.session_id)).size,
+        device_breakdown: {},
+        browser_breakdown: {},
+        top_pages: {},
+        referrer_breakdown: {},
+        language_breakdown: {}
+      };
+
+      // Device breakdown
+      data.forEach(row => {
+        stats.device_breakdown[row.device_type] = (stats.device_breakdown[row.device_type] || 0) + 1;
+        stats.browser_breakdown[row.browser] = (stats.browser_breakdown[row.browser] || 0) + 1;
+        stats.top_pages[row.page_url] = (stats.top_pages[row.page_url] || 0) + 1;
+        stats.referrer_breakdown[row.referrer] = (stats.referrer_breakdown[row.referrer] || 0) + 1;
+        stats.language_breakdown[row.language] = (stats.language_breakdown[row.language] || 0) + 1;
+      });
+
+      return stats;
+    } catch (error) {
+      // // console.error('Get traffic stats error:', error);
+      return {
+        total_pageviews: 0,
+        unique_sessions: 0,
+        device_breakdown: {},
+        browser_breakdown: {},
+        top_pages: {},
+        referrer_breakdown: {},
+        language_breakdown: {}
+      };
+    }
+  }
+
+  async getTrafficTimeline(days = 7) {
+    try {
+      const since = new Date();
+      since.setDate(since.getDate() - days);
+
+      const { data, error } = await this.supabase
+        .from('traffic')
+        .select('timestamp, device_type')
+        .gte('timestamp', since.toISOString())
+        .order('timestamp', { ascending: true });
+
+      if (error) throw error;
+
+      // Gruppiere nach Tagen
+      const timeline = {};
+      data.forEach(row => {
+        const date = new Date(row.timestamp).toISOString().split('T')[0];
+        timeline[date] = (timeline[date] || 0) + 1;
+      });
+
+      return timeline;
+    } catch (error) {
+      // // console.error('Get traffic timeline error:', error);
+      return {};
+    }
+  }
 }
 
 // Globale Instanz erstellen

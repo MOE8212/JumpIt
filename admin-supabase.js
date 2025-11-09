@@ -92,24 +92,105 @@ class AdminPanel {
   async updateAdminStats() {
     try {
       // Lade Daten von Supabase
-      const [usersData, sessionsData, stats] = await Promise.all([
+      const [usersData, sessionsData, stats, trafficStats] = await Promise.all([
         window.apiClient.getAdminUsers(),
         window.apiClient.getAdminSessions(50),
-        window.apiClient.getAdminStats()
+        window.apiClient.getAdminStats(),
+        window.apiClient.getTrafficStats(30)
       ]);
 
       // Update Statistiken
-      document.getElementById('total-page-views').textContent = this.getPageViews().count;
+      document.getElementById('total-page-views').textContent = trafficStats.total_pageviews || 0;
       document.getElementById('total-users').textContent = stats.total_users || 0;
       document.getElementById('total-games-played').textContent = stats.total_games || 0;
+
+      // Update Traffic Stats (neue Elemente)
+      if (document.getElementById('unique-visitors')) {
+        document.getElementById('unique-visitors').textContent = trafficStats.unique_sessions || 0;
+      }
 
       // Update Listen
       this.updateUsersList(usersData.users);
       this.updateGameSessionsList(sessionsData.sessions);
+      
+      // Update Traffic Stats Details
+      this.updateTrafficStats(trafficStats);
     } catch (error) {
       // // console.error('Failed to load admin data:', error);
       alert('⚠️ Konnte Admin-Daten nicht laden: ' + error.message);
     }
+  }
+
+  updateTrafficStats(stats) {
+    // Device Breakdown
+    const deviceStatsDiv = document.getElementById('device-stats');
+    if (deviceStatsDiv) {
+      deviceStatsDiv.innerHTML = '';
+      Object.entries(stats.device_breakdown).forEach(([device, count]) => {
+        const percentage = ((count / stats.total_pageviews) * 100).toFixed(1);
+        deviceStatsDiv.innerHTML += `
+          <div class="stat-item">
+            <span class="stat-label">${this.getDeviceIcon(device)} ${device}:</span>
+            <span>${count} (${percentage}%)</span>
+          </div>
+        `;
+      });
+    }
+
+    // Browser Breakdown
+    const browserStatsDiv = document.getElementById('browser-stats');
+    if (browserStatsDiv) {
+      browserStatsDiv.innerHTML = '';
+      Object.entries(stats.browser_breakdown).forEach(([browser, count]) => {
+        const percentage = ((count / stats.total_pageviews) * 100).toFixed(1);
+        browserStatsDiv.innerHTML += `
+          <div class="stat-item">
+            <span class="stat-label">${browser}:</span>
+            <span>${count} (${percentage}%)</span>
+          </div>
+        `;
+      });
+    }
+
+    // Top Pages
+    const topPagesDiv = document.getElementById('top-pages');
+    if (topPagesDiv) {
+      topPagesDiv.innerHTML = '';
+      const sortedPages = Object.entries(stats.top_pages).sort((a, b) => b[1] - a[1]).slice(0, 5);
+      sortedPages.forEach(([page, count]) => {
+        topPagesDiv.innerHTML += `
+          <div class="stat-item">
+            <span class="stat-label">${page}:</span>
+            <span>${count} Aufrufe</span>
+          </div>
+        `;
+      });
+    }
+
+    // Referrer Breakdown
+    const referrerStatsDiv = document.getElementById('referrer-stats');
+    if (referrerStatsDiv) {
+      referrerStatsDiv.innerHTML = '';
+      const sortedReferrers = Object.entries(stats.referrer_breakdown).sort((a, b) => b[1] - a[1]).slice(0, 5);
+      sortedReferrers.forEach(([referrer, count]) => {
+        const displayReferrer = referrer === 'direct' ? '🔗 Direkt' : referrer;
+        referrerStatsDiv.innerHTML += `
+          <div class="stat-item">
+            <span class="stat-label">${displayReferrer}:</span>
+            <span>${count}</span>
+          </div>
+        `;
+      });
+    }
+  }
+
+  getDeviceIcon(device) {
+    const icons = {
+      'Mobile': '📱',
+      'Tablet': '📱',
+      'Desktop': '💻'
+    };
+    return icons[device] || '🖥️';
   }
 
   updateUsersList(users) {
