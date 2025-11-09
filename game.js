@@ -937,12 +937,12 @@ function update() {
                     enemy.direction *= -1;
                     
                     if (shouldLog || true) { // Always log direction changes
-                        // // console.log('🔄 [PATROL] Direction changed!', {
+                        /* // console.log('🔄 [PATROL] Direction changed!', {
                             x: Math.round(enemy.x),
                             oldDirection,
                             newDirection: enemy.direction,
                             reason: isStuck ? 'STUCK' : (!hasGroundAhead ? 'NO_GROUND' : (atLeftEdge ? 'LEFT_EDGE' : 'RIGHT_EDGE'))
-                        });
+                        }); */
                     }
                 }
             } else if (shouldLog) {
@@ -962,7 +962,7 @@ function update() {
             const currentVelocity = enemy.body.velocity.x;
             
             if (shouldLog) {
-                // // console.log('🐛 [PLATFORM DEBUG]', {
+                /* // console.log('🐛 [PLATFORM DEBUG]', {
                     x: Math.round(enemy.x),
                     direction: enemy.direction,
                     velocity: Math.round(currentVelocity),
@@ -974,7 +974,7 @@ function update() {
                         toLeft: Math.round(enemy.x - enemy.platformLeft),
                         toRight: Math.round(enemy.platformRight - enemy.x)
                     }
-                });
+                }); */
             }
             
             // Reverse direction at platform boundaries
@@ -986,13 +986,13 @@ function update() {
                 const oldDirection = enemy.direction;
                 enemy.direction *= -1;
                 
-                // // console.log('🔄 [PLATFORM] Direction changed!', {
+                /* // console.log('🔄 [PLATFORM] Direction changed!', {
                     x: Math.round(enemy.x),
                     oldDirection,
                     newDirection: enemy.direction,
                     atLeft: atLeftBoundary,
                     atRight: atRightBoundary
-                });
+                }); */
             }
             
             // Always flip sprite based on direction (worm head is on RIGHT in texture at x=24)
@@ -1005,11 +1005,11 @@ function update() {
             
             // Debug: Check if enemy is stuck
             if (Math.abs(currentVelocity) < 5) {
-                // // console.warn('⚠️ [PLATFORM] Enemy stuck!', {
+                /* // console.warn('⚠️ [PLATFORM] Enemy stuck!', {
                     x: Math.round(enemy.x),
                     velocity: currentVelocity,
                     direction: enemy.direction
-                });
+                }); */
             }
         }
     });

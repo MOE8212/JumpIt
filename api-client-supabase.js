@@ -368,13 +368,13 @@ class SupabaseApiClient {
                       'Unknown';
 
       // // console.log('🔍 [API] Inserting score into Supabase...');
-      // // console.log('🔍 [API] Data:', {
+      /* // console.log('🔍 [API] Data:', {
         user_id: this.currentUser.id,
         username: username,
         score: score,
         coins: coins,
         time: time
-      });
+      }); */
 
       const startTime = Date.now();
       const { data, error } = await this.supabase
@@ -396,13 +396,13 @@ class SupabaseApiClient {
 
       if (error) {
         // // console.error('❌ [API] Supabase insert error:', error);
-        // // console.error('❌ [API] Error details:', {
+        /* // console.error('❌ [API] Error details:', {
           message: error.message,
           code: error.code,
           hint: error.hint,
           details: error.details,
           status: error.status
-        });
+        }); */
         throw error;
       }
 
