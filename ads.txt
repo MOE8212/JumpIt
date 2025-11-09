@@ -9,5 +9,5 @@
 #    (Format: pub-1234567890123456)
 # =====================================================
 
-google.com, pub-XXXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+google.com, pub-2614909379910655, DIRECT, f08c47fec0942fa0
 
