@@ -107,13 +107,15 @@ class TrafficTracker {
         try {
             if (window.apiClient && window.apiClient.trackPageView) {
                 await window.apiClient.trackPageView(trackingData);
-                // console.log('✅ Page view tracked:', trackingData);
+                console.log('✅ Page view tracked:', trackingData);
             } else {
+                console.warn('⚠️ apiClient not available, saving to localStorage');
                 // Fallback: localStorage
                 this.saveToLocalStorage('pageview', trackingData);
             }
         } catch (error) {
-            console.error('⚠️ Failed to track page view:', error);
+            console.error('❌ Failed to track page view:', error);
+            console.error('Error details:', error.message);
             this.saveToLocalStorage('pageview', trackingData);
         }
     }

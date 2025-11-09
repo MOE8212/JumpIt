@@ -780,18 +780,24 @@ class SupabaseApiClient {
 
   async trackPageView(trackingData) {
     try {
+      console.log('🔍 Attempting to track page view...');
       const { data, error } = await this.supabase
         .from('traffic')
         .insert([trackingData])
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Supabase insert error:', error);
+        throw error;
+      }
 
-      // // console.log('✅ Page view tracked');
+      console.log('✅ Page view tracked successfully!');
       return data;
     } catch (error) {
-      // // console.error('Track page view error:', error);
+      console.error('❌ Track page view error:', error);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
       throw error;
     }
   }
