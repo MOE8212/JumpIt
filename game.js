@@ -876,7 +876,7 @@ function update() {
             const currentVelocity = enemy.body.velocity.x;
             
             if (shouldLog) {
-                // // console.log('🐛 [PATROL DEBUG]', {
+                /* // console.log('🐛 [PATROL DEBUG]', {
                     x: Math.round(enemy.x),
                     y: Math.round(enemy.y),
                     direction: enemy.direction,
@@ -887,7 +887,7 @@ function update() {
                         right: enemy.body.touching.right,
                         down: enemy.body.touching.down
                     }
-                });
+                }); */
             }
             
             // Check if enemy is stuck (velocity near 0 but should be moving)

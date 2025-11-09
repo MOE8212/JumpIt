@@ -249,12 +249,12 @@ class AuthManager {
       }
     } catch (error) {
       // // console.error('❌ Failed to submit score:', error);
-      // // console.error('Error details:', {
+      /* // console.error('Error details:', {
         message: error.message,
         code: error.code,
         name: error.name,
         stack: error.stack
-      });
+      }); */
 
       // iPhone-spezifische Diagnose
       const isIPhone = /iPhone|iPad|iPod/.test(navigator.userAgent);

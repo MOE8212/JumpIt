@@ -105,13 +105,13 @@ class SupabaseApiClient {
 
       if (authError) {
         // // console.error('❌ [DEBUG] Supabase signUp error:', authError);
-        // // console.error('❌ [DEBUG] Error details:', {
+        /* // console.error('❌ [DEBUG] Error details:', {
           message: authError.message,
           status: authError.status,
           code: authError.code,
           name: authError.name,
           details: authError
-        });
+        }); */
         throw authError;
       }
 

@@ -20,8 +20,8 @@ if (SUPABASE_URL.includes('DEIN-PROJECT-ID') || SUPABASE_ANON_KEY.includes('DEIN
 // DNS Pre-Test
 // console.log('🔍 Testing DNS resolution...');
 fetch(SUPABASE_URL, { method: 'HEAD', mode: 'no-cors' })
-  .then(() => // console.log('✅ DNS resolution successful'))
-  .catch(err => // console.error('❌ DNS resolution failed:', err.message));
+  .then(() => { /* console.log('✅ DNS resolution successful') */ })
+  .catch(err => { /* console.error('❌ DNS resolution failed:', err.message) */ });
 
 // Initialisiere Supabase Client
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
