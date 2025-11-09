@@ -199,6 +199,16 @@ function createGlobalBackgroundMusic() {
 function startGame() {
     // // console.log('=== START GAME FUNCTION CALLED ===');
 
+    // BUGFIX: Reset game state before starting
+    gameStarted = false;
+    gameTime = 0;
+    startTime = 0;
+    score = 0;
+    lives = 3;
+    coinsCollected = 0;
+    isGameOver = false;
+    isInvulnerable = false;
+
     // Hide home screen and show game
     const homeScreen = document.getElementById('home-screen');
     const gameElement = document.getElementById('game');
@@ -243,7 +253,11 @@ function startGame() {
             // // console.error('Error stack:', error.stack);
         }
     } else {
-        // // console.log('Game already exists, skipping creation');
+        // // console.log('Game already exists, restarting scene...');
+        // BUGFIX: If game exists, restart the scene to reset everything
+        if (game.scene && game.scene.scenes[0]) {
+            game.scene.scenes[0].scene.restart();
+        }
     }
 
     // // console.log('=== START GAME FUNCTION COMPLETED ===');
@@ -743,6 +757,7 @@ function create() {
     updateHUD();
 
     // Reset game timer for new level
+    // BUGFIX: Ensure timer starts at 0 by storing the start time
     startTime = this.time.now;
     gameStarted = true;
 
@@ -1635,11 +1650,16 @@ function backToMenu() {
     // Reset game state
     gameStarted = false;
     gameTime = 0;
+    startTime = 0; // BUGFIX: Reset startTime explicitly
     score = 0;
     lives = 3;
     coinsCollected = 0;
     isGameOver = false;
     isInvulnerable = false;
+
+    // BUGFIX: Reset HUD display immediately
+    updateHUD();
+    updateTimer();
 
     // Show home screen
     const homeScreen = document.getElementById('home-screen');
@@ -1648,10 +1668,11 @@ function backToMenu() {
         // // console.log('Home screen shown');
     }
 
-    // Destroy the current game
-    if (game) {
-        game.destroy(true);
-        game = null;
+    // BUGFIX: Hide game canvas instead of destroying it
+    // This prevents issues with timer not resetting on restart
+    const gameElement = document.getElementById('game');
+    if (gameElement) {
+        gameElement.style.display = 'none';
     }
 
     // // console.log('Back to menu! Showing home screen.');
