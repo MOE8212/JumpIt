@@ -1143,13 +1143,13 @@ function levelCompleted() {
     // // console.log('Coins collected:', coinsCollected);
 
     // Calculate final score
-    const timeBonus = Math.max(0, 180 - gameTime) * 5; // Bonus for completing quickly (3 minutes max)
+    const timeBonus = Math.max(0, 180 - gameTime) * 3; // Bonus for completing quickly (3 minutes max, reduced from 5 to 3)
     const coinBonus = coinsCollected * 10;
     const completionBonus = 100; // Bonus for completing the level
     const finalScore = timeBonus + coinBonus + completionBonus;
 
     // // console.log('Score calculation:');
-    // // console.log('- Time bonus:', timeBonus, '(180 -', gameTime, ') * 5');
+    // // console.log('- Time bonus:', timeBonus, '(180 -', gameTime, ') * 3');
     // // console.log('- Coin bonus:', coinBonus, '(', coinsCollected, '* 10)');
     // // console.log('- Completion bonus:', completionBonus);
     // // console.log('- Final score:', finalScore);
