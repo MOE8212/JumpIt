@@ -1510,7 +1510,7 @@ function restartGame() {
     lives = 3;
     coinsCollected = 0;
     isGameOver = false;
-    isInvulnerable = false;
+    isInvulnerable = true; // Set invulnerable during restart to prevent life loss
 
     console.log('Game state reset:');
     console.log('- gameTime:', gameTime);
@@ -1525,6 +1525,12 @@ function restartGame() {
     if (game && game.scene && game.scene.scenes[0]) {
         game.scene.scenes[0].scene.restart();
         console.log('Game scene restarted!');
+        
+        // Remove invulnerability after scene is ready (give it 500ms to initialize)
+        setTimeout(() => {
+            isInvulnerable = false;
+            console.log('Invulnerability removed after restart');
+        }, 500);
     } else {
         console.log('No game scene to restart');
     }
