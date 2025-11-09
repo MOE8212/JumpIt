@@ -46,7 +46,7 @@
 
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
-    <!-- Build Info: v2.5.4 - iPhone Score Debug | Build: 2025-11-09 | Verbesserte Fehlerdiagnose für iPhone Score-Speicherung -->
+    <!-- Build Info: v2.6.0 - AdSense Ready | Build: 2025-11-09 | Rechtliche Seiten für Google AdSense Compliance hinzugefügt: Datenschutz, Impressum, Über JumpIt, Anleitung -->
 </head>
 
 <body>
@@ -87,7 +87,7 @@
 
                 <!-- Version Display - Top Right -->
                 <div class="version-info-topright">
-                    <span id="version-display">v2.5.4 - iPhone Score Debug</span>
+                    <span id="version-display">v2.6.0 - AdSense Ready</span>
                 </div>
 
                 <!-- Hidden Admin Access - Top Left Corner -->
@@ -515,6 +515,41 @@
                         localStorage.setItem('ios-install-prompt-seen', 'true');
                     }
                 });
+            }
+        });
+    </script>
+
+    <!-- Legal Footer -->
+    <footer id="legal-footer" style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.9); color: white; padding: 10px 20px; text-align: center; font-size: 12px; z-index: 5000; display: none;">
+        <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <a href="impressum.html" style="color: white; text-decoration: none; padding: 5px 10px; background: rgba(255, 255, 255, 0.1); border-radius: 5px; transition: all 0.3s;">📋 Impressum</a>
+            <a href="datenschutz.html" style="color: white; text-decoration: none; padding: 5px 10px; background: rgba(255, 255, 255, 0.1); border-radius: 5px; transition: all 0.3s;">🔒 Datenschutz</a>
+            <a href="about.html" style="color: white; text-decoration: none; padding: 5px 10px; background: rgba(255, 255, 255, 0.1); border-radius: 5px; transition: all 0.3s;">ℹ️ Über JumpIt</a>
+            <a href="anleitung.html" style="color: white; text-decoration: none; padding: 5px 10px; background: rgba(255, 255, 255, 0.1); border-radius: 5px; transition: all 0.3s;">📖 Anleitung</a>
+            <span style="color: #ccc;">© 2025 JumpIt</span>
+        </div>
+    </footer>
+
+    <script>
+        // Show footer only on home screen
+        function updateFooterVisibility() {
+            const homeScreen = document.getElementById('home-screen');
+            const footer = document.getElementById('legal-footer');
+            if (homeScreen && footer) {
+                const isHomeVisible = !homeScreen.classList.contains('hidden');
+                footer.style.display = isHomeVisible ? 'block' : 'none';
+            }
+        }
+
+        // Check footer visibility on load and when home screen visibility changes
+        document.addEventListener('DOMContentLoaded', () => {
+            updateFooterVisibility();
+            
+            // Observe home screen changes
+            const observer = new MutationObserver(updateFooterVisibility);
+            const homeScreen = document.getElementById('home-screen');
+            if (homeScreen) {
+                observer.observe(homeScreen, { attributes: true, attributeFilter: ['class'] });
             }
         });
     </script>
