@@ -7,7 +7,7 @@ class AdminPanel {
   }
 
   init() {
-    console.log('Admin panel initialized (SUPABASE MODE)');
+    // // console.log('Admin panel initialized (SUPABASE MODE)');
     this.isAdmin = true; // Für Demo - in Production richtig prüfen
     this.setupEventListeners();
     this.trackPageView();
@@ -55,12 +55,12 @@ class AdminPanel {
 
   trackGameSession(username) {
     // Legacy - wird nicht mehr genutzt
-    console.log('trackGameSession called (legacy)');
+    // // console.log('trackGameSession called (legacy)');
   }
 
   trackGameSessionWithScore(username, score, coins, time) {
     // Supabase handled das bereits
-    console.log('trackGameSessionWithScore called (handled by Supabase)');
+    // // console.log('trackGameSessionWithScore called (handled by Supabase)');
   }
 
   getUserStats() {
@@ -78,7 +78,7 @@ class AdminPanel {
     if (modal) {
       await this.updateAdminStats();
       modal.classList.remove('hidden');
-      console.log('Admin panel shown');
+      // // console.log('Admin panel shown');
     }
   }
 
@@ -107,7 +107,7 @@ class AdminPanel {
       this.updateUsersList(usersData.users);
       this.updateGameSessionsList(sessionsData.sessions);
     } catch (error) {
-      console.error('Failed to load admin data:', error);
+      // // console.error('Failed to load admin data:', error);
       alert('⚠️ Konnte Admin-Daten nicht laden: ' + error.message);
     }
   }
@@ -325,4 +325,5 @@ class AdminPanel {
     }
   }
 }
+
 

@@ -15,47 +15,47 @@ class AuthManager {
     }
 
     init() {
-        console.log('=== INITIALIZING AUTH MANAGER ===');
+        // console.log('=== INITIALIZING AUTH MANAGER ===');
 
-        console.log('DOM Elements found:');
-        console.log('- authModal:', this.authModal);
-        console.log('- authForm:', this.authForm);
-        console.log('- authTitle:', this.authTitle);
-        console.log('- authSubmit:', this.authSubmit);
-        console.log('- switchAuthLink:', this.switchAuthLink);
-        console.log('- authSwitchText:', this.authSwitchText);
+        // console.log('DOM Elements found:');
+        // console.log('- authModal:', this.authModal);
+        // console.log('- authForm:', this.authForm);
+        // console.log('- authTitle:', this.authTitle);
+        // console.log('- authSubmit:', this.authSubmit);
+        // console.log('- switchAuthLink:', this.switchAuthLink);
+        // console.log('- authSwitchText:', this.authSwitchText);
 
         // Check if user is already logged in (from localStorage)
         const savedUser = localStorage.getItem('jumpit_user');
-        console.log('Saved user from localStorage:', savedUser);
+        // console.log('Saved user from localStorage:', savedUser);
 
         if (savedUser) {
             this.currentUser = JSON.parse(savedUser);
             this.isLoggedIn = true;
-            console.log('User already logged in:', this.currentUser.username);
+            // console.log('User already logged in:', this.currentUser.username);
         } else {
-            console.log('No saved user found');
+            // console.log('No saved user found');
         }
 
         // Set up event listeners
         if (this.authForm) {
-            console.log('Adding submit event listener to auth form');
+            // console.log('Adding submit event listener to auth form');
             this.authForm.addEventListener('submit', (e) => this.handleAuth(e));
         } else {
-            console.error('Auth form not found!');
+            // console.error('Auth form not found!');
         }
 
         if (this.switchAuthLink) {
-            console.log('Adding click event listener to switch auth link');
+            // console.log('Adding click event listener to switch auth link');
             this.switchAuthLink.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.toggleAuthMode();
             });
         } else {
-            console.error('Switch auth link not found!');
+            // console.error('Switch auth link not found!');
         }
 
-        console.log('AuthManager initialized successfully');
+        // console.log('AuthManager initialized successfully');
     }
 
     toggleAuthMode() {
@@ -86,30 +86,30 @@ class AuthManager {
     async handleAuth(e) {
         e.preventDefault();
 
-        console.log('=== AUTH FORM SUBMITTED ===');
-        console.log('Is register mode:', this.isRegisterMode);
+        // console.log('=== AUTH FORM SUBMITTED ===');
+        // console.log('Is register mode:', this.isRegisterMode);
 
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const email = document.getElementById('email').value;
 
-        console.log('Username:', username);
-        console.log('Password length:', password.length);
-        console.log('Email:', email);
+        // console.log('Username:', username);
+        // console.log('Password length:', password.length);
+        // console.log('Email:', email);
 
         if (this.isRegisterMode) {
-            console.log('Calling register...');
+            // console.log('Calling register...');
             await this.register(username, password, email);
         } else {
-            console.log('Calling login...');
+            // console.log('Calling login...');
             await this.login(username, password);
         }
     }
 
     async register(username, password, email) {
-        console.log('=== REGISTER PROCESS ===');
-        console.log('Username:', username);
-        console.log('Email:', email);
+        // console.log('=== REGISTER PROCESS ===');
+        // console.log('Username:', username);
+        // console.log('Email:', email);
 
         // Simple local registration (can be replaced with backend API)
         const user = {
@@ -118,7 +118,7 @@ class AuthManager {
             createdAt: new Date().toISOString()
         };
 
-        console.log('Created user object:', user);
+        // console.log('Created user object:', user);
 
         // Save to localStorage
         localStorage.setItem('jumpit_user', JSON.stringify(user));
@@ -127,14 +127,14 @@ class AuthManager {
         // Save to all users list (for admin panel)
         this.saveUserToAllUsers(username, password, email);
 
-        console.log('User saved to localStorage');
-        console.log('LocalStorage jumpit_user:', localStorage.getItem('jumpit_user'));
+        // console.log('User saved to localStorage');
+        // console.log('LocalStorage jumpit_user:', localStorage.getItem('jumpit_user'));
 
         this.currentUser = user;
         this.isLoggedIn = true;
 
-        console.log('Current user set:', this.currentUser);
-        console.log('isLoggedIn set to:', this.isLoggedIn);
+        // console.log('Current user set:', this.currentUser);
+        // console.log('isLoggedIn set to:', this.isLoggedIn);
 
         // Track user login
         if (window.adminPanel) {
@@ -142,7 +142,7 @@ class AuthManager {
         }
 
         // Close modal and start game
-        console.log('Closing modal and starting game...');
+        // console.log('Closing modal and starting game...');
         this.closeAuthModal();
         this.startGameAfterAuth();
     }
@@ -155,7 +155,7 @@ class AuthManager {
             createdAt: new Date().toISOString()
         };
         localStorage.setItem('jumpit_all_users', JSON.stringify(allUsers));
-        console.log('User saved to all users list');
+        // console.log('User saved to all users list');
     }
 
     getAllUsers() {
@@ -164,18 +164,18 @@ class AuthManager {
     }
 
     async login(username, password) {
-        console.log('=== LOGIN PROCESS ===');
-        console.log('Attempting to login with username:', username);
+        // console.log('=== LOGIN PROCESS ===');
+        // console.log('Attempting to login with username:', username);
 
         // Simple local login (can be replaced with backend API)
         const savedUser = localStorage.getItem('jumpit_user');
         const savedPassword = localStorage.getItem('jumpit_password');
 
-        console.log('Saved user from localStorage:', savedUser);
-        console.log('Password match:', savedPassword === password);
+        // console.log('Saved user from localStorage:', savedUser);
+        // console.log('Password match:', savedPassword === password);
 
         if (savedUser && savedPassword === password) {
-            console.log('Login successful!');
+            // console.log('Login successful!');
             this.currentUser = JSON.parse(savedUser);
             this.isLoggedIn = true;
 
@@ -185,8 +185,8 @@ class AuthManager {
                 this.saveUserToAllUsers(username, password, this.currentUser.email || '');
             }
 
-            console.log('Current user set:', this.currentUser);
-            console.log('isLoggedIn set to:', this.isLoggedIn);
+            // console.log('Current user set:', this.currentUser);
+            // console.log('isLoggedIn set to:', this.isLoggedIn);
 
             // Track user login
             if (window.adminPanel) {
@@ -194,11 +194,11 @@ class AuthManager {
             }
 
             // Close modal and start game
-            console.log('Closing modal and starting game...');
+            // console.log('Closing modal and starting game...');
             this.closeAuthModal();
             this.startGameAfterAuth();
         } else {
-            console.error('Login failed! Password mismatch or no saved user.');
+            // console.error('Login failed! Password mismatch or no saved user.');
             alert('Falscher Benutzername oder Passwort!');
         }
     }
@@ -206,28 +206,28 @@ class AuthManager {
     closeAuthModal() {
         if (this.authModal) {
             this.authModal.classList.add('hidden');
-            console.log('Auth modal closed');
+            // console.log('Auth modal closed');
         }
     }
 
     openAuthModal() {
-        console.log('=== OPENING AUTH MODAL ===');
-        console.log('Auth modal element:', this.authModal);
+        // console.log('=== OPENING AUTH MODAL ===');
+        // console.log('Auth modal element:', this.authModal);
 
         if (this.authModal) {
-            console.log('Modal classes BEFORE:', this.authModal.classList.toString());
-            console.log('Modal display style BEFORE:', window.getComputedStyle(this.authModal).display);
-            console.log('Modal z-index BEFORE:', window.getComputedStyle(this.authModal).zIndex);
+            // console.log('Modal classes BEFORE:', this.authModal.classList.toString());
+            // console.log('Modal display style BEFORE:', window.getComputedStyle(this.authModal).display);
+            // console.log('Modal z-index BEFORE:', window.getComputedStyle(this.authModal).zIndex);
 
             this.authModal.classList.remove('hidden');
 
-            console.log('Modal classes AFTER:', this.authModal.classList.toString());
-            console.log('Modal display style AFTER:', window.getComputedStyle(this.authModal).display);
-            console.log('Modal z-index AFTER:', window.getComputedStyle(this.authModal).zIndex);
+            // console.log('Modal classes AFTER:', this.authModal.classList.toString());
+            // console.log('Modal display style AFTER:', window.getComputedStyle(this.authModal).display);
+            // console.log('Modal z-index AFTER:', window.getComputedStyle(this.authModal).zIndex);
 
             // Check if modal is visible in the viewport
             const rect = this.authModal.getBoundingClientRect();
-            console.log('Modal position:', {
+            // console.log('Modal position:', {
                 top: rect.top,
                 left: rect.left,
                 width: rect.width,
@@ -235,55 +235,55 @@ class AuthManager {
                 visible: rect.width > 0 && rect.height > 0
             });
 
-            console.log('Auth modal opened successfully');
+            // console.log('Auth modal opened successfully');
         } else {
-            console.error('Auth modal element not found!');
+            // console.error('Auth modal element not found!');
         }
     }
 
     checkAuthStatus() {
-        console.log('Checking auth status...');
-        console.log('isLoggedIn:', this.isLoggedIn);
+        // console.log('Checking auth status...');
+        // console.log('isLoggedIn:', this.isLoggedIn);
 
         if (this.isLoggedIn) {
-            console.log('User is logged in, starting game...');
+            // console.log('User is logged in, starting game...');
             this.startGameAfterAuth();
         } else {
-            console.log('User not logged in, showing auth modal...');
+            // console.log('User not logged in, showing auth modal...');
             this.openAuthModal();
         }
     }
 
     logout() {
-        console.log('=== USER LOGOUT ===');
-        console.log('Logging out user:', this.currentUser?.username);
+        // console.log('=== USER LOGOUT ===');
+        // console.log('Logging out user:', this.currentUser?.username);
 
         // Clear user data
         this.currentUser = null;
         this.isLoggedIn = false;
         localStorage.removeItem('jumpit_user');
 
-        console.log('User logged out successfully');
-        console.log('localStorage cleared');
+        // console.log('User logged out successfully');
+        // console.log('localStorage cleared');
 
         // Show confirmation
         alert('✅ Du wurdest erfolgreich abgemeldet!');
     }
 
     startGameAfterAuth() {
-        console.log('=== STARTING GAME AFTER AUTH ===');
-        console.log('Looking for startGame function...');
-        console.log('typeof startGame:', typeof startGame);
-        console.log('window.startGame:', typeof window.startGame);
+        // console.log('=== STARTING GAME AFTER AUTH ===');
+        // console.log('Looking for startGame function...');
+        // console.log('typeof startGame:', typeof startGame);
+        // console.log('window.startGame:', typeof window.startGame);
 
         // Call the global startGame function
         if (typeof startGame === 'function') {
-            console.log('startGame function found, calling it...');
+            // console.log('startGame function found, calling it...');
             startGame();
-            console.log('startGame function called');
+            // console.log('startGame function called');
         } else {
-            console.error('startGame function not found!');
-            console.log('Available functions:', Object.keys(window).filter(key => typeof window[key] === 'function'));
+            // console.error('startGame function not found!');
+            // console.log('Available functions:', Object.keys(window).filter(key => typeof window[key] === 'function'));
         }
     }
 
@@ -291,28 +291,28 @@ class AuthManager {
         this.currentUser = null;
         this.isLoggedIn = false;
         localStorage.removeItem('jumpit_user');
-        console.log('User logged out');
+        // console.log('User logged out');
     }
 
     submitScore(score, coins, time) {
-        console.log('=== SUBMIT SCORE ===');
-        console.log('User logged in:', this.isLoggedIn);
-        console.log('Current user:', this.currentUser);
+        // console.log('=== SUBMIT SCORE ===');
+        // console.log('User logged in:', this.isLoggedIn);
+        // console.log('Current user:', this.currentUser);
 
         if (!this.isLoggedIn) {
-            console.log('Cannot submit score - user not logged in');
+            // console.log('Cannot submit score - user not logged in');
             return;
         }
 
-        console.log('Submitting score to leaderboard:');
-        console.log('- Username:', this.currentUser.username);
-        console.log('- Score:', score);
-        console.log('- Coins:', coins);
-        console.log('- Time:', time);
+        // console.log('Submitting score to leaderboard:');
+        // console.log('- Username:', this.currentUser.username);
+        // console.log('- Score:', score);
+        // console.log('- Coins:', coins);
+        // console.log('- Time:', time);
 
         // Get existing leaderboard from localStorage
         let leaderboard = JSON.parse(localStorage.getItem('jumpit_leaderboard') || '[]');
-        console.log('Current leaderboard before adding:', leaderboard);
+        // console.log('Current leaderboard before adding:', leaderboard);
 
         // Add new score
         const newEntry = {
@@ -323,21 +323,21 @@ class AuthManager {
             timestamp: new Date().toISOString()
         };
 
-        console.log('Adding new entry:', newEntry);
+        // console.log('Adding new entry:', newEntry);
         leaderboard.push(newEntry);
 
         // Sort by score (highest first)
         leaderboard.sort((a, b) => b.score - a.score);
-        console.log('Leaderboard after sorting:', leaderboard);
+        // console.log('Leaderboard after sorting:', leaderboard);
 
         // Keep only top 10
         leaderboard = leaderboard.slice(0, 10);
-        console.log('Leaderboard after keeping top 10:', leaderboard);
+        // console.log('Leaderboard after keeping top 10:', leaderboard);
 
         // Save back to localStorage
         localStorage.setItem('jumpit_leaderboard', JSON.stringify(leaderboard));
-        console.log('Score submitted successfully!');
-        console.log('Final leaderboard saved to localStorage');
+        // console.log('Score submitted successfully!');
+        // console.log('Final leaderboard saved to localStorage');
 
         // Also track this as a game session with score data
         if (window.adminPanel) {
@@ -347,14 +347,14 @@ class AuthManager {
 
     getLeaderboard() {
         const leaderboard = JSON.parse(localStorage.getItem('jumpit_leaderboard') || '[]');
-        console.log('Getting leaderboard from localStorage:', leaderboard);
+        // console.log('Getting leaderboard from localStorage:', leaderboard);
         return leaderboard;
     }
 
     // Debug function to clear leaderboard
     clearLeaderboard() {
         localStorage.removeItem('jumpit_leaderboard');
-        console.log('Leaderboard cleared!');
+        // console.log('Leaderboard cleared!');
     }
 }
 
@@ -370,7 +370,7 @@ class AdminPanel {
     }
 
     init() {
-        console.log('Admin panel initialized');
+        // console.log('Admin panel initialized');
 
         // Check if user is admin (for demo purposes, everyone can access)
         this.isAdmin = true;
@@ -387,7 +387,7 @@ class AdminPanel {
         const secretAdminBtn = document.getElementById('secret-admin-btn');
         if (secretAdminBtn) {
             secretAdminBtn.addEventListener('click', () => {
-                console.log('Secret admin button clicked');
+                // console.log('Secret admin button clicked');
                 this.showAdminPasswordModal();
             });
         }
@@ -446,7 +446,7 @@ class AdminPanel {
         pageViews.count++;
         pageViews.lastVisit = new Date().toISOString();
         localStorage.setItem('jumpit_page_views', JSON.stringify(pageViews));
-        console.log('Page view tracked:', pageViews.count);
+        // console.log('Page view tracked:', pageViews.count);
     }
 
     getPageViews() {
@@ -468,7 +468,7 @@ class AdminPanel {
         userStats[username].loginCount++;
         userStats[username].lastLogin = new Date().toISOString();
         localStorage.setItem('jumpit_user_stats', JSON.stringify(userStats));
-        console.log('User login tracked for:', username);
+        // console.log('User login tracked for:', username);
     }
 
     trackGameSession(username) {
@@ -502,7 +502,7 @@ class AdminPanel {
         }
 
         localStorage.setItem('jumpit_game_sessions', JSON.stringify(gameSessions));
-        console.log('Game session tracked for:', username);
+        // console.log('Game session tracked for:', username);
     }
 
     trackGameSessionWithScore(username, score, coins, time) {
@@ -536,7 +536,7 @@ class AdminPanel {
         }
 
         localStorage.setItem('jumpit_game_sessions', JSON.stringify(gameSessions));
-        console.log('Game session with score tracked for:', username, '- Score:', score);
+        // console.log('Game session with score tracked for:', username, '- Score:', score);
     }
 
     getUserStats() {
@@ -559,7 +559,7 @@ class AdminPanel {
         if (modal) {
             this.updateAdminStats();
             modal.classList.remove('hidden');
-            console.log('Admin panel shown');
+            // console.log('Admin panel shown');
         }
     }
 
@@ -567,7 +567,7 @@ class AdminPanel {
         const modal = document.getElementById('admin-modal');
         if (modal) {
             modal.classList.add('hidden');
-            console.log('Admin panel hidden');
+            // console.log('Admin panel hidden');
         }
     }
 
@@ -667,21 +667,21 @@ class AdminPanel {
 
 // Leaderboard display
 function showLeaderboard() {
-    console.log('=== SHOWING LEADERBOARD ===');
+    // console.log('=== SHOWING LEADERBOARD ===');
     const modal = document.getElementById('leaderboard-modal');
     const list = document.getElementById('leaderboard-list');
 
-    console.log('Modal element:', modal);
-    console.log('List element:', list);
+    // console.log('Modal element:', modal);
+    // console.log('List element:', list);
 
     if (!modal || !list) {
-        console.error('Leaderboard elements not found');
+        // console.error('Leaderboard elements not found');
         return;
     }
 
     // Get leaderboard data
     const leaderboard = window.authManager.getLeaderboard();
-    console.log('Leaderboard data:', leaderboard);
+    // console.log('Leaderboard data:', leaderboard);
 
     // Filter to show only best score per user
     const bestScores = {};
@@ -694,16 +694,16 @@ function showLeaderboard() {
 
     // Convert back to array and sort by score
     const uniqueLeaderboard = Object.values(bestScores).sort((a, b) => b.score - a.score);
-    console.log('Filtered leaderboard (best scores only):', uniqueLeaderboard);
+    // console.log('Filtered leaderboard (best scores only):', uniqueLeaderboard);
 
     // Clear existing content
     list.innerHTML = '';
 
     if (uniqueLeaderboard.length === 0) {
-        console.log('No leaderboard entries found');
+        // console.log('No leaderboard entries found');
         list.innerHTML = '<p>Noch keine Einträge vorhanden.</p>';
     } else {
-        console.log('Creating leaderboard table with', uniqueLeaderboard.length, 'unique entries');
+        // console.log('Creating leaderboard table with', uniqueLeaderboard.length, 'unique entries');
 
         // Create leaderboard table
         const table = document.createElement('table');
@@ -716,7 +716,7 @@ function showLeaderboard() {
 
         // Entries
         uniqueLeaderboard.forEach((entry, index) => {
-            console.log('Adding leaderboard entry:', entry);
+            // console.log('Adding leaderboard entry:', entry);
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${index + 1}</td>
@@ -730,20 +730,20 @@ function showLeaderboard() {
     }
 
     // Show modal
-    console.log('Showing leaderboard modal');
-    console.log('Modal classes BEFORE:', modal.classList.toString());
-    console.log('Modal display BEFORE:', window.getComputedStyle(modal).display);
-    console.log('Modal z-index BEFORE:', window.getComputedStyle(modal).zIndex);
+    // console.log('Showing leaderboard modal');
+    // console.log('Modal classes BEFORE:', modal.classList.toString());
+    // console.log('Modal display BEFORE:', window.getComputedStyle(modal).display);
+    // console.log('Modal z-index BEFORE:', window.getComputedStyle(modal).zIndex);
 
     modal.classList.remove('hidden');
 
-    console.log('Modal classes AFTER:', modal.classList.toString());
-    console.log('Modal display AFTER:', window.getComputedStyle(modal).display);
-    console.log('Modal z-index AFTER:', window.getComputedStyle(modal).zIndex);
+    // console.log('Modal classes AFTER:', modal.classList.toString());
+    // console.log('Modal display AFTER:', window.getComputedStyle(modal).display);
+    // console.log('Modal z-index AFTER:', window.getComputedStyle(modal).zIndex);
 
     // Check if modal is visible in the viewport
     const rect = modal.getBoundingClientRect();
-    console.log('Modal position:', {
+    // console.log('Modal position:', {
         top: rect.top,
         left: rect.left,
         width: rect.width,
@@ -754,44 +754,44 @@ function showLeaderboard() {
 
 // Initialize everything after DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('=== AUTH.JS DOMContentLoaded START ===');
+    // console.log('=== AUTH.JS DOMContentLoaded START ===');
 
     // Create global admin panel instance (after DOM is ready)
     window.adminPanel = new AdminPanel();
-    console.log('✅ AdminPanel initialized after DOM loaded');
+    // console.log('✅ AdminPanel initialized after DOM loaded');
 
     // IMPORTANT: Re-register critical button listeners here to ensure they work
     // Admin button
     const secretAdminBtn = document.getElementById('secret-admin-btn');
-    console.log('Registering admin button:', secretAdminBtn);
+    // console.log('Registering admin button:', secretAdminBtn);
     if (secretAdminBtn) {
         secretAdminBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('🔧 Admin button clicked (DOMContentLoaded handler)');
+            // console.log('🔧 Admin button clicked (DOMContentLoaded handler)');
             if (window.adminPanel) {
                 window.adminPanel.showAdminPasswordModal();
             }
         });
-        console.log('✅ Admin button listener registered');
+        // console.log('✅ Admin button listener registered');
     }
 
     // Logout button
     const logoutBtn = document.getElementById('logout-btn');
-    console.log('Registering logout button:', logoutBtn);
+    // console.log('Registering logout button:', logoutBtn);
     if (logoutBtn) {
         logoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('🚪 Logout button clicked (DOMContentLoaded handler)');
+            // console.log('🚪 Logout button clicked (DOMContentLoaded handler)');
             if (window.authManager) {
                 window.authManager.logout();
             } else {
-                console.error('Auth manager not found!');
+                // console.error('Auth manager not found!');
                 alert('⚠️ Logout-System nicht verfügbar');
             }
         });
-        console.log('✅ Logout button listener registered');
+        // console.log('✅ Logout button listener registered');
     }
 
     // Close leaderboard
@@ -810,7 +810,7 @@ document.addEventListener('DOMContentLoaded', () => {
         leaderboardBtn.addEventListener('click', showLeaderboard);
     }
 
-    console.log('=== AUTH.JS DOMContentLoaded END ===');
+    // console.log('=== AUTH.JS DOMContentLoaded END ===');
 });
 
 function formatTime(seconds) {
@@ -818,3 +818,4 @@ function formatTime(seconds) {
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
+

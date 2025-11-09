@@ -15,7 +15,7 @@ class AuthManager {
   }
 
   async init() {
-    console.log('=== INITIALIZING AUTH MANAGER (SUPABASE MODE) ===');
+    // // console.log('=== INITIALIZING AUTH MANAGER (SUPABASE MODE) ===');
 
     // Prüfe ob User eingeloggt ist
     if (window.apiClient && window.apiClient.isAuthenticated()) {
@@ -26,7 +26,7 @@ class AuthManager {
         email: window.apiClient.currentUser.email
       };
       this.isLoggedIn = true;
-      console.log('User restored from session:', this.currentUser.username);
+      // // console.log('User restored from session:', this.currentUser.username);
     }
 
     // Set up event listeners
@@ -43,7 +43,7 @@ class AuthManager {
 
     // Auth state change listener
     window.apiClient.supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed:', event);
+      // // console.log('Auth state changed:', event);
       if (event === 'SIGNED_IN' && session) {
         this.currentUser = {
           id: session.user.id,
@@ -118,13 +118,13 @@ class AuthManager {
         await this.login(username, password, email);
       }
     } catch (error) {
-      console.error('Auth error:', error);
+      // // console.error('Auth error:', error);
       alert('⚠️ ' + error.message);
     }
   }
 
   async register(username, email, password) {
-    console.log('=== REGISTER PROCESS (SUPABASE) ===');
+    // // console.log('=== REGISTER PROCESS (SUPABASE) ===');
 
     try {
       const response = await window.apiClient.register(username, email, password);
@@ -132,7 +132,7 @@ class AuthManager {
       this.currentUser = response.user;
       this.isLoggedIn = true;
 
-      console.log('✅ Registration successful:', this.currentUser);
+      // // console.log('✅ Registration successful:', this.currentUser);
 
       // Track login
       if (window.adminPanel) {
@@ -147,8 +147,8 @@ class AuthManager {
   }
 
   async login(username, password, email) {
-    console.log('=== LOGIN PROCESS (SUPABASE) ===');
-    console.log('🔍 Login attempt with email:', email);
+    // // console.log('=== LOGIN PROCESS (SUPABASE) ===');
+    // // console.log('🔍 Login attempt with email:', email);
 
     try {
       // Supabase benötigt IMMER die echte Email für Login
@@ -161,7 +161,7 @@ class AuthManager {
       this.currentUser = response.user;
       this.isLoggedIn = true;
 
-      console.log('✅ Login successful:', this.currentUser);
+      // // console.log('✅ Login successful:', this.currentUser);
 
       // Track login
       if (window.adminPanel) {
@@ -188,19 +188,19 @@ class AuthManager {
   }
 
   checkAuthStatus() {
-    console.log('Checking auth status...');
+    // // console.log('Checking auth status...');
 
     if (this.isLoggedIn) {
-      console.log('User is logged in, starting game...');
+      // // console.log('User is logged in, starting game...');
       this.startGameAfterAuth();
     } else {
-      console.log('User not logged in, showing auth modal...');
+      // // console.log('User not logged in, showing auth modal...');
       this.openAuthModal();
     }
   }
 
   async logout() {
-    console.log('=== USER LOGOUT (SUPABASE) ===');
+    // // console.log('=== USER LOGOUT (SUPABASE) ===');
 
     await window.apiClient.logout();
 
@@ -214,29 +214,29 @@ class AuthManager {
   }
 
   startGameAfterAuth() {
-    console.log('=== STARTING GAME AFTER AUTH ===');
+    // // console.log('=== STARTING GAME AFTER AUTH ===');
 
     if (typeof startGame === 'function') {
       startGame();
     } else {
-      console.error('startGame function not found!');
+      // // console.error('startGame function not found!');
     }
   }
 
   async submitScore(score, coins, time) {
-    console.log('=== SUBMIT SCORE (SUPABASE) ===');
-    console.log('Score:', score, 'Coins:', coins, 'Time:', time);
-    console.log('🔍 [iPhone Debug] User Agent:', navigator.userAgent);
-    console.log('🔍 [iPhone Debug] Online status:', navigator.onLine);
+    // // console.log('=== SUBMIT SCORE (SUPABASE) ===');
+    // // console.log('Score:', score, 'Coins:', coins, 'Time:', time);
+    // // console.log('🔍 [iPhone Debug] User Agent:', navigator.userAgent);
+    // // console.log('🔍 [iPhone Debug] Online status:', navigator.onLine);
 
     if (!this.isLoggedIn) {
-      console.log('Cannot submit score - user not logged in');
+      // // console.log('Cannot submit score - user not logged in');
       return;
     }
 
     try {
       await window.apiClient.submitScore(score, coins, time);
-      console.log('✅ Score submitted successfully!');
+      // // console.log('✅ Score submitted successfully!');
 
       // Track session lokal (für Statistiken)
       if (window.adminPanel) {
@@ -248,8 +248,8 @@ class AuthManager {
         );
       }
     } catch (error) {
-      console.error('❌ Failed to submit score:', error);
-      console.error('Error details:', {
+      // // console.error('❌ Failed to submit score:', error);
+      // // console.error('Error details:', {
         message: error.message,
         code: error.code,
         name: error.name,
@@ -296,7 +296,7 @@ class AuthManager {
       const response = await window.apiClient.getLeaderboard(10);
       return response.leaderboard || [];
     } catch (error) {
-      console.error('Failed to load leaderboard:', error);
+      // // console.error('Failed to load leaderboard:', error);
       return [];
     }
   }
@@ -307,12 +307,12 @@ window.authManager = new AuthManager();
 
 // Leaderboard anzeigen (Supabase-Version)
 async function showLeaderboard() {
-  console.log('=== SHOWING LEADERBOARD (SUPABASE) ===');
+  // // console.log('=== SHOWING LEADERBOARD (SUPABASE) ===');
   const modal = document.getElementById('leaderboard-modal');
   const list = document.getElementById('leaderboard-list');
 
   if (!modal || !list) {
-    console.error('Leaderboard elements not found');
+    // // console.error('Leaderboard elements not found');
     return;
   }
 
@@ -349,9 +349,10 @@ async function showLeaderboard() {
 
     modal.classList.remove('hidden');
   } catch (error) {
-    console.error('Failed to load leaderboard:', error);
+    // // console.error('Failed to load leaderboard:', error);
     list.innerHTML = '<p style="color: red;">⚠️ Fehler beim Laden der Rangliste</p>';
     modal.classList.remove('hidden');
   }
 }
+
 

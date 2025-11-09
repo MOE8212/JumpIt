@@ -77,7 +77,7 @@ window.addEventListener('load', () => {
     const homeScreen = document.getElementById('home-screen');
     if (homeScreen) {
         homeScreen.classList.remove('hidden');
-        // console.log('Home screen made visible on load');
+        // // console.log('Home screen made visible on load');
     }
 
     // Initialize shop system
@@ -89,11 +89,11 @@ window.addEventListener('load', () => {
     // Test if button exists
     setTimeout(() => {
         const testBtn = document.getElementById('home-fullscreen-btn');
-        // console.log('=== FULLSCREEN BUTTON TEST ===');
-        // console.log('Button found:', !!testBtn);
+        // // console.log('=== FULLSCREEN BUTTON TEST ===');
+        // // console.log('Button found:', !!testBtn);
         if (testBtn) {
-            // console.log('Button visible:', testBtn.offsetWidth > 0 && testBtn.offsetHeight > 0);
-            // console.log('Button clickable:', testBtn.style.pointerEvents !== 'none');
+            // // console.log('Button visible:', testBtn.offsetWidth > 0 && testBtn.offsetHeight > 0);
+            // // console.log('Button clickable:', testBtn.style.pointerEvents !== 'none');
         }
     }, 1000);
 
@@ -183,13 +183,13 @@ function createGlobalBackgroundMusic() {
     window.globalMusic = {
         start: function () {
             // Disabled - game music will play instead
-            // console.log('Global music disabled in favor of game music');
+            // // console.log('Global music disabled in favor of game music');
         },
         stop: function () {
             if (isPlaying) {
                 isPlaying = false;
                 clearInterval(musicInterval);
-                // console.log('Global music stopped');
+                // // console.log('Global music stopped');
             }
         }
     };
@@ -197,62 +197,62 @@ function createGlobalBackgroundMusic() {
 
 // Function to start the game after authentication
 function startGame() {
-    // console.log('=== START GAME FUNCTION CALLED ===');
+    // // console.log('=== START GAME FUNCTION CALLED ===');
 
     // Hide home screen and show game
     const homeScreen = document.getElementById('home-screen');
     const gameElement = document.getElementById('game');
 
-    // console.log('Home screen element:', homeScreen);
-    // console.log('Game element:', gameElement);
+    // // console.log('Home screen element:', homeScreen);
+    // // console.log('Game element:', gameElement);
 
     if (homeScreen) {
-        // console.log('Home screen classes BEFORE:', homeScreen.classList.toString());
-        // console.log('Home screen display BEFORE:', window.getComputedStyle(homeScreen).display);
-        // console.log('Home screen z-index BEFORE:', window.getComputedStyle(homeScreen).zIndex);
+        // // console.log('Home screen classes BEFORE:', homeScreen.classList.toString());
+        // // console.log('Home screen display BEFORE:', window.getComputedStyle(homeScreen).display);
+        // // console.log('Home screen z-index BEFORE:', window.getComputedStyle(homeScreen).zIndex);
 
         homeScreen.classList.add('hidden');
 
-        // console.log('Home screen classes AFTER:', homeScreen.classList.toString());
-        // console.log('Home screen display AFTER:', window.getComputedStyle(homeScreen).display);
-        // console.log('Home screen z-index AFTER:', window.getComputedStyle(homeScreen).zIndex);
-        // console.log('Home screen hidden successfully');
+        // // console.log('Home screen classes AFTER:', homeScreen.classList.toString());
+        // // console.log('Home screen display AFTER:', window.getComputedStyle(homeScreen).display);
+        // // console.log('Home screen z-index AFTER:', window.getComputedStyle(homeScreen).zIndex);
+        // // console.log('Home screen hidden successfully');
     } else {
-        // console.error('Home screen element not found!');
+        // // console.error('Home screen element not found!');
     }
 
     if (gameElement) {
-        // console.log('Game element display BEFORE:', gameElement.style.display);
+        // // console.log('Game element display BEFORE:', gameElement.style.display);
         gameElement.style.display = 'block';
-        // console.log('Game element display AFTER:', gameElement.style.display);
-        // console.log('Game element shown successfully');
+        // // console.log('Game element display AFTER:', gameElement.style.display);
+        // // console.log('Game element shown successfully');
     } else {
-        // console.error('Game element not found!');
+        // // console.error('Game element not found!');
     }
 
-    // console.log('Current game instance:', game);
+    // // console.log('Current game instance:', game);
 
     if (!game) {
-        // console.log('Creating new Phaser game instance...');
+        // // console.log('Creating new Phaser game instance...');
         try {
             game = new Phaser.Game(config);
             window.game = game; // Make globally accessible
-            // console.log('Game created successfully:', game);
+            // // console.log('Game created successfully:', game);
         } catch (error) {
-            // console.error('Error creating game:', error);
-            // console.error('Error stack:', error.stack);
+            // // console.error('Error creating game:', error);
+            // // console.error('Error stack:', error.stack);
         }
     } else {
-        // console.log('Game already exists, skipping creation');
+        // // console.log('Game already exists, skipping creation');
     }
 
-    // console.log('=== START GAME FUNCTION COMPLETED ===');
+    // // console.log('=== START GAME FUNCTION COMPLETED ===');
 }
 
 // Function to show home screen
 
 function preload() {
-    // console.log('Preload function called');
+    // // console.log('Preload function called');
 
     // Create colored rectangles for sprites directly in preload
     createColoredRectangles.call(this);
@@ -260,11 +260,11 @@ function preload() {
     // Create audio textures for sound effects
     createAudioTextures.call(this);
 
-    // console.log('Preload completed');
+    // // console.log('Preload completed');
 }
 
 function createColoredRectangles() {
-    // console.log('Creating colored rectangles...');
+    // // console.log('Creating colored rectangles...');
 
     // Create animated character textures
     createPlayerTextures.call(this);
@@ -275,7 +275,7 @@ function createColoredRectangles() {
     platformGraphics.fillRect(0, 0, 200, 32);
     platformGraphics.generateTexture('platform', 200, 32);
     platformGraphics.destroy();
-    // console.log('Platform texture created');
+    // // console.log('Platform texture created');
 
     // Create a simple colored rectangle for coin
     const coinGraphics = this.add.graphics();
@@ -283,7 +283,7 @@ function createColoredRectangles() {
     coinGraphics.fillCircle(16, 16, 16);
     coinGraphics.generateTexture('coin', 32, 32);
     coinGraphics.destroy();
-    // console.log('Coin texture created');
+    // // console.log('Coin texture created');
 
     // Create cute purple worm enemy
     const enemyGraphics = this.add.graphics();
@@ -310,7 +310,7 @@ function createColoredRectangles() {
 
     enemyGraphics.generateTexture('enemy', 32, 32);
     enemyGraphics.destroy();
-    // console.log('Enemy texture created');
+    // // console.log('Enemy texture created');
 }
 
 function createPlayerTextures() {
@@ -368,11 +368,11 @@ function createPlayerTextures() {
     walkGraphics.generateTexture('player-walk', 32, 48);
     walkGraphics.destroy();
 
-    // console.log('Player textures created');
+    // // console.log('Player textures created');
 }
 
 function createAudioTextures() {
-    // console.log('Creating audio textures...');
+    // // console.log('Creating audio textures...');
 
     // Create jump sound effect using Web Audio API
     this.jumpSound = createJumpSound();
@@ -405,7 +405,7 @@ function createAudioTextures() {
     // Create background music
     this.backgroundMusic = createBackgroundMusic();
 
-    // console.log('Audio textures created');
+    // // console.log('Audio textures created');
 }
 
 function createJumpSound() {
@@ -524,7 +524,7 @@ function createBackgroundMusic() {
                     window.globalMusic.stop();
                 }
                 musicInterval = setInterval(playMelody, 220); // Upbeat tempo!
-                // console.log('Complex jump music started!');
+                // // console.log('Complex jump music started!');
             }
         },
         stop: function () {
@@ -543,14 +543,14 @@ function createBackgroundMusic() {
                 });
                 activeOscillators = [];
                 
-                // console.log('Complex jump music stopped and all oscillators cleaned up');
+                // // console.log('Complex jump music stopped and all oscillators cleaned up');
             }
         }
     };
 }
 
 function create() {
-    // console.log('Create function called');
+    // // console.log('Create function called');
 
     // Set world bounds for the larger world
     this.physics.world.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
@@ -692,7 +692,7 @@ function create() {
             enemy.platformRight = pos.x + platformWidth / 2;
             enemy.initialY = pos.y;
             
-            // console.log(`Platform enemy at ${pos.x}: patrol range ${enemy.platformLeft} to ${enemy.platformRight}`);
+            // // console.log(`Platform enemy at ${pos.x}: patrol range ${enemy.platformLeft} to ${enemy.platformRight}`);
         }
 
         // Add collision with platforms
@@ -726,18 +726,18 @@ function create() {
     // ESC key for menu
     const escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
     escKey.on('down', () => {
-        // console.log('ESC pressed - toggling menu');
+        // // console.log('ESC pressed - toggling menu');
         toggleInGameMenu();
     });
 
     // Game state values are preserved from restartGame() or initial values at file top
     // Don't reset them here to allow proper restart functionality
-    // console.log('=== GAME INITIALIZATION ===');
-    // console.log('Current values:');
-    // console.log('- gameTime:', gameTime);
-    // console.log('- coinsCollected:', coinsCollected);
-    // console.log('- score:', score);
-    // console.log('- lives:', lives);
+    // // console.log('=== GAME INITIALIZATION ===');
+    // // console.log('Current values:');
+    // // console.log('- gameTime:', gameTime);
+    // // console.log('- coinsCollected:', coinsCollected);
+    // // console.log('- score:', score);
+    // // console.log('- lives:', lives);
 
     // Update HUD to reflect current state
     updateHUD();
@@ -746,7 +746,7 @@ function create() {
     startTime = this.time.now;
     gameStarted = true;
 
-    // console.log('Game started at:', startTime);
+    // // console.log('Game started at:', startTime);
 
     // Track game session
     if (window.authManager && window.authManager.isLoggedIn && window.adminPanel) {
@@ -761,11 +761,11 @@ function create() {
             const currentScene = game.scene.scenes[0];
             // Prüfe ob es eine alte Musik-Instanz gibt und stoppe sie
             if (currentScene.backgroundMusic && currentScene.backgroundMusic !== this.backgroundMusic) {
-                // console.log('Found old music instance, stopping it...');
+                // // console.log('Found old music instance, stopping it...');
                 try {
                     currentScene.backgroundMusic.stop();
                 } catch (e) {
-                    // console.log('Could not stop old music:', e);
+                    // // console.log('Could not stop old music:', e);
                 }
             }
         }
@@ -773,9 +773,9 @@ function create() {
         // Try to start music immediately
         try {
             this.backgroundMusic.start();
-            // console.log('New background music started');
+            // // console.log('New background music started');
         } catch (error) {
-            // console.log('Music start failed, will try again on user interaction');
+            // // console.log('Music start failed, will try again on user interaction');
         }
     }
 
@@ -793,7 +793,7 @@ function update() {
 
             // Debug timer every 10 seconds
             if (gameTime % 10 === 0 && gameTime > 0) {
-                // console.log('Game timer update:', gameTime, 'seconds');
+                // // console.log('Game timer update:', gameTime, 'seconds');
             }
         }
     }
@@ -805,11 +805,11 @@ function update() {
     if (isMovingLeft) {
         player.setVelocityX(-160);
         player.isWalking = true;
-        // console.log('Moving left');
+        // // console.log('Moving left');
     } else if (isMovingRight) {
         player.setVelocityX(160);
         player.isWalking = true;
-        // console.log('Moving right');
+        // // console.log('Moving right');
     } else {
         player.setVelocityX(0);
         player.isWalking = false;
@@ -841,12 +841,12 @@ function update() {
 
     // Debug: Show player position and ground status occasionally
     if (Math.random() < 0.01) { // 1% chance each frame
-        // console.log('Player Y:', player.y, 'On ground:', onGround, 'At bottom:', atBottom, 'Velocity Y:', player.body.velocity.y, 'Can jump:', canJump);
+        // // console.log('Player Y:', player.y, 'On ground:', onGround, 'At bottom:', atBottom, 'Velocity Y:', player.body.velocity.y, 'Can jump:', canJump);
     }
 
     if (jumpPressed && canJump) {
         player.setVelocityY(-500);
-        // console.log('Jumping! Player Y:', player.y);
+        // // console.log('Jumping! Player Y:', player.y);
 
         // Play jump sound
         if (this.jumpSound) {
@@ -861,7 +861,7 @@ function update() {
 
     // Check if player reaches the right edge of the world (goal)
     if (player.x >= WORLD_WIDTH - 32 && !isGameOver) {
-        // console.log('Player reached right wall - Level completed!');
+        // // console.log('Player reached right wall - Level completed!');
         levelCompleted();
     }
 
@@ -876,7 +876,7 @@ function update() {
             const currentVelocity = enemy.body.velocity.x;
             
             if (shouldLog) {
-                // console.log('🐛 [PATROL DEBUG]', {
+                // // console.log('🐛 [PATROL DEBUG]', {
                     x: Math.round(enemy.x),
                     y: Math.round(enemy.y),
                     direction: enemy.direction,
@@ -917,7 +917,7 @@ function update() {
                 }
                 
                 if (shouldLog) {
-                    // console.log('  ↪ Ray Check:', {
+                    // // console.log('  ↪ Ray Check:', {
                         rayX: Math.round(rayX),
                         rayY: Math.round(rayY),
                         hasGroundAhead,
@@ -937,7 +937,7 @@ function update() {
                     enemy.direction *= -1;
                     
                     if (shouldLog || true) { // Always log direction changes
-                        // console.log('🔄 [PATROL] Direction changed!', {
+                        // // console.log('🔄 [PATROL] Direction changed!', {
                             x: Math.round(enemy.x),
                             oldDirection,
                             newDirection: enemy.direction,
@@ -946,7 +946,7 @@ function update() {
                     }
                 }
             } else if (shouldLog) {
-                // console.log('  ⚠️ Enemy not on ground!');
+                // // console.log('  ⚠️ Enemy not on ground!');
             }
             
             // Always flip sprite based on direction (worm head is on RIGHT in texture at x=24)
@@ -962,7 +962,7 @@ function update() {
             const currentVelocity = enemy.body.velocity.x;
             
             if (shouldLog) {
-                // console.log('🐛 [PLATFORM DEBUG]', {
+                // // console.log('🐛 [PLATFORM DEBUG]', {
                     x: Math.round(enemy.x),
                     direction: enemy.direction,
                     velocity: Math.round(currentVelocity),
@@ -986,7 +986,7 @@ function update() {
                 const oldDirection = enemy.direction;
                 enemy.direction *= -1;
                 
-                // console.log('🔄 [PLATFORM] Direction changed!', {
+                // // console.log('🔄 [PLATFORM] Direction changed!', {
                     x: Math.round(enemy.x),
                     oldDirection,
                     newDirection: enemy.direction,
@@ -1005,7 +1005,7 @@ function update() {
             
             // Debug: Check if enemy is stuck
             if (Math.abs(currentVelocity) < 5) {
-                // console.warn('⚠️ [PLATFORM] Enemy stuck!', {
+                // // console.warn('⚠️ [PLATFORM] Enemy stuck!', {
                     x: Math.round(enemy.x),
                     velocity: currentVelocity,
                     direction: enemy.direction
@@ -1018,13 +1018,13 @@ function update() {
 }
 
 function collectCoin(player, coin) {
-    // console.log('Coin collected! Current coins:', coinsCollected);
+    // // console.log('Coin collected! Current coins:', coinsCollected);
 
     coin.disableBody(true, true);
     coinsCollected++;
     score += 10;
 
-    // console.log('After collection - Coins:', coinsCollected, 'Score:', score);
+    // // console.log('After collection - Coins:', coinsCollected, 'Score:', score);
 
     // Add coins to total
     addCoins(1);
@@ -1049,7 +1049,7 @@ function collectCoin(player, coin) {
     });
 
     // Play coin sound effect (will be added in Phase 5)
-    // console.log('Coin collected! Total coins now:', coinsCollected);
+    // // console.log('Coin collected! Total coins now:', coinsCollected);
 }
 
 function reachGoal(player, goal) {
@@ -1104,7 +1104,7 @@ function hitEnemy(player, enemy) {
 function loseLife() {
     // Don't lose life if player is invulnerable
     if (isInvulnerable) {
-        // console.log('Player is invulnerable, ignoring damage');
+        // // console.log('Player is invulnerable, ignoring damage');
         return;
     }
     
@@ -1138,9 +1138,9 @@ function startInvulnerability() {
 }
 
 function levelCompleted() {
-    // console.log('=== LEVEL COMPLETED ===');
-    // console.log('Game time:', gameTime);
-    // console.log('Coins collected:', coinsCollected);
+    // // console.log('=== LEVEL COMPLETED ===');
+    // // console.log('Game time:', gameTime);
+    // // console.log('Coins collected:', coinsCollected);
 
     // Calculate final score
     const timeBonus = Math.max(0, 180 - gameTime) * 5; // Bonus for completing quickly (3 minutes max)
@@ -1148,11 +1148,11 @@ function levelCompleted() {
     const completionBonus = 100; // Bonus for completing the level
     const finalScore = timeBonus + coinBonus + completionBonus;
 
-    // console.log('Score calculation:');
-    // console.log('- Time bonus:', timeBonus, '(180 -', gameTime, ') * 5');
-    // console.log('- Coin bonus:', coinBonus, '(', coinsCollected, '* 10)');
-    // console.log('- Completion bonus:', completionBonus);
-    // console.log('- Final score:', finalScore);
+    // // console.log('Score calculation:');
+    // // console.log('- Time bonus:', timeBonus, '(180 -', gameTime, ') * 5');
+    // // console.log('- Coin bonus:', coinBonus, '(', coinsCollected, '* 10)');
+    // // console.log('- Completion bonus:', completionBonus);
+    // // console.log('- Final score:', finalScore);
 
     score = finalScore;
     updateHUD();
@@ -1174,13 +1174,13 @@ function levelCompleted() {
 
     // Submit score to leaderboard (only for successful completions!)
     if (window.authManager && window.authManager.isLoggedIn) {
-        // console.log('Level completed successfully! Submitting score to leaderboard:');
-        // console.log('- Score:', finalScore);
-        // console.log('- Coins:', coinsCollected);
-        // console.log('- Time:', gameTime);
+        // // console.log('Level completed successfully! Submitting score to leaderboard:');
+        // // console.log('- Score:', finalScore);
+        // // console.log('- Coins:', coinsCollected);
+        // // console.log('- Time:', gameTime);
         window.authManager.submitScore(finalScore, coinsCollected, gameTime);
     } else {
-        // console.log('Level completed but user not logged in, cannot submit score');
+        // // console.log('Level completed but user not logged in, cannot submit score');
     }
 
     // Show level completed message for 2 seconds, then show restart option
@@ -1199,7 +1199,7 @@ function gameOver() {
 
     // Stop background music - KORRIGIERT: Richtige Referenz verwenden
     if (game && game.scene && game.scene.scenes[0] && game.scene.scenes[0].backgroundMusic) {
-        // console.log('Stopping background music on game over...');
+        // // console.log('Stopping background music on game over...');
         game.scene.scenes[0].backgroundMusic.stop();
     }
 
@@ -1213,9 +1213,9 @@ function gameOver() {
     // Submit score to leaderboard even on Game Over
     if (window.authManager && window.authManager.isLoggedIn) {
         window.authManager.submitScore(score, gameTime, coinsCollected);
-        // console.log('Game Over! Score:', score, '- submitted to leaderboard');
+        // // console.log('Game Over! Score:', score, '- submitted to leaderboard');
     } else {
-        // console.log('Game Over! Score:', score, '- not logged in, score not saved');
+        // // console.log('Game Over! Score:', score, '- not logged in, score not saved');
     }
 }
 
@@ -1250,7 +1250,7 @@ function updateVersionDisplay() {
         // Get current commit hash from HTML comment or use default
         const buildInfo = getBuildInfo();
         versionDisplay.textContent = buildInfo;
-        // console.log('Version display updated:', buildInfo);
+        // // console.log('Version display updated:', buildInfo);
     }
 }
 
@@ -1272,36 +1272,36 @@ function getBuildInfo() {
 
 // Fullscreen functionality - now integrated into home screen
 function setupFullscreenButton() {
-    // console.log('=== SETTING UP FULLSCREEN BUTTON ===');
+    // // console.log('=== SETTING UP FULLSCREEN BUTTON ===');
     const fullscreenBtn = document.getElementById('home-fullscreen-btn');
-    // console.log('Fullscreen button element:', fullscreenBtn);
+    // // console.log('Fullscreen button element:', fullscreenBtn);
 
     if (fullscreenBtn) {
-        // console.log('Adding click event listener to fullscreen button');
+        // // console.log('Adding click event listener to fullscreen button');
         fullscreenBtn.addEventListener('click', (event) => {
-            // console.log('=== FULLSCREEN BUTTON CLICKED ===');
-            // console.log('Event:', event);
-            // console.log('Current fullscreen element:', document.fullscreenElement);
+            // // console.log('=== FULLSCREEN BUTTON CLICKED ===');
+            // // console.log('Event:', event);
+            // // console.log('Current fullscreen element:', document.fullscreenElement);
             toggleFullscreen();
         });
-        // console.log('Event listener added successfully');
+        // // console.log('Event listener added successfully');
     } else {
-        // console.error('Fullscreen button not found!');
+        // // console.error('Fullscreen button not found!');
     }
 }
 
 function toggleFullscreen() {
-    // console.log('=== TOGGLING FULLSCREEN ===');
-    // console.log('Current fullscreen element:', document.fullscreenElement);
-    // console.log('User Agent:', navigator.userAgent);
-    // console.log('Is iOS:', /iPad|iPhone|iPod/.test(navigator.userAgent));
+    // // console.log('=== TOGGLING FULLSCREEN ===');
+    // // console.log('Current fullscreen element:', document.fullscreenElement);
+    // // console.log('User Agent:', navigator.userAgent);
+    // // console.log('Is iOS:', /iPad|iPhone|iPod/.test(navigator.userAgent));
 
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
 
     // iOS Safari doesn't support Fullscreen API properly
     if (isIOS && isSafari) {
-        // console.log('iOS Safari detected - using iOS-specific fullscreen method');
+        // // console.log('iOS Safari detected - using iOS-specific fullscreen method');
         handleIOSFullscreen();
         return;
     }
@@ -1309,44 +1309,44 @@ function toggleFullscreen() {
     const elem = document.documentElement;
 
     if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
-        // console.log('Entering fullscreen mode...');
+        // // console.log('Entering fullscreen mode...');
 
         // Try different fullscreen methods for browser compatibility
         if (elem.requestFullscreen) {
-            // console.log('Using requestFullscreen()');
+            // // console.log('Using requestFullscreen()');
             elem.requestFullscreen().then(() => {
-                // console.log('Successfully entered fullscreen');
+                // // console.log('Successfully entered fullscreen');
                 updateFullscreenButton(true);
             }).catch(err => {
-                // console.log('Fullscreen error:', err);
+                // // console.log('Fullscreen error:', err);
                 handleFullscreenFallback();
             });
         } else if (elem.webkitRequestFullscreen) {
-            // console.log('Using webkitRequestFullscreen()');
+            // // console.log('Using webkitRequestFullscreen()');
             elem.webkitRequestFullscreen();
             updateFullscreenButton(true);
         } else if (elem.mozRequestFullScreen) {
-            // console.log('Using mozRequestFullScreen()');
+            // // console.log('Using mozRequestFullScreen()');
             elem.mozRequestFullScreen();
             updateFullscreenButton(true);
         } else if (elem.msRequestFullscreen) {
-            // console.log('Using msRequestFullscreen()');
+            // // console.log('Using msRequestFullscreen()');
             elem.msRequestFullscreen();
             updateFullscreenButton(true);
         } else {
-            // console.log('Fullscreen API not supported, using fallback');
+            // // console.log('Fullscreen API not supported, using fallback');
             handleFullscreenFallback();
         }
     } else {
-        // console.log('Exiting fullscreen mode...');
+        // // console.log('Exiting fullscreen mode...');
 
         // Exit fullscreen
         if (document.exitFullscreen) {
             document.exitFullscreen().then(() => {
-                // console.log('Successfully exited fullscreen');
+                // // console.log('Successfully exited fullscreen');
                 updateFullscreenButton(false);
             }).catch(err => {
-                // console.log('Error exiting fullscreen:', err);
+                // // console.log('Error exiting fullscreen:', err);
             });
         } else if (document.webkitExitFullscreen) {
             document.webkitExitFullscreen();
@@ -1362,7 +1362,7 @@ function toggleFullscreen() {
 }
 
 function handleIOSFullscreen() {
-    // console.log('=== HANDLING iOS FULLSCREEN (Poki-Style) ===');
+    // // console.log('=== HANDLING iOS FULLSCREEN (Poki-Style) ===');
 
     // Simple approach: Just scroll to hide address bar
     // iOS Safari will auto-hide the bars when scrolling
@@ -1400,7 +1400,7 @@ function handleIOSFullscreen() {
 }
 
 function handleFullscreenFallback() {
-    // console.log('Using fullscreen fallback - hiding mobile UI');
+    // // console.log('Using fullscreen fallback - hiding mobile UI');
     hideMobileUI();
     updateFullscreenButton(true);
 
@@ -1444,7 +1444,7 @@ function updateFullscreenButton(isFullscreen) {
 
             // For iOS, change the click handler to exit mode
             fullscreenBtn.onclick = () => {
-                // console.log('Exiting iOS fullscreen mode');
+                // // console.log('Exiting iOS fullscreen mode');
                 exitIOSFullscreen();
             };
         } else {
@@ -1454,7 +1454,7 @@ function updateFullscreenButton(isFullscreen) {
 
             // Reset click handler to normal fullscreen
             fullscreenBtn.onclick = () => {
-                // console.log('iOS fullscreen button clicked');
+                // // console.log('iOS fullscreen button clicked');
                 toggleFullscreen();
             };
         }
@@ -1462,7 +1462,7 @@ function updateFullscreenButton(isFullscreen) {
 }
 
 function exitIOSFullscreen() {
-    // console.log('=== EXITING iOS FULLSCREEN ===');
+    // // console.log('=== EXITING iOS FULLSCREEN ===');
 
     updateFullscreenButton(false);
 
@@ -1496,7 +1496,7 @@ function hideMobileUI() {
     // Poki-Style: Keep it simple, just scroll
     window.scrollTo(0, 1);
 
-    // console.log('Mobile UI minimized (simple approach)');
+    // // console.log('Mobile UI minimized (simple approach)');
 }
 
 function setupMobileControls() {
@@ -1571,13 +1571,13 @@ function setupMobileControls() {
 
 // Restart game function
 function restartGame() {
-    // console.log('=== RESTARTING GAME ===');
+    // // console.log('=== RESTARTING GAME ===');
     const modal = document.getElementById('game-over-modal');
     modal.classList.add('hidden');
 
     // WICHTIG: Musik stoppen BEVOR Scene neu gestartet wird
     if (game && game.scene && game.scene.scenes[0] && game.scene.scenes[0].backgroundMusic) {
-        // console.log('Stopping background music before restart...');
+        // // console.log('Stopping background music before restart...');
         game.scene.scenes[0].backgroundMusic.stop();
     }
 
@@ -1590,11 +1590,11 @@ function restartGame() {
     isGameOver = false;
     isInvulnerable = true; // Set invulnerable during restart to prevent life loss
 
-    // console.log('Game state reset:');
-    // console.log('- gameTime:', gameTime);
-    // console.log('- coinsCollected:', coinsCollected);
-    // console.log('- score:', score);
-    // console.log('- lives:', lives);
+    // // console.log('Game state reset:');
+    // // console.log('- gameTime:', gameTime);
+    // // console.log('- coinsCollected:', coinsCollected);
+    // // console.log('- score:', score);
+    // // console.log('- lives:', lives);
 
     // Update HUD immediately to show reset values
     updateHUD();
@@ -1602,15 +1602,15 @@ function restartGame() {
     // Restart the current game scene
     if (game && game.scene && game.scene.scenes[0]) {
         game.scene.scenes[0].scene.restart();
-        // console.log('Game scene restarted!');
+        // // console.log('Game scene restarted!');
         
         // Remove invulnerability after scene is ready (give it 500ms to initialize)
         setTimeout(() => {
             isInvulnerable = false;
-            // console.log('Invulnerability removed after restart');
+            // // console.log('Invulnerability removed after restart');
         }, 500);
     } else {
-        // console.log('No game scene to restart');
+        // // console.log('No game scene to restart');
     }
 }
 
@@ -1628,7 +1628,7 @@ function backToMenu() {
 
     // WICHTIG: Musik stoppen BEVOR Game destroyed wird
     if (game && game.scene && game.scene.scenes[0] && game.scene.scenes[0].backgroundMusic) {
-        // console.log('Stopping background music before returning to menu...');
+        // // console.log('Stopping background music before returning to menu...');
         game.scene.scenes[0].backgroundMusic.stop();
     }
 
@@ -1645,7 +1645,7 @@ function backToMenu() {
     const homeScreen = document.getElementById('home-screen');
     if (homeScreen) {
         homeScreen.classList.remove('hidden');
-        // console.log('Home screen shown');
+        // // console.log('Home screen shown');
     }
 
     // Destroy the current game
@@ -1654,37 +1654,37 @@ function backToMenu() {
         game = null;
     }
 
-    // console.log('Back to menu! Showing home screen.');
+    // // console.log('Back to menu! Showing home screen.');
 }
 
 // In-game menu functions
 function toggleInGameMenu() {
-    // console.log('toggleInGameMenu called');
+    // // console.log('toggleInGameMenu called');
     const inGameMenu = document.getElementById('in-game-menu');
-    // console.log('inGameMenu element:', inGameMenu);
+    // // console.log('inGameMenu element:', inGameMenu);
 
     if (inGameMenu) {
         if (inGameMenu.classList.contains('hidden')) {
-            // console.log('Opening menu...');
+            // // console.log('Opening menu...');
             inGameMenu.classList.remove('hidden');
             // Pause the game
             if (game && game.scene) {
                 game.scene.pause();
-                // console.log('Game paused');
+                // // console.log('Game paused');
             }
-            // console.log('In-game menu opened');
+            // // console.log('In-game menu opened');
         } else {
-            // console.log('Closing menu...');
+            // // console.log('Closing menu...');
             inGameMenu.classList.add('hidden');
             // Resume the game
             if (game && game.scene) {
                 game.scene.resume();
-                // console.log('Game resumed');
+                // // console.log('Game resumed');
             }
-            // console.log('In-game menu closed');
+            // // console.log('In-game menu closed');
         }
     } else {
-        // console.error('In-game menu element not found!');
+        // // console.error('In-game menu element not found!');
     }
 }
 
@@ -1699,11 +1699,11 @@ function resumeGame() {
         game.scene.resume();
     }
 
-    // console.log('Game resumed');
+    // // console.log('Game resumed');
 }
 
 function restartLevel() {
-    // console.log('=== RESTARTING LEVEL ===');
+    // // console.log('=== RESTARTING LEVEL ===');
     const inGameMenu = document.getElementById('in-game-menu');
     if (inGameMenu) {
         inGameMenu.classList.add('hidden');
@@ -1711,7 +1711,7 @@ function restartLevel() {
 
     // WICHTIG: Musik stoppen BEVOR Scene neu gestartet wird
     if (game && game.scene && game.scene.scenes[0] && game.scene.scenes[0].backgroundMusic) {
-        // console.log('Stopping background music before level restart...');
+        // // console.log('Stopping background music before level restart...');
         game.scene.scenes[0].backgroundMusic.stop();
     }
 
@@ -1724,11 +1724,11 @@ function restartLevel() {
     isGameOver = false;
     isInvulnerable = true; // Set invulnerable during restart to prevent life loss
 
-    // console.log('Level state reset:');
-    // console.log('- gameTime:', gameTime);
-    // console.log('- coinsCollected:', coinsCollected);
-    // console.log('- score:', score);
-    // console.log('- lives:', lives);
+    // // console.log('Level state reset:');
+    // // console.log('- gameTime:', gameTime);
+    // // console.log('- coinsCollected:', coinsCollected);
+    // // console.log('- score:', score);
+    // // console.log('- lives:', lives);
 
     // Update HUD immediately to show reset values
     updateHUD();
@@ -1736,20 +1736,20 @@ function restartLevel() {
     // Restart the current game scene
     if (game && game.scene && game.scene.scenes[0]) {
         game.scene.scenes[0].scene.restart();
-        // console.log('Level scene restarted');
+        // // console.log('Level scene restarted');
         
         // Remove invulnerability after scene is ready (give it 500ms to initialize)
         setTimeout(() => {
             isInvulnerable = false;
-            // console.log('Invulnerability removed after level restart');
+            // // console.log('Invulnerability removed after level restart');
         }, 500);
     } else {
-        // console.log('No game scene to restart');
+        // // console.log('No game scene to restart');
     }
 }
 
 function openShop() {
-    // console.log('Shop opened');
+    // // console.log('Shop opened');
     const shopModal = document.getElementById('shop-modal');
     if (shopModal) {
         shopModal.classList.remove('hidden');
@@ -1763,7 +1763,7 @@ let ownedSkins = ['standard'];
 let currentSkin = 'standard';
 
 function openHomeShop() {
-    // console.log('Opening home shop...');
+    // // console.log('Opening home shop...');
     const shopModal = document.getElementById('shop-modal');
     if (shopModal) {
         shopModal.classList.remove('hidden');
@@ -1871,7 +1871,7 @@ function buySkin(skin) {
         // Update display
         updateShopDisplay();
 
-        // console.log(`Skin ${skin} gekauft! Verbleibende Münzen: ${totalCoins}`);
+        // // console.log(`Skin ${skin} gekauft! Verbleibende Münzen: ${totalCoins}`);
     }
 }
 
@@ -1889,17 +1889,17 @@ function addCoins(amount) {
     //     hudCoinsElement.textContent = totalCoins;
     // }
 
-    // console.log(`${amount} Münzen hinzugefügt! Gesamt: ${totalCoins}`);
+    // // console.log(`${amount} Münzen hinzugefügt! Gesamt: ${totalCoins}`);
 }
 
 function createDynamicBackground() {
-    // console.log('Creating dynamic background...');
+    // // console.log('Creating dynamic background...');
 
     // Select a random background theme
     const bg = backgrounds[currentBackgroundIndex];
     currentBackgroundIndex = (currentBackgroundIndex + 1) % backgrounds.length;
 
-    // console.log('Using background:', bg.name);
+    // // console.log('Using background:', bg.name);
 
     // Create gradient background that covers the entire world
     const graphics = this.add.graphics();
@@ -1978,15 +1978,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const playBtn = document.getElementById('play-btn');
     if (playBtn) {
         playBtn.addEventListener('click', () => {
-            // console.log('Play button clicked');
+            // // console.log('Play button clicked');
 
             // Try to start music on first user interaction
             if (window.game && window.game.backgroundMusic) {
                 try {
                     window.game.backgroundMusic.start();
-                    // console.log('Werewolf music started on button click');
+                    // // console.log('Werewolf music started on button click');
                 } catch (error) {
-                    // console.log('Music start failed:', error);
+                    // // console.log('Music start failed:', error);
                 }
             }
 
@@ -1995,7 +1995,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.authManager.checkAuthStatus();
             } else {
                 // Fallback: start game directly
-                // console.log('No auth manager found, starting game directly');
+                // // console.log('No auth manager found, starting game directly');
                 startGame();
             }
         });
@@ -2003,39 +2003,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // In-game menu button event listener
     const menuBtn = document.getElementById('menu-btn');
-    // console.log('Menu button element:', menuBtn);
+    // // console.log('Menu button element:', menuBtn);
     if (menuBtn) {
         menuBtn.addEventListener('click', () => {
-            // console.log('Menu button clicked!');
+            // // console.log('Menu button clicked!');
             toggleInGameMenu();
         });
     } else {
-        // console.error('Menu button not found!');
+        // // console.error('Menu button not found!');
     }
 
     // Home shop button event listener
     const homeShopBtn = document.getElementById('home-shop-btn');
-    // console.log('Home shop button element:', homeShopBtn);
+    // // console.log('Home shop button element:', homeShopBtn);
     if (homeShopBtn) {
         homeShopBtn.addEventListener('click', () => {
-            // console.log('Home shop button clicked!');
+            // // console.log('Home shop button clicked!');
             openHomeShop();
         });
     } else {
-        // console.error('Home shop button not found!');
+        // // console.error('Home shop button not found!');
     }
 
     // Home leaderboard button event listener
     const homeLeaderboardBtn = document.getElementById('home-leaderboard-btn');
-    // console.log('Home leaderboard button element:', homeLeaderboardBtn);
+    // // console.log('Home leaderboard button element:', homeLeaderboardBtn);
     if (homeLeaderboardBtn) {
         homeLeaderboardBtn.addEventListener('click', (e) => {
-            // console.log('Home leaderboard button clicked!', e);
-            // console.log('showLeaderboard function exists:', typeof showLeaderboard);
+            // // console.log('Home leaderboard button clicked!', e);
+            // // console.log('showLeaderboard function exists:', typeof showLeaderboard);
             showLeaderboard();
         });
     } else {
-        // console.error('Home leaderboard button not found!');
+        // // console.error('Home leaderboard button not found!');
     }
 
     // NOTE: Logout button is registered in auth.js to avoid conflicts
@@ -2080,3 +2080,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 });
+

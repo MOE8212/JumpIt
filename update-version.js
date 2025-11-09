@@ -25,7 +25,7 @@ try {
         commitMsg = 'Initial commit';
     }
 
-    console.log(`🔄 Updating version info to: ${currentHash}`);
+    // console.log(`🔄 Updating version info to: ${currentHash}`);
 
     // Read index.html
     let content = fs.readFileSync('index.html', 'utf-8');
@@ -45,11 +45,12 @@ try {
     // Write back to file
     fs.writeFileSync('index.html', content, 'utf-8');
 
-    console.log('✅ Version info updated successfully!');
+    // console.log('✅ Version info updated successfully!');
     process.exit(0);
 
 } catch (error) {
-    console.error('❌ Error updating version:', error.message);
+    // console.error('❌ Error updating version:', error.message);
     process.exit(1);
 }
+
 

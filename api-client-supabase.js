@@ -11,26 +11,26 @@ class SupabaseApiClient {
     // Set to false to require Supabase connection (recommended)
     this.OFFLINE_MODE_ENABLED = false;
 
-    console.log('🔌 Supabase API Client initialized');
-    console.log('📱 Offline mode:', this.OFFLINE_MODE_ENABLED ? 'ENABLED' : 'DISABLED');
+    // // console.log('🔌 Supabase API Client initialized');
+    // // console.log('📱 Offline mode:', this.OFFLINE_MODE_ENABLED ? 'ENABLED' : 'DISABLED');
 
     // Check initial session
     this.checkSession();
   }
 
   async checkSession() {
-    console.log('🔍 [DEBUG] checkSession() started');
-    console.log('🔍 [DEBUG] Supabase client:', this.supabase);
+    // // console.log('🔍 [DEBUG] checkSession() started');
+    // // console.log('🔍 [DEBUG] Supabase client:', this.supabase);
     
     try {
-      console.log('🔍 [DEBUG] Calling getSession()...');
+      // // console.log('🔍 [DEBUG] Calling getSession()...');
       const startTime = Date.now();
       const { data: { session }, error } = await this.supabase.auth.getSession();
       const duration = Date.now() - startTime;
       
-      console.log(`🔍 [DEBUG] getSession() completed in ${duration}ms`);
-      console.log('🔍 [DEBUG] Session data:', session);
-      console.log('🔍 [DEBUG] Error:', error);
+      // // console.log(`🔍 [DEBUG] getSession() completed in ${duration}ms`);
+      // // console.log('🔍 [DEBUG] Session data:', session);
+      // // console.log('🔍 [DEBUG] Error:', error);
       
       if (error) {
         throw error;
@@ -39,30 +39,30 @@ class SupabaseApiClient {
       if (session) {
         this.session = session;
         this.currentUser = session.user;
-        console.log('✅ Session restored:', this.currentUser.email);
+        // // console.log('✅ Session restored:', this.currentUser.email);
       } else {
-        console.log('ℹ️ No active session found');
+        // // console.log('ℹ️ No active session found');
       }
       this.isOfflineMode = false;
     } catch (error) {
-      console.error('❌ [DEBUG] checkSession() error:', error);
-      console.error('❌ [DEBUG] Error type:', error.constructor.name);
-      console.error('❌ [DEBUG] Error message:', error.message);
-      console.error('❌ [DEBUG] Error stack:', error.stack);
+      // // console.error('❌ [DEBUG] checkSession() error:', error);
+      // // console.error('❌ [DEBUG] Error type:', error.constructor.name);
+      // // console.error('❌ [DEBUG] Error message:', error.message);
+      // // console.error('❌ [DEBUG] Error stack:', error.stack);
       
       // Only use offline mode if explicitly enabled
       if (this.OFFLINE_MODE_ENABLED) {
-        console.warn('⚠️ Supabase not reachable, using offline mode:', error.message);
+        // // console.warn('⚠️ Supabase not reachable, using offline mode:', error.message);
         this.isOfflineMode = true;
         
         // Try to restore from localStorage
         const savedUser = localStorage.getItem('jumpit_user_offline');
         if (savedUser) {
           this.currentUser = JSON.parse(savedUser);
-          console.log('📱 Offline user restored:', this.currentUser.username);
+          // // console.log('📱 Offline user restored:', this.currentUser.username);
         }
       } else {
-        console.error('❌ Supabase nicht erreichbar. Bitte prüfen Sie Ihre Internetverbindung.');
+        // // console.error('❌ Supabase nicht erreichbar. Bitte prüfen Sie Ihre Internetverbindung.');
         // Don't switch to offline mode - throw error instead
       }
     }
@@ -71,20 +71,20 @@ class SupabaseApiClient {
   // ==================== AUTH APIs ====================
 
   async register(username, email, password) {
-    console.log('🔍 [DEBUG] register() called');
-    console.log('🔍 [DEBUG] Username:', username);
-    console.log('🔍 [DEBUG] Email:', email);
-    console.log('🔍 [DEBUG] isOfflineMode:', this.isOfflineMode);
-    console.log('🔍 [DEBUG] OFFLINE_MODE_ENABLED:', this.OFFLINE_MODE_ENABLED);
+    // // console.log('🔍 [DEBUG] register() called');
+    // // console.log('🔍 [DEBUG] Username:', username);
+    // // console.log('🔍 [DEBUG] Email:', email);
+    // // console.log('🔍 [DEBUG] isOfflineMode:', this.isOfflineMode);
+    // // console.log('🔍 [DEBUG] OFFLINE_MODE_ENABLED:', this.OFFLINE_MODE_ENABLED);
     
     // Offline Fallback (only if enabled)
     if (this.isOfflineMode && this.OFFLINE_MODE_ENABLED) {
-      console.log('⚠️ [DEBUG] Using offline fallback');
+      // // console.log('⚠️ [DEBUG] Using offline fallback');
       return this._registerOffline(username, email, password);
     }
 
     try {
-      console.log('🔍 [DEBUG] Calling Supabase signUp()...');
+      // // console.log('🔍 [DEBUG] Calling Supabase signUp()...');
       const startTime = Date.now();
       
       // 1. Erstelle Auth User (Supabase Auth)
@@ -99,13 +99,13 @@ class SupabaseApiClient {
       });
       
       const duration = Date.now() - startTime;
-      console.log(`🔍 [DEBUG] signUp() completed in ${duration}ms`);
-      console.log('🔍 [DEBUG] Auth data:', authData);
-      console.log('🔍 [DEBUG] Auth error:', authError);
+      // // console.log(`🔍 [DEBUG] signUp() completed in ${duration}ms`);
+      // // console.log('🔍 [DEBUG] Auth data:', authData);
+      // // console.log('🔍 [DEBUG] Auth error:', authError);
 
       if (authError) {
-        console.error('❌ [DEBUG] Supabase signUp error:', authError);
-        console.error('❌ [DEBUG] Error details:', {
+        // // console.error('❌ [DEBUG] Supabase signUp error:', authError);
+        // // console.error('❌ [DEBUG] Error details:', {
           message: authError.message,
           status: authError.status,
           code: authError.code,
@@ -134,18 +134,18 @@ class SupabaseApiClient {
           .single();
 
         if (dbError) {
-          console.warn('⚠️ DB insert warning:', dbError.message);
+          // // console.warn('⚠️ DB insert warning:', dbError.message);
           // User existiert schon in DB - das ist okay
         }
       } catch (dbErr) {
-        console.warn('⚠️ DB insert failed (user might already exist):', dbErr);
+        // // console.warn('⚠️ DB insert failed (user might already exist):', dbErr);
         // Nicht kritisch - Auth User wurde erstellt
       }
 
       this.session = authData.session;
       this.currentUser = authData.user;
 
-      console.log('✅ Registration successful:', username);
+      // // console.log('✅ Registration successful:', username);
 
       return {
         user: {
@@ -156,7 +156,7 @@ class SupabaseApiClient {
         session: authData.session
       };
     } catch (error) {
-      console.error('Registration error:', error);
+      // // console.error('Registration error:', error);
       
       // Benutzerfreundliche Fehlermeldungen
       let userMessage = 'Registrierung fehlgeschlagen';
@@ -177,7 +177,7 @@ class SupabaseApiClient {
       
       // Fallback to offline mode if network error (only if enabled)
       if (this.OFFLINE_MODE_ENABLED && (error.message.includes('fetch') || error.message.includes('NetworkError'))) {
-        console.warn('⚠️ Network error detected, switching to offline mode');
+        // // console.warn('⚠️ Network error detected, switching to offline mode');
         this.isOfflineMode = true;
         return this._registerOffline(username, email, password);
       }
@@ -187,7 +187,7 @@ class SupabaseApiClient {
   }
 
   _registerOffline(username, email, password) {
-    console.log('📱 OFFLINE REGISTRATION:', username);
+    // // console.log('📱 OFFLINE REGISTRATION:', username);
     
     const user = {
       id: 'offline-' + Date.now(),
@@ -225,7 +225,7 @@ class SupabaseApiClient {
   }
 
   async login(email, password) {
-    console.log('🔍 [DEBUG] login() called with email:', email);
+    // // console.log('🔍 [DEBUG] login() called with email:', email);
     
     // Offline Fallback (only if enabled)
     if (this.isOfflineMode && this.OFFLINE_MODE_ENABLED) {
@@ -239,7 +239,7 @@ class SupabaseApiClient {
       });
 
       if (error) {
-        console.error('🔍 [DEBUG] Login error details:', {
+        // // console.error('🔍 [DEBUG] Login error details:', {
           message: error.message,
           status: error.status,
           name: error.name
@@ -250,7 +250,7 @@ class SupabaseApiClient {
       this.session = data.session;
       this.currentUser = data.user;
 
-      console.log('✅ Login successful:', email);
+      // // console.log('✅ Login successful:', email);
 
       return {
         user: {
@@ -261,7 +261,7 @@ class SupabaseApiClient {
         session: data.session
       };
     } catch (error) {
-      console.error('❌ Login error:', error);
+      // // console.error('❌ Login error:', error);
       
       // Provide better error messages
       let errorMessage = 'Login fehlgeschlagen';
@@ -276,7 +276,7 @@ class SupabaseApiClient {
       } else if (error.message.includes('Email not confirmed')) {
         errorMessage = 'E-Mail nicht bestätigt!\n\nBitte prüfen Sie Ihren Posteingang und bestätigen Sie Ihre E-Mail-Adresse.';
       } else if (this.OFFLINE_MODE_ENABLED && (error.message.includes('fetch') || error.message.includes('NetworkError'))) {
-        console.warn('⚠️ Network error detected, switching to offline mode');
+        // // console.warn('⚠️ Network error detected, switching to offline mode');
         this.isOfflineMode = true;
         return this._loginOffline(email, password);
       }
@@ -286,7 +286,7 @@ class SupabaseApiClient {
   }
 
   _loginOffline(usernameOrEmail, password) {
-    console.log('📱 OFFLINE LOGIN:', usernameOrEmail);
+    // // console.log('📱 OFFLINE LOGIN:', usernameOrEmail);
 
     // Try to find user
     const allUsers = this._getAllUsersOffline();
@@ -321,11 +321,11 @@ class SupabaseApiClient {
   async logout() {
     const { error } = await this.supabase.auth.signOut();
     if (error) {
-      console.error('Logout error:', error);
+      // // console.error('Logout error:', error);
     }
     this.session = null;
     this.currentUser = null;
-    console.log('✅ Logged out');
+    // // console.log('✅ Logged out');
   }
 
   isAuthenticated() {
@@ -335,7 +335,7 @@ class SupabaseApiClient {
   setAdminPassword(password) {
     this.adminPassword = password;
     localStorage.setItem('jumpit_admin_password', password);
-    console.log('✅ Admin password set');
+    // // console.log('✅ Admin password set');
   }
 
   clearAdminPassword() {
@@ -346,11 +346,11 @@ class SupabaseApiClient {
   // ==================== SCORE APIs ====================
 
   async submitScore(score, coins, time) {
-    console.log('🔍 [API] submitScore called:', { score, coins, time });
-    console.log('🔍 [API] isAuthenticated:', this.isAuthenticated());
-    console.log('🔍 [API] currentUser:', this.currentUser);
-    console.log('🔍 [API] isOfflineMode:', this.isOfflineMode);
-    console.log('🔍 [API] navigator.onLine:', navigator.onLine);
+    // // console.log('🔍 [API] submitScore called:', { score, coins, time });
+    // // console.log('🔍 [API] isAuthenticated:', this.isAuthenticated());
+    // // console.log('🔍 [API] currentUser:', this.currentUser);
+    // // console.log('🔍 [API] isOfflineMode:', this.isOfflineMode);
+    // // console.log('🔍 [API] navigator.onLine:', navigator.onLine);
 
     if (!this.isAuthenticated()) {
       throw new Error('Not authenticated');
@@ -367,8 +367,8 @@ class SupabaseApiClient {
                       this.currentUser.email?.split('@')[0] || 
                       'Unknown';
 
-      console.log('🔍 [API] Inserting score into Supabase...');
-      console.log('🔍 [API] Data:', {
+      // // console.log('🔍 [API] Inserting score into Supabase...');
+      // // console.log('🔍 [API] Data:', {
         user_id: this.currentUser.id,
         username: username,
         score: score,
@@ -392,11 +392,11 @@ class SupabaseApiClient {
         .single();
       
       const duration = Date.now() - startTime;
-      console.log(`🔍 [API] Insert completed in ${duration}ms`);
+      // // console.log(`🔍 [API] Insert completed in ${duration}ms`);
 
       if (error) {
-        console.error('❌ [API] Supabase insert error:', error);
-        console.error('❌ [API] Error details:', {
+        // // console.error('❌ [API] Supabase insert error:', error);
+        // // console.error('❌ [API] Error details:', {
           message: error.message,
           code: error.code,
           hint: error.hint,
@@ -406,14 +406,14 @@ class SupabaseApiClient {
         throw error;
       }
 
-      console.log('✅ [API] Score submitted successfully:', score);
-      console.log('✅ [API] Response data:', data);
+      // // console.log('✅ [API] Score submitted successfully:', score);
+      // // console.log('✅ [API] Response data:', data);
       return data;
     } catch (error) {
-      console.error('❌ [API] Submit score error:', error);
-      console.error('❌ [API] Error type:', error.constructor.name);
-      console.error('❌ [API] Error message:', error.message);
-      console.error('❌ [API] Error stack:', error.stack);
+      // // console.error('❌ [API] Submit score error:', error);
+      // // console.error('❌ [API] Error type:', error.constructor.name);
+      // // console.error('❌ [API] Error message:', error.message);
+      // // console.error('❌ [API] Error stack:', error.stack);
       
       // Check if it's a network error
       const isNetworkError = error.message.includes('fetch') || 
@@ -422,11 +422,11 @@ class SupabaseApiClient {
                             error.message.includes('timeout') ||
                             !navigator.onLine;
       
-      console.log('🔍 [API] Is network error?', isNetworkError);
+      // // console.log('🔍 [API] Is network error?', isNetworkError);
 
       // Fallback to offline (only if enabled)
       if (this.OFFLINE_MODE_ENABLED && isNetworkError) {
-        console.warn('⚠️ [API] Switching to offline mode due to network error');
+        // // console.warn('⚠️ [API] Switching to offline mode due to network error');
         this.isOfflineMode = true;
         return this._submitScoreOffline(score, coins, time);
       }
@@ -447,7 +447,7 @@ class SupabaseApiClient {
   }
 
   _submitScoreOffline(score, coins, time) {
-    console.log('📱 OFFLINE SCORE SUBMIT:', score);
+    // // console.log('📱 OFFLINE SCORE SUBMIT:', score);
 
     let leaderboard = JSON.parse(localStorage.getItem('jumpit_leaderboard_offline') || '[]');
     
@@ -483,11 +483,11 @@ class SupabaseApiClient {
 
       if (error) {
         // Fallback: If RPC function doesn't exist, use simple query with client-side grouping
-        console.log('⚠️ RPC function not found, using fallback method');
+        // // console.log('⚠️ RPC function not found, using fallback method');
         return await this._getLeaderboardFallback(limit);
       }
 
-      console.log('📊 Leaderboard loaded via RPC:', data.length, 'unique users');
+      // // console.log('📊 Leaderboard loaded via RPC:', data.length, 'unique users');
       
       const result = data.map(entry => ({
         username: entry.username,
@@ -499,7 +499,7 @@ class SupabaseApiClient {
 
       return { leaderboard: result };
     } catch (error) {
-      console.error('Leaderboard error:', error);
+      // // console.error('Leaderboard error:', error);
       // Fallback to offline (only if enabled)
       if (this.OFFLINE_MODE_ENABLED && (error.message.includes('fetch') || error.message.includes('NetworkError'))) {
         this.isOfflineMode = true;
@@ -520,7 +520,7 @@ class SupabaseApiClient {
 
       if (error) throw error;
 
-      console.log('📊 Fallback: Loaded', data.length, 'scores');
+      // // console.log('📊 Fallback: Loaded', data.length, 'scores');
 
       // Group by username and get best score for each user
       const leaderboard = {};
@@ -546,16 +546,16 @@ class SupabaseApiClient {
         .sort((a, b) => b.score - a.score)
         .slice(0, limit);
 
-      console.log('📊 Fallback: Grouped to', result.length, 'unique users');
+      // // console.log('📊 Fallback: Grouped to', result.length, 'unique users');
       return { leaderboard: result };
     } catch (error) {
-      console.error('Fallback leaderboard error:', error);
+      // // console.error('Fallback leaderboard error:', error);
       return { leaderboard: [] };
     }
   }
 
   _getLeaderboardOffline(limit = 10) {
-    console.log('📱 OFFLINE LEADERBOARD');
+    // // console.log('📱 OFFLINE LEADERBOARD');
     
     const leaderboard = JSON.parse(localStorage.getItem('jumpit_leaderboard_offline') || '[]');
     
@@ -592,7 +592,7 @@ class SupabaseApiClient {
 
       return { bestScore: data?.score || 0 };
     } catch (error) {
-      console.error('Get best score error:', error);
+      // // console.error('Get best score error:', error);
       return { bestScore: 0 };
     }
   }
@@ -625,7 +625,7 @@ class SupabaseApiClient {
 
       return { users: enrichedUsers };
     } catch (error) {
-      console.error('Get admin users error:', error);
+      // // console.error('Get admin users error:', error);
       throw error;
     }
   }
@@ -641,10 +641,10 @@ class SupabaseApiClient {
 
       if (error) throw error;
 
-      console.log('✅ User updated:', userId);
+      // // console.log('✅ User updated:', userId);
       return data;
     } catch (error) {
-      console.error('Update user error:', error);
+      // // console.error('Update user error:', error);
       throw error;
     }
   }
@@ -659,10 +659,10 @@ class SupabaseApiClient {
 
       if (error) throw error;
 
-      console.log('✅ User deleted:', userId);
+      // // console.log('✅ User deleted:', userId);
       return { success: true };
     } catch (error) {
-      console.error('Delete user error:', error);
+      // // console.error('Delete user error:', error);
       throw error;
     }
   }
@@ -690,7 +690,7 @@ class SupabaseApiClient {
 
       return { sessions };
     } catch (error) {
-      console.error('Get admin sessions error:', error);
+      // // console.error('Get admin sessions error:', error);
       throw error;
     }
   }
@@ -706,10 +706,10 @@ class SupabaseApiClient {
 
       if (error) throw error;
 
-      console.log('✅ Session updated:', sessionId);
+      // // console.log('✅ Session updated:', sessionId);
       return data;
     } catch (error) {
-      console.error('Update session error:', error);
+      // // console.error('Update session error:', error);
       throw error;
     }
   }
@@ -723,10 +723,10 @@ class SupabaseApiClient {
 
       if (error) throw error;
 
-      console.log('✅ Session deleted:', sessionId);
+      // // console.log('✅ Session deleted:', sessionId);
       return { success: true };
     } catch (error) {
-      console.error('Delete session error:', error);
+      // // console.error('Delete session error:', error);
       throw error;
     }
   }
@@ -742,7 +742,7 @@ class SupabaseApiClient {
 
       return data;
     } catch (error) {
-      console.error('Get admin stats error:', error);
+      // // console.error('Get admin stats error:', error);
       return {
         totalUsers: 0,
         totalGames: 0,
@@ -784,9 +784,10 @@ window.apiClient = new SupabaseApiClient();
 window.addEventListener('load', async () => {
   const health = await window.apiClient.healthCheck();
   if (health.status === 'OK') {
-    console.log('✅ Supabase connected:', health.timestamp);
+    // // console.log('✅ Supabase connected:', health.timestamp);
   } else {
-    console.error('❌ Supabase connection failed:', health.error);
+    // // console.error('❌ Supabase connection failed:', health.error);
   }
 });
+
 

@@ -9,7 +9,7 @@ class APIClient {
     this.offlineMode = false;
     this.backendAvailable = false;
 
-    console.log('🔌 API Client initialized:', this.baseURL);
+    // console.log('🔌 API Client initialized:', this.baseURL);
     this.checkBackendAvailability();
   }
 
@@ -20,7 +20,7 @@ class APIClient {
     // Erlaube manuelles Überschreiben der Backend-URL via localStorage
     const customBackendURL = localStorage.getItem('jumpit_backend_url');
     if (customBackendURL) {
-      console.log('📍 Using custom backend URL:', customBackendURL);
+      // console.log('📍 Using custom backend URL:', customBackendURL);
       return customBackendURL;
     }
 
@@ -28,7 +28,7 @@ class APIClient {
       return 'http://localhost:3001/api';
     } else {
       // Production: GitHub Pages - Offline-Modus
-      console.log('⚠️ Production mode - Backend offline, using localStorage');
+      // console.log('⚠️ Production mode - Backend offline, using localStorage');
       this.offlineMode = true;
       return null;
     }
@@ -40,10 +40,10 @@ class APIClient {
       if (health.status === 'OK') {
         this.backendAvailable = true;
         this.offlineMode = false;
-        console.log('✅ Backend connected:', health.timestamp);
+        // console.log('✅ Backend connected:', health.timestamp);
       }
     } catch (error) {
-      console.warn('⚠️ Backend nicht erreichbar - Fallback auf localStorage');
+      // console.warn('⚠️ Backend nicht erreichbar - Fallback auf localStorage');
       this.offlineMode = true;
       this.backendAvailable = false;
     }
@@ -76,7 +76,7 @@ class APIClient {
     const url = `${this.baseURL}${endpoint}`;
 
     try {
-      console.log(`🌐 API Request: ${options.method || 'GET'} ${endpoint}`);
+      // console.log(`🌐 API Request: ${options.method || 'GET'} ${endpoint}`);
 
       const response = await fetch(url, {
         ...options,
@@ -89,14 +89,14 @@ class APIClient {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error('❌ API Error:', data);
+        // console.error('❌ API Error:', data);
         throw new Error(data.error || 'API Request failed');
       }
 
-      console.log('✅ API Success:', endpoint);
+      // console.log('✅ API Success:', endpoint);
       return data;
     } catch (error) {
-      console.error('❌ API Request failed:', error);
+      // console.error('❌ API Request failed:', error);
       // Bei Netzwerkfehler -> Offline-Modus aktivieren
       this.offlineMode = true;
       this.backendAvailable = false;
@@ -213,7 +213,7 @@ class APIClient {
     try {
       return await this.request('/health');
     } catch (error) {
-      console.error('⚠️ Backend nicht erreichbar!', error);
+      // console.error('⚠️ Backend nicht erreichbar!', error);
       return { status: 'offline' };
     }
   }
@@ -236,9 +236,10 @@ window.apiClient = new APIClient();
 window.addEventListener('load', async () => {
   const health = await window.apiClient.healthCheck();
   if (health.status === 'OK') {
-    console.log('✅ Backend connected:', health.timestamp);
+    // console.log('✅ Backend connected:', health.timestamp);
   } else {
-    console.warn('⚠️ Backend offline - Fallback auf localStorage');
+    // console.warn('⚠️ Backend offline - Fallback auf localStorage');
   }
 });
+
 

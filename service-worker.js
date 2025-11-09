@@ -16,22 +16,22 @@ const urlsToCache = [
 
 // Install Service Worker
 self.addEventListener('install', event => {
-  console.log('Service Worker: Installing...');
+  // // console.log('Service Worker: Installing...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Service Worker: Caching files');
+        // // console.log('Service Worker: Caching files');
         // Use addAll with individual error handling
         return Promise.all(
           urlsToCache.map(url => {
             return cache.add(url).catch(err => {
-              console.warn('Service Worker: Failed to cache:', url, err);
+              // // console.warn('Service Worker: Failed to cache:', url, err);
               return null; // Continue even if one fails
             });
           })
         );
       })
-      .catch(err => console.log('Service Worker: Cache failed', err))
+      .catch(err => // // console.log('Service Worker: Cache failed', err))
   );
   self.skipWaiting(); // Force immediate activation
 });
@@ -45,13 +45,13 @@ self.addEventListener('message', event => {
 
 // Activate Service Worker
 self.addEventListener('activate', event => {
-  console.log('Service Worker: Activating...');
+  // // console.log('Service Worker: Activating...');
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cache => {
           if (cache !== CACHE_NAME) {
-            console.log('Service Worker: Clearing old cache:', cache);
+            // // console.log('Service Worker: Clearing old cache:', cache);
             return caches.delete(cache);
           }
         })
@@ -95,7 +95,7 @@ self.addEventListener('fetch', event => {
         return response;
       })
       .catch(error => {
-        console.log('Service Worker: Fetch failed, trying cache:', event.request.url);
+        // // console.log('Service Worker: Fetch failed, trying cache:', event.request.url);
         // If network fails, try cache
         return caches.match(event.request).then(cachedResponse => {
           if (cachedResponse) {
@@ -113,4 +113,5 @@ self.addEventListener('fetch', event => {
       })
   );
 });
+
 

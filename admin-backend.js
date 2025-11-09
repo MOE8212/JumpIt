@@ -7,7 +7,7 @@ class AdminPanel {
   }
 
   init() {
-    console.log('Admin panel initialized (BACKEND MODE)');
+    // console.log('Admin panel initialized (BACKEND MODE)');
     this.isAdmin = true; // Für Demo - in Production richtig prüfen
     this.setupEventListeners();
     this.trackPageView();
@@ -55,12 +55,12 @@ class AdminPanel {
 
   trackGameSession(username) {
     // Wird für Backend-Modus nicht mehr genutzt
-    console.log('trackGameSession called (legacy)');
+    // console.log('trackGameSession called (legacy)');
   }
 
   trackGameSessionWithScore(username, score, coins, time) {
     // Backend handled das bereits
-    console.log('trackGameSessionWithScore called (handled by backend)');
+    // console.log('trackGameSessionWithScore called (handled by backend)');
   }
 
   getUserStats() {
@@ -78,7 +78,7 @@ class AdminPanel {
     if (modal) {
       await this.updateAdminStats();
       modal.classList.remove('hidden');
-      console.log('Admin panel shown');
+      // console.log('Admin panel shown');
     }
   }
 
@@ -107,7 +107,7 @@ class AdminPanel {
       this.updateUsersList(usersData.users);
       this.updateGameSessionsList(sessionsData.sessions);
     } catch (error) {
-      console.error('Failed to load admin data:', error);
+      // console.error('Failed to load admin data:', error);
       alert('⚠️ Konnte Admin-Daten nicht laden. Ist das Backend erreichbar?');
     }
   }
@@ -336,12 +336,12 @@ class AdminPanel {
 
 // Leaderboard anzeigen (Backend-Version)
 async function showLeaderboard() {
-  console.log('=== SHOWING LEADERBOARD (BACKEND) ===');
+  // console.log('=== SHOWING LEADERBOARD (BACKEND) ===');
   const modal = document.getElementById('leaderboard-modal');
   const list = document.getElementById('leaderboard-list');
 
   if (!modal || !list) {
-    console.error('Leaderboard elements not found');
+    // console.error('Leaderboard elements not found');
     return;
   }
 
@@ -378,7 +378,7 @@ async function showLeaderboard() {
 
     modal.classList.remove('hidden');
   } catch (error) {
-    console.error('Failed to load leaderboard:', error);
+    // console.error('Failed to load leaderboard:', error);
     list.innerHTML = '<p style="color: red;">⚠️ Fehler beim Laden der Rangliste</p>';
     modal.classList.remove('hidden');
   }
@@ -389,4 +389,5 @@ function formatTime(seconds) {
   const secs = seconds % 60;
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
+
 
